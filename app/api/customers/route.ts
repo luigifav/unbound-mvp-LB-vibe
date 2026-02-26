@@ -38,8 +38,8 @@ import type { CreateCustomerData, CreateWalletData } from '@/types'
 //   "address": { ... }
 // }
 //
-// Exemplo de teste com curl:
-// curl -X POST http://localhost:3000/api/customers \
+// Exemplo de teste com curl (substitua pela URL do seu projeto na Vercel):
+// curl -X POST https://unbound-mvp.vercel.app/api/customers \
 //   -H "Content-Type: application/json" \
 //   -d '{
 //     "type": "individual",

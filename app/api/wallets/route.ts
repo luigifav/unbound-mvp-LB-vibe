@@ -16,8 +16,8 @@ import type { CreateWalletData } from '@/types'
 //                                       // valores aceitos: "solana", "ethereum", "polygon"
 // }
 //
-// Exemplo de teste com curl:
-// curl -X POST http://localhost:3000/api/wallets \
+// Exemplo de teste com curl (substitua pela URL do seu projeto na Vercel):
+// curl -X POST https://unbound-mvp.vercel.app/api/wallets \
 //   -H "Content-Type: application/json" \
 //   -d '{
 //     "customerId": "uuid-do-customer-aqui",

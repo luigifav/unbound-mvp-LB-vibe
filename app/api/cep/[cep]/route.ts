@@ -35,9 +35,9 @@ interface ViaCepResponse {
 //   "address": { ... }   ← já no formato Address do projeto
 // }
 //
-// Exemplo de teste com curl:
-// curl http://localhost:3000/api/cep/01310100
-// curl http://localhost:3000/api/cep/01310-100
+// Exemplo de teste com curl (substitua pela URL do seu projeto na Vercel):
+// curl https://unbound-mvp.vercel.app/api/cep/01310100
+// curl https://unbound-mvp.vercel.app/api/cep/01310-100
 
 export async function GET(
   _request: NextRequest,

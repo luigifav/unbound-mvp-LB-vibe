@@ -1,6 +1,9 @@
 "use client";
 
 import { useState, useRef, type ReactNode, type CSSProperties, type InputHTMLAttributes, type ChangeEvent } from "react";
+import { useRouter } from "next/navigation";
+import LoadingButton from "@/components/ui/LoadingButton";
+import Feedback from "@/components/ui/Feedback";
 
 // ─── Design tokens ────────────────────────────────────────────────
 const C = {
@@ -224,10 +227,14 @@ function StepHeader({ title, sub }: { title: string; sub: string }) {
 }
 
 // ─── Step 1: Personal ─────────────────────────────────────────────
-function Step1({ data, onChange, errors }: {
+function Step1({ data, onChange, errors, senha, confirmarSenha, onSenhaChange, onConfirmarSenhaChange }: {
   data: FormData;
   onChange: (key: string, value: string) => void;
   errors: Record<string, string | undefined>;
+  senha: string;
+  confirmarSenha: string;
+  onSenhaChange: (value: string) => void;
+  onConfirmarSenhaChange: (value: string) => void;
 }) {
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: "18px", animation: "fadeUp 0.3s ease" }}>
@@ -239,6 +246,9 @@ function Step1({ data, onChange, errors }: {
       <Input label="E-mail" type="email" value={data.email} onChange={(e: ChangeEvent<HTMLInputElement>) => onChange("email", e.target.value)} error={errors.email} placeholder="joao@email.com" />
       <Input label="Telefone" type="tel" value={data.phone_number} onChange={(e: ChangeEvent<HTMLInputElement>) => onChange("phone_number", e.target.value)} error={errors.phone_number} placeholder="+55 11 91234-5678" />
       <Input label="Data de Nascimento" type="date" value={data.date_of_birth} onChange={(e: ChangeEvent<HTMLInputElement>) => onChange("date_of_birth", e.target.value)} error={errors.date_of_birth} />
+      {/* Campos de senha — validados localmente, não enviados à API */}
+      <Input label="Senha" type="password" value={senha} onChange={(e: ChangeEvent<HTMLInputElement>) => onSenhaChange(e.target.value)} error={errors.senha} placeholder="Mínimo 6 caracteres" />
+      <Input label="Confirmar Senha" type="password" value={confirmarSenha} onChange={(e: ChangeEvent<HTMLInputElement>) => onConfirmarSenhaChange(e.target.value)} error={errors.confirmarSenha} placeholder="Repita a senha" />
     </div>
   );
 }
@@ -612,38 +622,6 @@ function Step4({ data }: { data: FormData }) {
   );
 }
 
-// ─── Success ───────────────────────────────────────────────────────
-function SuccessScreen() {
-  return (
-    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "28px", padding: "20px 0 8px", animation: "fadeUp 0.5s ease" }}>
-      <div style={{ width: "72px", height: "72px", borderRadius: "50%", background: C.purpleDim, border: `2px solid ${C.purple}`, display: "flex", alignItems: "center", justifyContent: "center" }}>
-        <div style={{ width: "32px", height: "32px", border: `3px solid ${C.purpleBorder}`, borderTopColor: C.purple, borderRadius: "50%", animation: "spin 1s linear infinite" }} />
-      </div>
-      <div style={{ textAlign: "center" }}>
-        <h2 style={{ fontFamily: font, fontWeight: 900, fontSize: "26px", color: C.white, margin: 0, marginBottom: "10px" }}>Sua conta está sendo criada</h2>
-        <p style={{ fontFamily: font, fontWeight: 500, fontSize: "14px", color: C.textMuted, margin: 0, lineHeight: "1.7", maxWidth: "320px" }}>
-          Sua identidade está sendo verificada. Entraremos em contato por e-mail assim que sua conta for aprovada — geralmente em minutos.
-        </p>
-      </div>
-      <div style={{ width: "100%", background: C.grayLight, border: `1px solid ${C.grayBorder}`, borderRadius: "12px", padding: "20px 24px", display: "flex", flexDirection: "column", gap: "14px" }}>
-        {[
-          { label: "Conta criada", done: true },
-          { label: "KYC em análise", done: false, active: true },
-          { label: "Carteira ativada", done: false },
-        ].map((item, i) => (
-          <div key={i} style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-            <div style={{ width: "20px", height: "20px", borderRadius: "50%", background: item.done ? C.purple : "transparent", border: `2px solid ${item.done ? C.purple : item.active ? C.purpleBorder : "rgba(255,255,255,0.1)"}`, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-              {item.done && <svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M2 5l2.5 2.5L8 3" stroke="#fff" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/></svg>}
-              {item.active && !item.done && <div style={{ width: "6px", height: "6px", borderRadius: "50%", background: C.purple }} />}
-            </div>
-            <span style={{ fontFamily: font, fontWeight: 700, fontSize: "13px", color: item.done ? C.white : item.active ? C.textSub : "rgba(255,255,255,0.2)" }}>{item.label}</span>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-}
-
 // ─── Types ─────────────────────────────────────────────────────────
 interface FormData {
   first_name: string;
@@ -664,10 +642,17 @@ interface FormData {
 
 // ─── Main ──────────────────────────────────────────────────────────
 export default function RegisterPage() {
+  const router = useRouter();
   const [step, setStep] = useState(1);
-  const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<Record<string, string | undefined>>({});
+
+  // Estado do feedback de sucesso ou erro
+  const [feedback, setFeedback] = useState<{ type: "success" | "error"; message: string } | null>(null);
+
+  // Campos de senha (não enviados à API, apenas validados localmente)
+  const [senha, setSenha] = useState("");
+  const [confirmarSenha, setConfirmarSenha] = useState("");
 
   const [formData, setFormData] = useState<FormData>({
     first_name: "", last_name: "", email: "", phone_number: "", date_of_birth: "",
@@ -689,6 +674,9 @@ export default function RegisterPage() {
       if (!formData.email.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)) e.email = "Insira um e-mail válido";
       if (!formData.phone_number.trim()) e.phone_number = "Campo obrigatório";
       if (!formData.date_of_birth) e.date_of_birth = "Campo obrigatório";
+      // Validação de senha
+      if (!senha || senha.length < 6) e.senha = "Senha deve ter pelo menos 6 caracteres";
+      if (senha !== confirmarSenha) e.confirmarSenha = "As senhas não coincidem";
     }
     if (step === 2) {
       const cpfDigits = formData.doc_value.replace(/\D/g, "");
@@ -710,37 +698,55 @@ export default function RegisterPage() {
   const back = () => { setStep(s => s - 1); setErrors({}); };
 
   const submit = async () => {
+    // Validação final das senhas antes de chamar a API
+    if (senha !== confirmarSenha) {
+      setFeedback({ type: "error", message: "As senhas não coincidem." });
+      return;
+    }
+
     setLoading(true);
+    setFeedback(null);
+
     const streetFull = [formData.street_line_1, formData.street_number].filter(Boolean).join(", ");
+
     try {
       const res = await fetch("/api/customers", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
+          type: "individual",
           first_name:    formData.first_name,
           last_name:     formData.last_name,
           email:         formData.email,
           phone_number:  formData.phone_number,
           date_of_birth: formData.date_of_birth,
-          cpf:           formData.doc_value,
-          street_line_1: streetFull,
-          street_line_2: formData.street_line_2,
-          city:          formData.city,
-          state:         formData.state,
-          postal_code:   formData.postal_code,
+          // Documento no formato esperado pela UnblockPay
+          identity_documents: [{ type: "tax_id", value: formData.doc_value.replace(/\D/g, ""), country: "BRA" }],
+          // Endereço aninhado conforme exigido pela API
+          address: {
+            street_line_1: streetFull,
+            street_line_2: formData.street_line_2 || undefined,
+            city:          formData.city,
+            state:         formData.state,
+            postal_code:   formData.postal_code.replace(/\D/g, ""),
+            country:       "BRA",
+          },
         }),
       });
 
       const data = await res.json();
-      console.log("Resposta UnblockPay:", data);
 
-      if (!res.ok) throw new Error(data.error || "Erro ao criar conta");
+      // 207 (Multi-Status) indica cliente criado mas wallet falhou — tratado como sucesso parcial
+      if (!res.ok && res.status !== 207) {
+        throw new Error(data.mensagem || data.error || "Erro ao criar conta");
+      }
 
-      setSubmitted(true);
+      // Exibe feedback de sucesso e redireciona para /login após 2 segundos
+      setFeedback({ type: "success", message: "Conta criada com sucesso! Redirecionando para o login..." });
+      setTimeout(() => router.push("/login"), 2000);
     } catch (err) {
       const message = err instanceof Error ? err.message : "Erro desconhecido";
-      console.error("Erro:", message);
-      alert("Erro ao enviar cadastro: " + message);
+      setFeedback({ type: "error", message });
     } finally {
       setLoading(false);
     }
@@ -785,15 +791,35 @@ export default function RegisterPage() {
           borderRadius: "20px", padding: "36px",
           animation: "fadeUp 0.45s ease 0.1s both",
         }}>
-          {!submitted ? (
-            <>
+          <>
               <StepIndicator current={step} />
-              {step === 1 && <Step1 data={formData} onChange={update} errors={errors} />}
+              {step === 1 && (
+                <Step1
+                  data={formData}
+                  onChange={update}
+                  errors={errors}
+                  senha={senha}
+                  confirmarSenha={confirmarSenha}
+                  onSenhaChange={setSenha}
+                  onConfirmarSenhaChange={setConfirmarSenha}
+                />
+              )}
               {step === 2 && <Step2 data={formData} onChange={update} errors={errors} />}
               {step === 3 && <Step3 data={formData} onChange={update} errors={errors} />}
               {step === 4 && <Step4 data={formData} />}
 
-              <div style={{ display: "flex", gap: "10px", marginTop: "32px" }}>
+              {/* Banner de feedback (sucesso ou erro) exibido acima dos botões */}
+              {feedback && (
+                <div style={{ marginTop: "20px" }}>
+                  <Feedback
+                    type={feedback.type}
+                    message={feedback.message}
+                    onClose={() => setFeedback(null)}
+                  />
+                </div>
+              )}
+
+              <div style={{ display: "flex", gap: "10px", marginTop: "20px" }}>
                 {step > 1 && (
                   <button
                     onClick={back}
@@ -809,37 +835,41 @@ export default function RegisterPage() {
                     Voltar
                   </button>
                 )}
-                <button
-                  onClick={step === 4 ? submit : next}
-                  disabled={loading}
-                  style={{
-                    flex: 1, padding: "14px",
-                    background: loading ? "rgba(124,34,213,0.5)" : C.purple,
-                    border: "none", borderRadius: "10px", color: C.white,
-                    fontFamily: font, fontWeight: 900, fontSize: "14px", letterSpacing: "0.02em",
-                    cursor: loading ? "not-allowed" : "pointer",
-                    display: "flex", alignItems: "center", justifyContent: "center", gap: "8px",
-                    transition: "background 0.2s",
-                  }}
-                  onMouseEnter={e => { if (!loading) (e.target as HTMLButtonElement).style.background = C.purpleLight; }}
-                  onMouseLeave={e => { if (!loading) (e.target as HTMLButtonElement).style.background = C.purple; }}
-                >
-                  {loading ? (
-                    <>
-                      <div style={{ width: "14px", height: "14px", border: "2px solid rgba(255,255,255,0.3)", borderTopColor: "#fff", borderRadius: "50%", animation: "spin 0.7s linear infinite" }} />
-                      Enviando...
-                    </>
-                  ) : step === 4 ? "Enviar Cadastro →" : "Continuar →"}
-                </button>
+                {/* No step 4, usa LoadingButton com os labels pedidos; nos outros steps, botão padrão */}
+                {step === 4 ? (
+                  <div style={{ flex: 1 }}>
+                    <LoadingButton
+                      label="Criar conta"
+                      loadingLabel="Criando conta..."
+                      isLoading={loading}
+                      onClick={submit}
+                      fullWidth
+                    />
+                  </div>
+                ) : (
+                  <button
+                    onClick={next}
+                    style={{
+                      flex: 1, padding: "14px",
+                      background: C.purple,
+                      border: "none", borderRadius: "10px", color: C.white,
+                      fontFamily: font, fontWeight: 900, fontSize: "14px", letterSpacing: "0.02em",
+                      cursor: "pointer",
+                      display: "flex", alignItems: "center", justifyContent: "center", gap: "8px",
+                      transition: "background 0.2s",
+                    }}
+                    onMouseEnter={e => { (e.target as HTMLButtonElement).style.background = C.purpleLight; }}
+                    onMouseLeave={e => { (e.target as HTMLButtonElement).style.background = C.purple; }}
+                  >
+                    Continuar →
+                  </button>
+                )}
               </div>
 
               <p style={{ textAlign: "center", marginTop: "18px", fontFamily: font, fontWeight: 700, fontSize: "11px", color: "rgba(255,255,255,0.2)", letterSpacing: "0.06em" }}>
                 ETAPA {step} DE 4
               </p>
-            </>
-          ) : (
-            <SuccessScreen />
-          )}
+          </>
         </div>
 
         <p style={{

@@ -116,7 +116,7 @@ export async function POST(request: NextRequest) {
     const { wallet_name: _wn, wallet_blockchain: _wb, ...customerPayload } = body
 
     // Chama a API da UnblockPay para criar o cliente
-    const customerResult = await createCustomer(customerPayload as CreateCustomerData)
+    const customerResult = await createCustomer(customerPayload as unknown as CreateCustomerData)
 
     if (!customerResult.success || !customerResult.data) {
       return NextResponse.json(

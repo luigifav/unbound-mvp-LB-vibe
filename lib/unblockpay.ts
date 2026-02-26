@@ -82,6 +82,9 @@ async function callApi<T>(
     }
 
     if (!response.ok) {
+      // Loga o erro bruto da UnblockPay para facilitar debug no terminal do servidor
+      console.error('[UnblockPay] Erro HTTP', response.status, JSON.stringify(body))
+
       // Extrai a mensagem de erro do corpo quando disponível
       const message =
         typeof body === 'object' &&

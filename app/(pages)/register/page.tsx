@@ -738,7 +738,9 @@ export default function RegisterPage() {
 
       // 207 (Multi-Status) indica cliente criado mas wallet falhou — tratado como sucesso parcial
       if (!res.ok && res.status !== 207) {
-        throw new Error(data.mensagem || data.error || "Erro ao criar conta");
+        // Combina a mensagem principal com o detalhe técnico para facilitar o diagnóstico
+        const detalhe = data.erro ? ` — ${data.erro}` : "";
+        throw new Error((data.mensagem || "Erro ao criar conta") + detalhe);
       }
 
       // Exibe feedback de sucesso e redireciona para /login após 2 segundos

@@ -1,9 +1,58 @@
-// Rota POST /api/wallets
-// Cria uma nova wallet de stablecoin para um cliente já existente na UnblockPay.
+// Rotas GET e POST /api/wallets
+// GET  — Lista as wallets de um cliente existente na UnblockPay.
+// POST — Cria uma nova wallet de stablecoin para um cliente já existente na UnblockPay.
 
 import { NextRequest, NextResponse } from 'next/server'
-import { createWallet } from '@/lib/unblockpay'
+import { createWallet, getWallets } from '@/lib/unblockpay'
 import type { CreateWalletData } from '@/types'
+
+// ---------------------------------------------------------------------------
+// GET /api/wallets?customerId=uuid
+// ---------------------------------------------------------------------------
+// Retorna todas as wallets de um cliente.
+//
+// Parâmetros de query:
+//   customerId (obrigatório) — UUID do cliente na UnblockPay
+//
+// Exemplo de teste com curl:
+// curl "https://unbound-mvp.vercel.app/api/wallets?customerId=uuid-do-customer"
+
+export async function GET(request: NextRequest) {
+  const { searchParams } = new URL(request.url)
+  const customerId = searchParams.get('customerId')
+
+  // Valida se o customerId foi enviado na query string
+  if (!customerId) {
+    return NextResponse.json(
+      { mensagem: 'O parâmetro "customerId" é obrigatório.' },
+      { status: 400 },
+    )
+  }
+
+  try {
+    const resultado = await getWallets(customerId)
+
+    if (!resultado.success || !resultado.data) {
+      return NextResponse.json(
+        {
+          mensagem: 'Não foi possível buscar as wallets na UnblockPay.',
+          erro: resultado.error,
+        },
+        { status: 502 },
+      )
+    }
+
+    return NextResponse.json({ wallets: resultado.data })
+  } catch (err) {
+    const mensagem =
+      err instanceof Error ? err.message : 'Erro interno ao processar a requisição.'
+
+    return NextResponse.json(
+      { mensagem: 'Erro interno do servidor.', erro: mensagem },
+      { status: 500 },
+    )
+  }
+}
 
 // ---------------------------------------------------------------------------
 // POST /api/wallets

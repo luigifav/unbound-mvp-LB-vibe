@@ -32,6 +32,22 @@ export const authOptions: NextAuthOptions = {
   session: { strategy: "jwt" },
   // Redireciona para a página de login customizada ao invés do padrão do NextAuth
   pages: { signIn: "/login" },
+  callbacks: {
+    // Persiste o id do usuário no token JWT ao fazer login
+    jwt({ token, user }) {
+      if (user?.id) {
+        token.id = user.id;
+      }
+      return token;
+    },
+    // Expõe o id do usuário na sessão para uso nos Server Components
+    session({ session, token }) {
+      if (token.id && session.user) {
+        session.user.id = token.id as string;
+      }
+      return session;
+    },
+  },
 };
 
 // Wrapper que facilita buscar a sessão em Server Components e Server Actions

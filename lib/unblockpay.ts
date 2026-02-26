@@ -178,6 +178,26 @@ export async function createWallet(
 }
 
 /**
+ * Lista todas as wallets de um cliente.
+ *
+ * @param customerId UUID do cliente na UnblockPay
+ * @returns Array de objetos Wallet com endereços e dados da blockchain
+ */
+export async function getWallets(
+  customerId: string,
+): Promise<ApiResponse<Wallet[]>> {
+  if (!customerId) {
+    return {
+      data: null,
+      error: 'O parâmetro customerId é obrigatório.',
+      success: false,
+    }
+  }
+
+  return callApi<Wallet[]>(`/customers/${customerId}/wallets`)
+}
+
+/**
  * Retorna o saldo atual de uma wallet, discriminado por moeda (USDC, USDT, etc.).
  *
  * @param customerId UUID do cliente dono da wallet

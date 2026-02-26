@@ -1,0 +1,1 @@
+// Tipagens TypeScript do projeto

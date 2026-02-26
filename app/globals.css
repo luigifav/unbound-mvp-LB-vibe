@@ -1,3 +1,6 @@
+/* Red Hat Display — carregada pelo browser em runtime (sem bloqueio no build) */
+@import url('https://fonts.googleapis.com/css2?family=Red+Hat+Display:wght@400;500;700;900&display=swap');
+
 @import "tailwindcss";
 
 /* ─── Design tokens globais — mesma paleta do formulário de cadastro ─── */

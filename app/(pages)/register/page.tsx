@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, type ReactNode, type CSSProperties, type InputHTMLAttributes, type ChangeEvent } from "react";
 
 // ─── Design tokens ────────────────────────────────────────────────
 const C = {
@@ -81,7 +81,7 @@ function Field({ label, error, hint, children }: {
   label: string;
   error?: string;
   hint?: string;
-  children: React.ReactNode;
+  children: ReactNode;
 }) {
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
@@ -100,7 +100,7 @@ function Field({ label, error, hint, children }: {
   );
 }
 
-const inputBase: React.CSSProperties = {
+const inputBase: CSSProperties = {
   fontFamily: font, fontWeight: 500, fontSize: "15px", color: C.white,
   background: C.grayLight, border: `1px solid ${C.grayBorder}`,
   borderRadius: "10px", padding: "13px 16px", outline: "none",
@@ -111,7 +111,7 @@ function Input({ label, error, hint, suffix, ...props }: {
   label: string;
   error?: string;
   hint?: string;
-  suffix?: React.ReactNode;
+  suffix?: ReactNode;
   [key: string]: unknown;
 }) {
   const ref = useRef<HTMLInputElement>(null);
@@ -120,12 +120,12 @@ function Input({ label, error, hint, suffix, ...props }: {
       <div style={{ position: "relative" }}>
         <input
           ref={ref}
-          {...(props as React.InputHTMLAttributes<HTMLInputElement>)}
+          {...(props as InputHTMLAttributes<HTMLInputElement>)}
           style={{
             ...inputBase,
             borderColor: error ? C.error : C.grayBorder,
             paddingRight: suffix ? "48px" : "16px",
-            ...((props.style as React.CSSProperties) || {}),
+            ...((props.style as CSSProperties) || {}),
           }}
           onFocus={e => { e.target.style.borderColor = C.purple; e.target.style.background = "rgba(124,34,213,0.08)"; }}
           onBlur={e => { e.target.style.borderColor = error ? C.error : C.grayBorder; e.target.style.background = C.grayLight; }}
@@ -233,12 +233,12 @@ function Step1({ data, onChange, errors }: {
     <div style={{ display: "flex", flexDirection: "column", gap: "18px", animation: "fadeUp 0.3s ease" }}>
       <StepHeader title="Estamos felizes em atender você!" sub="Comece com suas informações básicas" />
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "14px" }}>
-        <Input label="Nome" value={data.first_name} onChange={(e: React.ChangeEvent<HTMLInputElement>) => onChange("first_name", e.target.value)} error={errors.first_name} placeholder="João" />
-        <Input label="Sobrenome" value={data.last_name} onChange={(e: React.ChangeEvent<HTMLInputElement>) => onChange("last_name", e.target.value)} error={errors.last_name} placeholder="Silva" />
+        <Input label="Nome" value={data.first_name} onChange={(e: ChangeEvent<HTMLInputElement>) => onChange("first_name", e.target.value)} error={errors.first_name} placeholder="João" />
+        <Input label="Sobrenome" value={data.last_name} onChange={(e: ChangeEvent<HTMLInputElement>) => onChange("last_name", e.target.value)} error={errors.last_name} placeholder="Silva" />
       </div>
-      <Input label="E-mail" type="email" value={data.email} onChange={(e: React.ChangeEvent<HTMLInputElement>) => onChange("email", e.target.value)} error={errors.email} placeholder="joao@email.com" />
-      <Input label="Telefone" type="tel" value={data.phone_number} onChange={(e: React.ChangeEvent<HTMLInputElement>) => onChange("phone_number", e.target.value)} error={errors.phone_number} placeholder="+55 11 91234-5678" />
-      <Input label="Data de Nascimento" type="date" value={data.date_of_birth} onChange={(e: React.ChangeEvent<HTMLInputElement>) => onChange("date_of_birth", e.target.value)} error={errors.date_of_birth} />
+      <Input label="E-mail" type="email" value={data.email} onChange={(e: ChangeEvent<HTMLInputElement>) => onChange("email", e.target.value)} error={errors.email} placeholder="joao@email.com" />
+      <Input label="Telefone" type="tel" value={data.phone_number} onChange={(e: ChangeEvent<HTMLInputElement>) => onChange("phone_number", e.target.value)} error={errors.phone_number} placeholder="+55 11 91234-5678" />
+      <Input label="Data de Nascimento" type="date" value={data.date_of_birth} onChange={(e: ChangeEvent<HTMLInputElement>) => onChange("date_of_birth", e.target.value)} error={errors.date_of_birth} />
     </div>
   );
 }
@@ -275,7 +275,7 @@ function Step2({ data, onChange, errors }: {
       <Input
         label="CPF"
         value={data.doc_value}
-        onChange={(e: React.ChangeEvent<HTMLInputElement>) => onChange("doc_value", formatCPF(e.target.value))}
+        onChange={(e: ChangeEvent<HTMLInputElement>) => onChange("doc_value", formatCPF(e.target.value))}
         error={errors.doc_value}
         placeholder="000.000.000-00"
         inputMode="numeric"
@@ -380,7 +380,7 @@ function Step3({ data, onChange, errors }: {
     }
   };
 
-  const handleCEPChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleCEPChange = (e: ChangeEvent<HTMLInputElement>) => {
     const formatted = formatCEP(e.target.value);
     onChange("postal_code", formatted);
     setManualMode(false);
@@ -449,14 +449,14 @@ function Step3({ data, onChange, errors }: {
           <Input
             label="Logradouro"
             value={data.street_line_1}
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) => onChange("street_line_1", e.target.value)}
+            onChange={(e: ChangeEvent<HTMLInputElement>) => onChange("street_line_1", e.target.value)}
             error={errors.street_line_1}
             placeholder="Rua das Flores"
           />
           <Input
             label="Bairro"
             value={data.neighborhood}
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) => onChange("neighborhood", e.target.value)}
+            onChange={(e: ChangeEvent<HTMLInputElement>) => onChange("neighborhood", e.target.value)}
             placeholder="Bairro"
           />
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "14px" }}>
@@ -503,7 +503,7 @@ function Step3({ data, onChange, errors }: {
           <Input
             label="Número"
             value={data.street_number}
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) => onChange("street_number", e.target.value)}
+            onChange={(e: ChangeEvent<HTMLInputElement>) => onChange("street_number", e.target.value)}
             error={errors.street_number}
             placeholder="123"
             inputMode="numeric"
@@ -511,7 +511,7 @@ function Step3({ data, onChange, errors }: {
           <Input
             label="Complemento (opcional)"
             value={data.street_line_2}
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) => onChange("street_line_2", e.target.value)}
+            onChange={(e: ChangeEvent<HTMLInputElement>) => onChange("street_line_2", e.target.value)}
             placeholder="Apto 4B"
           />
         </div>

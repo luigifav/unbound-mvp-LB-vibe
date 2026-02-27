@@ -2,6 +2,8 @@
 import { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { getServerSession as nextAuthGetServerSession } from "next-auth/next";
+import bcrypt from "bcryptjs";
+import { findUserByEmail } from "@/lib/users";
 
 // Opções de configuração do NextAuth
 export const authOptions: NextAuthOptions = {
@@ -13,18 +15,23 @@ export const authOptions: NextAuthOptions = {
         email: { label: "Email", type: "email" },
         password: { label: "Senha", type: "password" },
       },
-      // Função que valida as credenciais do usuário
+      // Valida as credenciais do usuário contra o banco de dados
       async authorize(credentials) {
-        // TODO: substituir por busca real no banco de dados
-        if (
-          credentials?.email === "teste@unbound.com" &&
-          credentials?.password === "senha123"
-        ) {
-          // Retorna o objeto do usuário em caso de sucesso
-          return { id: "1", name: "Usuário Teste", email: "teste@unbound.com" };
-        }
-        // Retorna null se as credenciais forem inválidas
-        return null;
+        if (!credentials?.email || !credentials?.password) return null;
+
+        // Busca o usuário pelo e-mail no banco de dados
+        const user = await findUserByEmail(credentials.email);
+        if (!user) return null;
+
+        // Compara a senha informada com o hash armazenado
+        const senhaValida = await bcrypt.compare(
+          credentials.password,
+          user.hashedPassword
+        );
+        if (!senhaValida) return null;
+
+        // Retorna os dados do usuário — id = customerId da UnblockPay
+        return { id: user.customerId, name: user.name, email: user.email };
       },
     }),
   ],

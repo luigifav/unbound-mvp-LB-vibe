@@ -3,7 +3,7 @@ import JsonLd from "@/components/JsonLd";
 
 export default function Home() {
   return (
-    <main className="bg-[#000904] min-h-[calc(100vh-64px)] relative overflow-hidden">
+    <main className="bg-[#000904] min-h-[calc(100vh-64px)] relative overflow-x-hidden">
       <JsonLd />
 
       {/* Brilho roxo decorativo no topo */}
@@ -74,7 +74,7 @@ export default function Home() {
         </div>
 
         {/* Cards dos passos */}
-        <div className="grid grid-cols-[repeat(auto-fit,minmax(240px,1fr))] gap-5">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
           <StepCard
             number="01"
             title="Crie sua conta"

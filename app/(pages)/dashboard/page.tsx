@@ -1,6 +1,7 @@
 // Página principal do usuário após login
 // Exibe saldo e histórico de transações reais buscados via API da UnblockPay.
 
+import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { getServerSession } from "@/lib/auth";
@@ -8,6 +9,11 @@ import { getWallets, getWalletBalance, getTransactions } from "@/lib/unblockpay"
 import BalanceDisplay from "@/components/ui/BalanceDisplay";
 import TransactionCard from "@/components/ui/TransactionCard";
 import type { Transaction } from "@/types";
+
+export const metadata: Metadata = {
+  title: "Meu Painel",
+  robots: { index: false, follow: false },
+};
 
 /** Mapeia o status da UnblockPay para os tipos aceitos pelo TransactionCard */
 function mapStatus(status: string): 'pending' | 'completed' | 'failed' | 'processing' {

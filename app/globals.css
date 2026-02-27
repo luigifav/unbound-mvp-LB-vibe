@@ -1,4 +1,4 @@
-/* Red Hat Display — carregada pelo browser em runtime (sem bloqueio no build) */
+/* Red Hat Display — carregada via Google Fonts em runtime */
 @import url('https://fonts.googleapis.com/css2?family=Red+Hat+Display:wght@400;500;700;900&display=swap');
 
 @import "tailwindcss";
@@ -90,5 +90,17 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   }
   .nav-mobile-btn {
     display: flex !important;
+  }
+}
+
+/* ─── Acessibilidade: respeitar preferência de movimento reduzido ── */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
   }
 }

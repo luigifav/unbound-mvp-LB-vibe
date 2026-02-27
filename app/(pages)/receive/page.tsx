@@ -1,29 +1,34 @@
-'use client';
+// Página de recebimento de dinheiro — Server Component
+// Busca o endereço real da wallet no servidor antes de renderizar a página.
+// O botão de copiar é delegado ao CopyButton (Client Component) por usar navigator.clipboard.
 
-// Página de recebimento de dinheiro
-// Exibe o endereço da wallet para o usuário compartilhar com quem vai enviar
-// TODO: buscar o endereço real da wallet via GET /api/wallets
-
-import { useState } from 'react';
+import { getServerSession } from '@/lib/auth';
+import { getWallets } from '@/lib/unblockpay';
 import Feedback from '@/components/ui/Feedback';
+import CopyButton from '@/components/ui/CopyButton';
 
-// TODO: substituir pelo endereço real da wallet via API
-const ENDERECO_WALLET_MOCK = '0xAbCd...1234';
+export default async function ReceivePage() {
+  // Busca a sessão do usuário logado — contém o customerId necessário para a API
+  const sessao = await getServerSession();
 
-export default function ReceivePage() {
-  // Controla a exibição do feedback de cópia (null = oculto, true = visível)
-  const [feedbackCopiado, setFeedbackCopiado] = useState<boolean | null>(null);
+  let enderecoWallet: string | null = null;
+  let erroMensagem: string | null = null;
 
-  // Copia o endereço para a área de transferência e exibe feedback temporário
-  const handleCopiarEndereco = async () => {
-    await navigator.clipboard.writeText(ENDERECO_WALLET_MOCK);
-    setFeedbackCopiado(true);
+  if (!sessao?.user?.id) {
+    // Usuário não autenticado ou sessão expirada
+    erroMensagem = 'Não foi possível identificar o usuário. Faça login novamente.';
+  } else {
+    // Busca as wallets do cliente usando o customerId da sessão
+    const resultado = await getWallets(sessao.user.id);
 
-    // Remove o feedback após 3 segundos
-    setTimeout(() => {
-      setFeedbackCopiado(null);
-    }, 3000);
-  };
+    if (!resultado.success || !resultado.data || resultado.data.length === 0) {
+      erroMensagem =
+        'Não foi possível carregar o endereço da sua wallet. Tente novamente mais tarde.';
+    } else {
+      // Usa o endereço da primeira wallet disponível
+      enderecoWallet = resultado.data[0].address;
+    }
+  }
 
   return (
     <div className="min-h-[calc(100vh-64px)] bg-[#000904] flex flex-col items-center justify-center px-5 py-12 relative overflow-hidden">
@@ -78,33 +83,27 @@ export default function ReceivePage() {
           </ol>
         </div>
 
-        {/* Seção do endereço da wallet em destaque */}
-        <div className="bg-[rgba(124,34,213,0.08)] border border-[rgba(124,34,213,0.25)] rounded-[14px] p-5 mb-4">
-          <p className="text-white/45 font-bold text-[11px] uppercase tracking-widest mb-3">
-            Seu endereço
-          </p>
-          {/* Endereço exibido em fonte mono para facilitar leitura */}
-          <p className="text-white font-bold text-[17px] tracking-wide font-mono break-all">
-            {ENDERECO_WALLET_MOCK}
-          </p>
-        </div>
+        {/* Mensagem de erro amigável exibida quando a busca da wallet falha */}
+        {erroMensagem && (
+          <Feedback type="error" message={erroMensagem} />
+        )}
 
-        {/* Botão de copiar endereço */}
-        <button
-          onClick={handleCopiarEndereco}
-          className="w-full py-3.5 px-6 rounded-[12px] bg-[#7c22d5] text-white font-bold text-sm hover:bg-[#6a1cb8] active:scale-[0.98] transition-all duration-150"
-        >
-          Copiar endereço
-        </button>
+        {/* Seção do endereço da wallet — só exibida quando o endereço foi carregado com sucesso */}
+        {enderecoWallet && (
+          <>
+            <div className="bg-[rgba(124,34,213,0.08)] border border-[rgba(124,34,213,0.25)] rounded-[14px] p-5 mb-4">
+              <p className="text-white/45 font-bold text-[11px] uppercase tracking-widest mb-3">
+                Seu endereço
+              </p>
+              {/* Endereço exibido em fonte mono para facilitar leitura */}
+              <p className="text-white font-bold text-[17px] tracking-wide font-mono break-all">
+                {enderecoWallet}
+              </p>
+            </div>
 
-        {/* Feedback exibido após copiar — desaparece automaticamente após 3 segundos */}
-        {feedbackCopiado && (
-          <div className="mt-4">
-            <Feedback
-              type="success"
-              message="Endereço copiado!"
-            />
-          </div>
+            {/* Botão de copiar — Client Component que recebe o endereço como prop */}
+            <CopyButton enderecoWallet={enderecoWallet} />
+          </>
         )}
 
       </div>

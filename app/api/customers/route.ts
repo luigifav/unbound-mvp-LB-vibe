@@ -3,6 +3,7 @@
 
 import { NextRequest, NextResponse } from 'next/server'
 import { createCustomer, createWallet } from '@/lib/unblockpay'
+import { saveUser } from '@/lib/users'
 import type { CreateCustomerData, CreateWalletData } from '@/types'
 
 // ---------------------------------------------------------------------------
@@ -108,12 +109,15 @@ export async function POST(request: NextRequest) {
       )
     }
 
+    // Extrai a senha em texto plano (não enviada à UnblockPay — apenas para auth local)
+    const rawPassword = typeof body.password === 'string' ? body.password : null
+
     // Extrai as configurações opcionais da wallet antes de montar os dados do cliente
     const walletName = typeof body.wallet_name === 'string' ? body.wallet_name : 'Principal'
     const walletBlockchain = typeof body.wallet_blockchain === 'string' ? body.wallet_blockchain : 'solana'
 
-    // Remove os campos extras da wallet antes de enviar para a API de clientes
-    const { wallet_name: _wn, wallet_blockchain: _wb, ...customerPayload } = body
+    // Remove os campos extras (wallet config + senha) antes de enviar para a API de clientes
+    const { wallet_name: _wn, wallet_blockchain: _wb, password: _pw, ...customerPayload } = body
 
     // Chama a API da UnblockPay para criar o cliente
     const customerResult = await createCustomer(customerPayload as unknown as CreateCustomerData)
@@ -153,6 +157,32 @@ export async function POST(request: NextRequest) {
     }
 
     const wallet = walletResult.data
+
+    // Salva as credenciais do usuário para possibilitar o login
+    if (rawPassword) {
+      const firstName = typeof body.first_name === 'string' ? body.first_name : ''
+      const lastName = typeof body.last_name === 'string' ? body.last_name : ''
+      try {
+        await saveUser({
+          email: customer.email,
+          password: rawPassword,
+          customerId: customer.id,
+          name: `${firstName} ${lastName}`.trim() || customer.email,
+        })
+      } catch (saveErr) {
+        // Conta criada na UnblockPay mas credenciais não salvas — informa o usuário
+        const saveMsg = saveErr instanceof Error ? saveErr.message : 'Erro desconhecido'
+        return NextResponse.json(
+          {
+            mensagem: 'Conta criada na UnblockPay, mas não foi possível salvar as credenciais de login.',
+            erro: saveMsg,
+            customer,
+            wallet,
+          },
+          { status: 500 },
+        )
+      }
+    }
 
     // Retorna os dados completos do cliente e da wallet criados
     return NextResponse.json(

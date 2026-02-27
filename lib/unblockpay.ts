@@ -178,6 +178,26 @@ export async function createWallet(
 }
 
 /**
+ * Lista todas as wallets de um cliente.
+ *
+ * @param customerId UUID do cliente na UnblockPay
+ * @returns Array de objetos Wallet com endereços e dados da blockchain
+ */
+export async function getWallets(
+  customerId: string,
+): Promise<ApiResponse<Wallet[]>> {
+  if (!customerId) {
+    return {
+      data: null,
+      error: 'O parâmetro customerId é obrigatório.',
+      success: false,
+    }
+  }
+
+  return callApi<Wallet[]>(`/customers/${customerId}/wallets`)
+}
+
+/**
  * Retorna o saldo atual de uma wallet, discriminado por moeda (USDC, USDT, etc.).
  *
  * @param customerId UUID do cliente dono da wallet
@@ -256,15 +276,6 @@ export async function createPayin(
 export async function createPayout(
   data: CreatePayoutData,
 ): Promise<ApiResponse<Transaction>> {
-  if (!data.quote_id) {
-    return {
-      data: null,
-      error:
-        'O campo quote_id é obrigatório. Obtenha uma cotação via endpoint /quote antes de criar o payout.',
-      success: false,
-    }
-  }
-
   return callApi<Transaction>('/payout', {
     method: 'POST',
     body: JSON.stringify(data),
@@ -297,4 +308,25 @@ export async function getTransaction(
   }
 
   return callApi<Transaction>(`/transactions/${transactionId}`)
+}
+
+/**
+ * Lista todas as transações de um cliente (pay-ins e payouts).
+ * Use esta função para exibir o histórico no dashboard.
+ *
+ * @param customerId UUID do cliente na UnblockPay
+ * @returns Array de transações ordenado por data decrescente
+ */
+export async function getTransactions(
+  customerId: string,
+): Promise<ApiResponse<Transaction[]>> {
+  if (!customerId) {
+    return {
+      data: null,
+      error: 'O parâmetro customerId é obrigatório.',
+      success: false,
+    }
+  }
+
+  return callApi<Transaction[]>(`/customers/${customerId}/transactions`)
 }

@@ -7,11 +7,11 @@ import bcrypt from 'bcryptjs'
 // Cliente Supabase — instanciado sob demanda para evitar erros em build time
 function getSupabase() {
   const url = process.env.SUPABASE_URL
-  const key = process.env.SUPABASE_ANON_KEY
+  const key = process.env.SUPABASE_SERVICE_ROLE_KEY
 
   if (!url || !key) {
     throw new Error(
-      'Variáveis SUPABASE_URL e SUPABASE_ANON_KEY não configuradas. ' +
+      'Variáveis SUPABASE_URL e SUPABASE_SERVICE_ROLE_KEY não configuradas. ' +
         'Adicione-as no painel do Vercel ou no arquivo .env.local.',
     )
   }

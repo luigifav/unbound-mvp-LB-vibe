@@ -1,49 +1,26 @@
 // Página principal do usuário após login
-// Exibe saldo e lista de transações recentes com dados mock.
-// TODO: Substituir todos os dados mock pela chamada real à API quando a integração
-// com o backend estiver pronta. Buscar saldo via GET /api/wallets e
-// transações via GET /api/transactions.
+// Exibe saldo e histórico de transações reais buscados via API da UnblockPay.
 
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { getServerSession } from "@/lib/auth";
+import { getWallets, getWalletBalance, getTransactions } from "@/lib/unblockpay";
 import BalanceDisplay from "@/components/ui/BalanceDisplay";
 import TransactionCard from "@/components/ui/TransactionCard";
+import type { Transaction } from "@/types";
 
-// Dados mock do saldo — TODO: substituir pelo dado real da API
-const mockSaldo = {
-  balance: 1250.75,
-  currency: "USDC",
-  isLoading: false,
-};
+/** Mapeia o status da UnblockPay para os tipos aceitos pelo TransactionCard */
+function mapStatus(status: string): 'pending' | 'completed' | 'failed' | 'processing' {
+  if (status === 'completed') return 'completed'
+  if (['failed', 'refunded', 'cancelled', 'error'].includes(status)) return 'failed'
+  if (status === 'processing') return 'processing'
+  return 'pending' // awaiting_deposit → pending
+}
 
-// Dados mock das transações recentes — TODO: substituir pelo dado real da API
-const mockTransacoes = [
-  {
-    id: "txn-001", // TODO: substituir pelo dado real da API
-    type: "payin" as const,
-    amount: 500.0, // TODO: substituir pelo dado real da API
-    currency: "USDC",
-    status: "completed" as const,
-    createdAt: "2026-02-24T14:30:00Z", // TODO: substituir pelo dado real da API
-  },
-  {
-    id: "txn-002", // TODO: substituir pelo dado real da API
-    type: "payout" as const,
-    amount: 200.5, // TODO: substituir pelo dado real da API
-    currency: "USDC",
-    status: "pending" as const,
-    createdAt: "2026-02-23T09:15:00Z", // TODO: substituir pelo dado real da API
-  },
-  {
-    id: "txn-003", // TODO: substituir pelo dado real da API
-    type: "payout" as const,
-    amount: 1000.0, // TODO: substituir pelo dado real da API
-    currency: "USDC",
-    status: "processing" as const,
-    createdAt: "2026-02-22T17:45:00Z", // TODO: substituir pelo dado real da API
-  },
-];
+/** Extrai o valor principal de uma transação (montante em USDC movimentado) */
+function extrairValor(tx: Transaction): number {
+  return tx.sender?.amount ?? tx.receiver?.amount ?? 0
+}
 
 export default async function DashboardPage() {
   // Busca a sessão atual no servidor — retorna null se não autenticado
@@ -53,6 +30,24 @@ export default async function DashboardPage() {
   if (!session) {
     redirect("/login");
   }
+
+  const customerId = session.user.id;
+
+  // ─── Busca saldo real ──────────────────────────────────────────
+  let saldoUsdc = 0;
+  const walletsResult = await getWallets(customerId);
+  if (walletsResult.success && walletsResult.data && walletsResult.data.length > 0) {
+    const primeiraWallet = walletsResult.data[0];
+    const balanceResult = await getWalletBalance(customerId, primeiraWallet.id);
+    if (balanceResult.success && balanceResult.data) {
+      const entradaUsdc = balanceResult.data.balances?.find(b => b.currency === 'USDC');
+      saldoUsdc = entradaUsdc?.balance ?? balanceResult.data.total_balance ?? 0;
+    }
+  }
+
+  // ─── Busca transações reais ────────────────────────────────────
+  const txResult = await getTransactions(customerId);
+  const transacoes = txResult.success && txResult.data ? txResult.data : [];
 
   return (
     <main className="min-h-screen bg-[#000904] py-8 px-6">
@@ -65,9 +60,9 @@ export default async function DashboardPage() {
 
         {/* Exibição do saldo disponível */}
         <BalanceDisplay
-          balance={mockSaldo.balance}
-          currency={mockSaldo.currency}
-          isLoading={mockSaldo.isLoading}
+          balance={saldoUsdc}
+          currency="USDC"
+          isLoading={false}
         />
 
         {/* Botões de ação rápida lado a lado */}
@@ -92,19 +87,25 @@ export default async function DashboardPage() {
             Transações recentes
           </h2>
 
-          <div className="flex flex-col gap-3">
-            {mockTransacoes.map((transacao) => (
-              <TransactionCard
-                key={transacao.id}
-                id={transacao.id}
-                type={transacao.type}
-                amount={transacao.amount}
-                currency={transacao.currency}
-                status={transacao.status}
-                createdAt={transacao.createdAt}
-              />
-            ))}
-          </div>
+          {transacoes.length === 0 ? (
+            <p className="text-white/40 text-sm">
+              Nenhuma transação ainda. Envie ou receba dinheiro para começar.
+            </p>
+          ) : (
+            <div className="flex flex-col gap-3">
+              {transacoes.map((tx) => (
+                <TransactionCard
+                  key={tx.id}
+                  id={tx.id}
+                  type={tx.type === 'on_ramp' ? 'payin' : 'payout'}
+                  amount={extrairValor(tx)}
+                  currency="USDC"
+                  status={mapStatus(tx.status)}
+                  createdAt={tx.created_at}
+                />
+              ))}
+            </div>
+          )}
         </section>
 
       </div>

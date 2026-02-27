@@ -1,10 +1,25 @@
-// Camada de persistência de usuários usando Vercel KV (Redis)
+// Camada de persistência de usuários usando Supabase (PostgreSQL)
 // Conecta o cadastro (UnblockPay) com a autenticação (NextAuth)
 
-import { kv } from '@vercel/kv'
+import { createClient } from '@supabase/supabase-js'
 import bcrypt from 'bcryptjs'
 
-// Formato do registro salvo no KV
+// Cliente Supabase — instanciado sob demanda para evitar erros em build time
+function getSupabase() {
+  const url = process.env.SUPABASE_URL
+  const key = process.env.SUPABASE_ANON_KEY
+
+  if (!url || !key) {
+    throw new Error(
+      'Variáveis SUPABASE_URL e SUPABASE_ANON_KEY não configuradas. ' +
+        'Adicione-as no painel do Vercel ou no arquivo .env.local.',
+    )
+  }
+
+  return createClient(url, key)
+}
+
+// Formato retornado pelas funções de busca
 export interface StoredUser {
   email: string
   hashedPassword: string
@@ -13,10 +28,10 @@ export interface StoredUser {
 }
 
 /**
- * Salva um novo usuário no KV após o cadastro bem-sucedido na UnblockPay.
- * A senha é hasheada com bcrypt antes de persistir.
+ * Salva um novo usuário na tabela `users` do Supabase após o cadastro
+ * bem-sucedido na UnblockPay. A senha é hasheada com bcrypt antes de persistir.
  *
- * @param user Dados do novo usuário (senha em texto plano — será hasheada aqui)
+ * @param user Dados do novo usuário (senha em texto plano — hasheada aqui)
  */
 export async function saveUser(user: {
   email: string
@@ -25,24 +40,41 @@ export async function saveUser(user: {
   name: string
 }): Promise<void> {
   const hashedPassword = await bcrypt.hash(user.password, 10)
+  const supabase = getSupabase()
 
-  const record: StoredUser = {
-    email: user.email,
-    hashedPassword,
-    customerId: user.customerId,
+  const { error } = await supabase.from('users').insert({
+    email: user.email.toLowerCase(),
+    hashed_password: hashedPassword,
+    customer_id: user.customerId,
     name: user.name,
-  }
+  })
 
-  // Chave no Redis: "user:{email}"
-  await kv.set(`user:${user.email.toLowerCase()}`, record)
+  if (error) {
+    throw new Error(`Erro ao salvar usuário: ${error.message}`)
+  }
 }
 
 /**
- * Busca um usuário pelo e-mail.
+ * Busca um usuário pelo e-mail na tabela `users` do Supabase.
  * Retorna null se não encontrado.
  *
  * @param email E-mail do usuário (normalizado para lowercase)
  */
 export async function findUserByEmail(email: string): Promise<StoredUser | null> {
-  return kv.get<StoredUser>(`user:${email.toLowerCase()}`)
+  const supabase = getSupabase()
+
+  const { data, error } = await supabase
+    .from('users')
+    .select('email, hashed_password, customer_id, name')
+    .eq('email', email.toLowerCase())
+    .single()
+
+  if (error || !data) return null
+
+  return {
+    email: data.email,
+    hashedPassword: data.hashed_password,
+    customerId: data.customer_id,
+    name: data.name,
+  }
 }

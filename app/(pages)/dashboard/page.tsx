@@ -4,9 +4,15 @@
 // com o backend estiver pronta. Buscar saldo via GET /api/wallets e
 // transações via GET /api/transactions.
 
+import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { getServerSession } from "@/lib/auth";
+
+export const metadata: Metadata = {
+  title: "Meu Painel",
+  robots: { index: false, follow: false },
+};
 import BalanceDisplay from "@/components/ui/BalanceDisplay";
 import TransactionCard from "@/components/ui/TransactionCard";
 

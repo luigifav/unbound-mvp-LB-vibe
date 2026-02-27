@@ -1,27 +1,8 @@
 "use client";
 
-// Página de login com formulário de email e senha
-// Usa next-auth/react no cliente para autenticar o usuário
 import { useState } from "react";
 import { signIn } from "next-auth/react";
 import Link from "next/link";
-
-// ─── Design tokens — mesma paleta do resto do projeto ─────────────
-const C = {
-  purple: "#7c22d5",
-  purpleLight: "#9b4de0",
-  purpleDim: "rgba(124,34,213,0.15)",
-  purpleBorder: "rgba(124,34,213,0.35)",
-  white: "#ffffff",
-  black: "#000904",
-  grayLight: "rgba(255,255,255,0.06)",
-  grayBorder: "rgba(255,255,255,0.1)",
-  textMuted: "rgba(255,255,255,0.45)",
-  textSub: "rgba(255,255,255,0.65)",
-  error: "#f06060",
-};
-
-const font = "'Red Hat Display', sans-serif";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -29,13 +10,11 @@ export default function LoginPage() {
   const [erro, setErro] = useState("");
   const [carregando, setCarregando] = useState(false);
 
-  // Envia as credenciais para o NextAuth e trata o resultado
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setErro("");
     setCarregando(true);
 
-    // redirect: false permite capturar o erro sem redirecionamento automático
     const resultado = await signIn("credentials", {
       email,
       password: senha,
@@ -46,101 +25,37 @@ export default function LoginPage() {
     setCarregando(false);
 
     if (resultado?.error) {
-      // Exibe mensagem amigável ao usuário em caso de falha
       setErro("Email ou senha incorretos. Tente novamente.");
     } else if (resultado?.url) {
-      // Redireciona manualmente para o dashboard após login bem-sucedido
       window.location.href = resultado.url;
     }
   }
 
   return (
-    <main
-      style={{
-        minHeight: "100vh",
-        background: C.black,
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        padding: "24px",
-        fontFamily: font,
-      }}
-    >
-      {/* Glow decorativo roxo ao fundo */}
-      <div
-        style={{
-          position: "fixed",
-          top: "30%",
-          left: "50%",
-          transform: "translateX(-50%)",
-          width: "600px",
-          height: "400px",
-          background: "radial-gradient(ellipse at center, rgba(124,34,213,0.12) 0%, transparent 70%)",
-          pointerEvents: "none",
-          zIndex: 0,
-        }}
-      />
+    <main className="min-h-screen bg-[#000904] flex items-center justify-center p-6">
+      {/* Glow decorativo */}
+      <div className="fixed top-[30%] left-1/2 -translate-x-1/2 w-[600px] h-[400px] bg-[radial-gradient(ellipse_at_center,rgba(124,34,213,0.12)_0%,transparent_70%)] pointer-events-none z-0" />
 
       {/* Card do formulário */}
-      <div
-        style={{
-          position: "relative",
-          zIndex: 1,
-          width: "100%",
-          maxWidth: "420px",
-          background: C.grayLight,
-          border: `1px solid ${C.grayBorder}`,
-          borderRadius: "16px",
-          padding: "40px 36px",
-          animation: "fadeUp 0.4s ease both",
-        }}
-      >
+      <div className="relative z-[1] w-full max-w-[420px] bg-white/[0.06] border border-white/10 rounded-2xl px-9 py-10 animate-[fadeUp_0.4s_ease_both]">
         {/* Logo e título */}
-        <div style={{ textAlign: "center", marginBottom: "32px" }}>
-          <div
-            style={{
-              width: "44px",
-              height: "44px",
-              borderRadius: "12px",
-              background: C.purple,
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              margin: "0 auto 16px",
-            }}
-          >
-            <span style={{ color: C.white, fontWeight: 900, fontSize: "20px" }}>U</span>
+        <div className="text-center mb-8">
+          <div className="w-11 h-11 rounded-xl bg-[#7c22d5] flex items-center justify-center mx-auto mb-4">
+            <span className="text-white font-black text-xl">U</span>
           </div>
-          <h1
-            style={{
-              color: C.white,
-              fontWeight: 900,
-              fontSize: "22px",
-              letterSpacing: "-0.02em",
-              margin: "0 0 8px",
-            }}
-          >
+          <h1 className="text-white font-black text-[22px] tracking-tight mb-2">
             Entrar na sua conta
           </h1>
-          <p style={{ color: C.textMuted, fontSize: "14px", margin: 0, fontWeight: 500 }}>
+          <p className="text-white/45 text-sm font-medium">
             Acesse sua plataforma de remessas
           </p>
         </div>
 
-        {/* Formulário de login */}
-        <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
-          {/* Campo de email */}
-          <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
-            <label
-              htmlFor="email"
-              style={{
-                fontWeight: 700,
-                fontSize: "11px",
-                letterSpacing: "0.1em",
-                textTransform: "uppercase",
-                color: C.textMuted,
-              }}
-            >
+        {/* Formulário */}
+        <form onSubmit={handleSubmit} className="flex flex-col gap-5">
+          {/* Email */}
+          <div className="flex flex-col gap-1.5">
+            <label htmlFor="email" className="font-bold text-[11px] tracking-widest uppercase text-white/45">
               Email
             </label>
             <input
@@ -150,33 +65,13 @@ export default function LoginPage() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="seu@email.com"
-              style={{
-                background: "rgba(255,255,255,0.04)",
-                border: `1px solid ${C.purpleBorder}`,
-                borderRadius: "8px",
-                padding: "12px 14px",
-                color: C.white,
-                fontSize: "14px",
-                fontFamily: font,
-                fontWeight: 500,
-                outline: "none",
-                width: "100%",
-              }}
+              className="bg-white/[0.04] border border-[rgba(124,34,213,0.35)] rounded-lg px-3.5 py-3 text-white text-sm font-medium outline-none w-full focus:border-[#7c22d5] focus:bg-[rgba(124,34,213,0.08)] transition-colors placeholder:text-white/20"
             />
           </div>
 
-          {/* Campo de senha */}
-          <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
-            <label
-              htmlFor="senha"
-              style={{
-                fontWeight: 700,
-                fontSize: "11px",
-                letterSpacing: "0.1em",
-                textTransform: "uppercase",
-                color: C.textMuted,
-              }}
-            >
+          {/* Senha */}
+          <div className="flex flex-col gap-1.5">
+            <label htmlFor="senha" className="font-bold text-[11px] tracking-widest uppercase text-white/45">
               Senha
             </label>
             <input
@@ -186,80 +81,31 @@ export default function LoginPage() {
               value={senha}
               onChange={(e) => setSenha(e.target.value)}
               placeholder="••••••••"
-              style={{
-                background: "rgba(255,255,255,0.04)",
-                border: `1px solid ${C.purpleBorder}`,
-                borderRadius: "8px",
-                padding: "12px 14px",
-                color: C.white,
-                fontSize: "14px",
-                fontFamily: font,
-                fontWeight: 500,
-                outline: "none",
-                width: "100%",
-              }}
+              className="bg-white/[0.04] border border-[rgba(124,34,213,0.35)] rounded-lg px-3.5 py-3 text-white text-sm font-medium outline-none w-full focus:border-[#7c22d5] focus:bg-[rgba(124,34,213,0.08)] transition-colors placeholder:text-white/20"
             />
           </div>
 
-          {/* Mensagem de erro — exibida apenas quando há falha no login */}
+          {/* Mensagem de erro */}
           {erro && (
-            <div
-              style={{
-                background: "rgba(240,96,96,0.1)",
-                border: "1px solid rgba(240,96,96,0.3)",
-                borderRadius: "8px",
-                padding: "12px 14px",
-                color: C.error,
-                fontSize: "13px",
-                fontWeight: 500,
-              }}
-            >
+            <div className="bg-[rgba(240,96,96,0.1)] border border-[rgba(240,96,96,0.3)] rounded-lg px-3.5 py-3 text-[#f06060] text-[13px] font-medium" role="alert">
               {erro}
             </div>
           )}
 
-          {/* Botão de entrar */}
+          {/* Botão entrar */}
           <button
             type="submit"
             disabled={carregando}
-            style={{
-              background: carregando ? "rgba(124,34,213,0.5)" : C.purple,
-              border: "none",
-              borderRadius: "8px",
-              padding: "13px",
-              color: C.white,
-              fontFamily: font,
-              fontWeight: 900,
-              fontSize: "15px",
-              cursor: carregando ? "not-allowed" : "pointer",
-              letterSpacing: "0.02em",
-              transition: "background 0.2s",
-              width: "100%",
-            }}
+            className="w-full py-3.5 bg-[#7c22d5] rounded-lg text-white font-black text-[15px] tracking-wide transition-colors hover:bg-[#6a1cb8] disabled:bg-[rgba(124,34,213,0.5)] disabled:cursor-not-allowed cursor-pointer"
           >
             {carregando ? "Entrando…" : "Entrar"}
           </button>
         </form>
 
-        {/* Link para criar conta */}
-        <p
-          style={{
-            textAlign: "center",
-            marginTop: "24px",
-            color: C.textMuted,
-            fontSize: "13px",
-            fontWeight: 500,
-          }}
-        >
+        {/* Link criar conta */}
+        <p className="text-center mt-6 text-white/45 text-[13px] font-medium">
           Não tem conta?{" "}
-          <Link
-            href="/register"
-            style={{
-              color: C.purpleLight,
-              textDecoration: "none",
-              fontWeight: 700,
-            }}
-          >
+          <Link href="/register" className="text-[#9b4de0] no-underline font-bold">
             Criar conta
           </Link>
         </p>

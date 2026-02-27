@@ -1,203 +1,86 @@
 import Link from "next/link";
+import JsonLd from "@/components/JsonLd";
 
-// ─── Design tokens — mesma paleta do formulário de cadastro ───────
-const C = {
-  purple:       "#7c22d5",
-  purpleLight:  "#9b4de0",
-  purpleDim:    "rgba(124,34,213,0.15)",
-  purpleBorder: "rgba(124,34,213,0.35)",
-  white:        "#ffffff",
-  black:        "#000904",
-  grayLight:    "rgba(255,255,255,0.06)",
-  grayBorder:   "rgba(255,255,255,0.1)",
-  textMuted:    "rgba(255,255,255,0.45)",
-  textSub:      "rgba(255,255,255,0.65)",
-};
-
-const font = "'Red Hat Display', sans-serif";
-
-// Página inicial — hero + seção "Como funciona"
 export default function Home() {
   return (
-    <main style={{ background: C.black, minHeight: "calc(100vh - 64px)", fontFamily: font, position: "relative", overflow: "hidden" }}>
+    <main className="bg-[#000904] min-h-[calc(100vh-64px)] relative overflow-hidden">
+      <JsonLd />
 
-      {/* ── Brilho roxo decorativo no topo ── */}
-      <div style={{
-        position:   "absolute",
-        top:        "-250px",
-        left:       "50%",
-        transform:  "translateX(-50%)",
-        width:      "800px",
-        height:     "600px",
-        background: "radial-gradient(ellipse, rgba(124,34,213,0.22) 0%, transparent 70%)",
-        pointerEvents: "none",
-      }} />
+      {/* Brilho roxo decorativo no topo */}
+      <div className="absolute top-[-250px] left-1/2 -translate-x-1/2 w-[800px] h-[600px] bg-[radial-gradient(ellipse,rgba(124,34,213,0.22)_0%,transparent_70%)] pointer-events-none" />
 
       {/* ════════════════ HERO ════════════════ */}
-      <section style={{
-        display:        "flex",
-        flexDirection:  "column",
-        alignItems:     "center",
-        textAlign:      "center",
-        padding:        "100px 24px 80px",
-        position:       "relative",
-        animation:      "fadeUp 0.5s ease",
-      }}>
-
+      <section className="flex flex-col items-center text-center px-6 pt-[100px] pb-20 relative animate-[fadeUp_0.5s_ease]">
         {/* Chip de destaque */}
-        <div style={{
-          display:       "inline-flex",
-          alignItems:    "center",
-          gap:           "8px",
-          background:    C.purpleDim,
-          border:        `1px solid ${C.purpleBorder}`,
-          borderRadius:  "100px",
-          padding:       "6px 14px",
-          marginBottom:  "32px",
-        }}>
-          <span style={{ fontSize: "14px" }}>🇧🇷</span>
-          <span style={{
-            fontFamily:    font,
-            fontWeight:    700,
-            fontSize:      "12px",
-            color:         C.purple,
-            letterSpacing: "0.06em",
-            textTransform: "uppercase",
-          }}>
+        <div className="inline-flex items-center gap-2 bg-[rgba(124,34,213,0.15)] border border-[rgba(124,34,213,0.35)] rounded-full px-3.5 py-1.5 mb-8">
+          <span className="text-sm">🇧🇷</span>
+          <span className="font-bold text-xs text-[#7c22d5] tracking-wider uppercase">
             Pagamentos internacionais para o Brasil
           </span>
         </div>
 
         {/* Título principal */}
-        <h1 style={{
-          fontFamily:   font,
-          fontWeight:   900,
-          fontSize:     "clamp(36px, 6vw, 64px)",
-          color:        C.white,
-          lineHeight:   1.1,
-          maxWidth:     "760px",
-          marginBottom: "24px",
-          letterSpacing: "-0.02em",
-        }}>
+        <h1 className="font-black text-[clamp(36px,6vw,64px)] text-white leading-[1.1] max-w-[760px] mb-6 tracking-tight">
           Envie e receba dinheiro{" "}
-          <span style={{ color: C.purple }}>além-fronteiras</span>,
+          <span className="text-[#7c22d5]">além-fronteiras</span>,
           sem burocracia
         </h1>
 
         {/* Subtítulo */}
-        <p style={{
-          fontFamily:   font,
-          fontWeight:   500,
-          fontSize:     "18px",
-          color:        C.textSub,
-          maxWidth:     "520px",
-          lineHeight:   1.7,
-          marginBottom: "44px",
-        }}>
+        <p className="font-medium text-lg text-white/65 max-w-[520px] leading-relaxed mb-11">
           Crie sua conta em minutos, passe pela verificação de identidade e
           comece a movimentar seu dinheiro com segurança e agilidade.
         </p>
 
         {/* CTAs */}
-        <div style={{ display: "flex", gap: "12px", flexWrap: "wrap", justifyContent: "center" }}>
-          {/* Primário: ir para cadastro */}
+        <div className="flex gap-3 flex-wrap justify-center">
           <Link
             href="/register"
-            style={{
-              padding:        "15px 32px",
-              background:     C.purple,
-              border:         "none",
-              borderRadius:   "10px",
-              color:          C.white,
-              fontFamily:     font,
-              fontWeight:     900,
-              fontSize:       "15px",
-              textDecoration: "none",
-              letterSpacing:  "0.02em",
-            }}
+            className="py-[15px] px-8 bg-[#7c22d5] rounded-[10px] text-white font-black text-[15px] tracking-wide no-underline hover:bg-[#6a1cb8] transition-colors"
           >
-            Criar conta →
+            Criar conta &rarr;
           </Link>
-
-          {/* Secundário: rola até a seção "Como funciona" */}
           <a
             href="#como-funciona"
-            style={{
-              padding:        "15px 32px",
-              background:     "transparent",
-              border:         `1px solid ${C.grayBorder}`,
-              borderRadius:   "10px",
-              color:          C.textSub,
-              fontFamily:     font,
-              fontWeight:     700,
-              fontSize:       "15px",
-              textDecoration: "none",
-            }}
+            className="py-[15px] px-8 bg-transparent border border-white/10 rounded-[10px] text-white/65 font-bold text-[15px] no-underline hover:border-white/25 transition-colors"
           >
             Saiba mais
           </a>
         </div>
 
         {/* Garantia social */}
-        <p style={{
-          marginTop:     "28px",
-          fontFamily:    font,
-          fontWeight:    700,
-          fontSize:      "11px",
-          color:         C.textMuted,
-          letterSpacing: "0.06em",
-          textTransform: "uppercase",
-        }}>
-          Criptografia de ponta a ponta · Verificação KYC · Sem taxas ocultas
+        <p className="mt-7 font-bold text-[11px] text-white/45 tracking-wider uppercase">
+          Criptografia de ponta a ponta &middot; Verificação KYC &middot; Sem taxas ocultas
         </p>
       </section>
 
       {/* ════════════════ COMO FUNCIONA ════════════════ */}
       <section
         id="como-funciona"
-        style={{
-          padding:    "80px 24px 100px",
-          maxWidth:   "900px",
-          margin:     "0 auto",
-          animation:  "fadeUp 0.5s ease 0.15s both",
-        }}
+        aria-labelledby="como-funciona-titulo"
+        className="px-6 pt-20 pb-[100px] max-w-[900px] mx-auto animate-[fadeUp_0.5s_ease_0.15s_both]"
       >
         {/* Cabeçalho da seção */}
-        <div style={{ textAlign: "center", marginBottom: "56px" }}>
-          <span style={{
-            fontFamily:    font,
-            fontWeight:    700,
-            fontSize:      "11px",
-            color:         C.purple,
-            letterSpacing: "0.14em",
-            textTransform: "uppercase",
-          }}>
+        <div className="text-center mb-14">
+          <span className="font-bold text-[11px] text-[#7c22d5] tracking-[0.14em] uppercase">
             Como funciona
           </span>
-          <h2 style={{
-            fontFamily:   font,
-            fontWeight:   900,
-            fontSize:     "clamp(26px, 4vw, 38px)",
-            color:        C.white,
-            marginTop:    "12px",
-            lineHeight:   1.2,
-          }}>
+          <h2
+            id="como-funciona-titulo"
+            className="font-black text-[clamp(26px,4vw,38px)] text-white mt-3 leading-tight"
+          >
             Três passos para começar
           </h2>
         </div>
 
         {/* Cards dos passos */}
-        <div style={{
-          display:             "grid",
-          gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))",
-          gap:                 "20px",
-        }}>
+        <div className="grid grid-cols-[repeat(auto-fit,minmax(240px,1fr))] gap-5">
           <StepCard
             number="01"
             title="Crie sua conta"
             description="Preencha seus dados pessoais, CPF e endereço. O processo é 100% online e leva menos de 5 minutos."
             icon={
-              <svg width="22" height="22" fill="none" viewBox="0 0 24 24" stroke={C.purple} strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round">
+              <svg width="22" height="22" fill="none" viewBox="0 0 24 24" stroke="#7c22d5" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                 <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
                 <circle cx="12" cy="7" r="4" />
               </svg>
@@ -208,7 +91,7 @@ export default function Home() {
             title="Envie ou receba"
             description="Faça transações internacionais de forma simples. Taxas transparentes e câmbio justo em tempo real."
             icon={
-              <svg width="22" height="22" fill="none" viewBox="0 0 24 24" stroke={C.purple} strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round">
+              <svg width="22" height="22" fill="none" viewBox="0 0 24 24" stroke="#7c22d5" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                 <line x1="12" y1="1" x2="12" y2="23" />
                 <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
               </svg>
@@ -219,7 +102,7 @@ export default function Home() {
             title="Acompanhe tudo"
             description="Veja o status de cada transação no seu dashboard em tempo real. Histórico completo sempre disponível."
             icon={
-              <svg width="22" height="22" fill="none" viewBox="0 0 24 24" stroke={C.purple} strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round">
+              <svg width="22" height="22" fill="none" viewBox="0 0 24 24" stroke="#7c22d5" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                 <rect x="2" y="3" width="20" height="14" rx="2" ry="2" />
                 <line x1="8" y1="21" x2="16" y2="21" />
                 <line x1="12" y1="17" x2="12" y2="21" />
@@ -228,26 +111,10 @@ export default function Home() {
           />
         </div>
       </section>
-
-      {/* ── Rodapé mínimo ── */}
-      <footer style={{
-        textAlign:     "center",
-        padding:       "24px",
-        fontFamily:    font,
-        fontWeight:    700,
-        fontSize:      "10px",
-        color:         "rgba(255,255,255,0.15)",
-        letterSpacing: "0.12em",
-        textTransform: "uppercase",
-        borderTop:     `1px solid ${C.grayBorder}`,
-      }}>
-        © {new Date().getFullYear()} UnboundCash · Protegido com criptografia de ponta a ponta
-      </footer>
     </main>
   );
 }
 
-// ─── Sub-componente: card de passo ────────────────────────────────
 function StepCard({
   number,
   title,
@@ -260,60 +127,23 @@ function StepCard({
   icon: React.ReactNode;
 }) {
   return (
-    <div style={{
-      background:    C.grayLight,
-      border:        `1px solid ${C.grayBorder}`,
-      borderRadius:  "16px",
-      padding:       "28px 24px",
-      display:       "flex",
-      flexDirection: "column",
-      gap:           "16px",
-    }}>
+    <div className="bg-white/[0.06] border border-white/10 rounded-2xl p-7 flex flex-col gap-4">
       {/* Ícone + número */}
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-        <div style={{
-          width:          "44px",
-          height:         "44px",
-          borderRadius:   "12px",
-          background:     C.purpleDim,
-          border:         `1px solid ${C.purpleBorder}`,
-          display:        "flex",
-          alignItems:     "center",
-          justifyContent: "center",
-        }}>
+      <div className="flex items-center justify-between">
+        <div className="w-11 h-11 rounded-xl bg-[rgba(124,34,213,0.15)] border border-[rgba(124,34,213,0.35)] flex items-center justify-center">
           {icon}
         </div>
-        <span style={{
-          fontFamily:    font,
-          fontWeight:    900,
-          fontSize:      "28px",
-          color:         "rgba(124,34,213,0.2)",
-          letterSpacing: "-0.04em",
-          lineHeight:    1,
-        }}>
+        <span className="font-black text-[28px] text-[rgba(124,34,213,0.2)] tracking-tight leading-none">
           {number}
         </span>
       </div>
 
       {/* Texto */}
       <div>
-        <h3 style={{
-          fontFamily:   font,
-          fontWeight:   900,
-          fontSize:     "17px",
-          color:        C.white,
-          marginBottom: "8px",
-        }}>
+        <h3 className="font-black text-[17px] text-white mb-2">
           {title}
         </h3>
-        <p style={{
-          fontFamily:  font,
-          fontWeight:  500,
-          fontSize:    "14px",
-          color:       C.textSub,
-          lineHeight:  1.6,
-          margin:      0,
-        }}>
+        <p className="font-medium text-sm text-white/65 leading-relaxed">
           {description}
         </p>
       </div>

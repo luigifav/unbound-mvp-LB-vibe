@@ -1,13 +1,18 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { useSession } from 'next-auth/react';
 import LoadingButton from '@/components/ui/LoadingButton';
 import Feedback from '@/components/ui/Feedback';
 
-// Tipos para o estado do resultado da transação
-type Resultado = { tipo: 'sucesso' | 'erro'; mensagem: string } | null;
+// Tipos para o estado do resultado de erro
+type Resultado = { tipo: 'erro'; mensagem: string } | null;
 
 export default function SendPage() {
+  const router = useRouter();
+  const { data: session } = useSession();
+
   // ─── Estado do formulário ───────────────────────────────────────
   const [valor, setValor] = useState('');
   const [moeda, setMoeda] = useState('USD');
@@ -19,20 +24,46 @@ export default function SendPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [resultado, setResultado] = useState<Resultado>(null);
 
-  // ─── Ponto de conexão com a API de envio ────────────────────────
-  // TODO: conectar com a rota POST /api/transactions/payout
-  const handleEnviar = () => {
+  // ─── Envia o formulário para a API real de payout ───────────────
+  const handleEnviar = async () => {
     setIsLoading(true);
     setResultado(null);
 
-    // TODO: substituir pela chamada real à API
-    setTimeout(() => {
-      setIsLoading(false);
-      setResultado({
-        tipo: 'sucesso',
-        mensagem: `Transferência de ${valor} ${moeda} para ${nomeDestinatario} enviada com sucesso!`,
+    try {
+      const resposta = await fetch('/api/transactions/payout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          customerId: session?.user?.id,
+          amount: parseFloat(valor),
+          currency: moeda,
+          recipientName: nomeDestinatario,
+          recipientBank: bancoDestinatario,
+          recipientAccount: numeroConta,
+        }),
       });
-    }, 2000);
+
+      const dados = await resposta.json();
+
+      if (!resposta.ok) {
+        // Exibe a mensagem de erro retornada pela API
+        setResultado({
+          tipo: 'erro',
+          mensagem: dados.mensagem ?? 'Erro ao processar a transferência.',
+        });
+        return;
+      }
+
+      // Redireciona para a página de status da transação criada
+      router.push(`/transactions/${dados.transacao.id}`);
+    } catch {
+      setResultado({
+        tipo: 'erro',
+        mensagem: 'Não foi possível conectar ao servidor. Tente novamente.',
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -142,10 +173,10 @@ export default function SendPage() {
             />
           </div>
 
-          {/* Feedback de sucesso ou erro após submissão */}
+          {/* Feedback de erro exibido quando a API retorna falha */}
           {resultado && (
             <Feedback
-              type={resultado.tipo === 'sucesso' ? 'success' : 'error'}
+              type="error"
               message={resultado.mensagem}
               onClose={() => setResultado(null)}
             />

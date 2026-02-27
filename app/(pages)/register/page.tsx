@@ -715,6 +715,7 @@ export default function RegisterPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           type: "individual",
+          password:      senha,
           first_name:    formData.first_name,
           last_name:     formData.last_name,
           email:         formData.email,

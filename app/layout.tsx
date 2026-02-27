@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import Header from "@/components/Header";
+import Providers from "@/components/Providers";
 
 export const metadata: Metadata = {
   title: "UnboundCash — Envie e receba dinheiro sem fronteiras",
@@ -16,9 +17,12 @@ export default function RootLayout({
   return (
     <html lang="pt-BR">
       <body>
-        {/* Header fixo em todas as páginas */}
-        <Header />
-        {children}
+        {/* Providers envolve tudo para disponibilizar SessionProvider do NextAuth */}
+        <Providers>
+          {/* Header fixo em todas as páginas */}
+          <Header />
+          {children}
+        </Providers>
       </body>
     </html>
   );

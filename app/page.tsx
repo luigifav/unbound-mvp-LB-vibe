@@ -10,58 +10,61 @@ export default function Home() {
       <div className="absolute top-[-250px] left-1/2 -translate-x-1/2 w-[800px] h-[600px] bg-[radial-gradient(ellipse,rgba(124,34,213,0.22)_0%,transparent_70%)] pointer-events-none" />
 
       {/* ════════════════ HERO ════════════════ */}
-      <section className="flex flex-col items-center text-center px-6 pt-[100px] pb-20 relative animate-[fadeUp_0.5s_ease]">
-        {/* Chip de destaque */}
-        <div className="inline-flex items-center gap-2 bg-[rgba(124,34,213,0.15)] border border-[rgba(124,34,213,0.35)] rounded-full px-3.5 py-1.5 mb-8">
-          <span className="text-sm">🇧🇷</span>
-          <span className="font-bold text-xs text-[#7c22d5] tracking-wider uppercase">
-            Pagamentos internacionais para o Brasil
-          </span>
+      <section className="flex flex-col items-center text-center px-4 sm:px-6 pt-[100px] pb-24 relative animate-[fadeUp_0.5s_ease]">
+        {/* Container centralizado */}
+        <div className="w-full max-w-[800px] mx-auto flex flex-col items-center gap-8">
+          {/* Chip de destaque */}
+          <div className="inline-flex items-center gap-2 bg-[rgba(124,34,213,0.15)] border border-[rgba(124,34,213,0.35)] rounded-full px-3.5 py-1.5">
+            <span className="text-sm">🇧🇷</span>
+            <span className="font-bold text-xs text-[#7c22d5] tracking-wider uppercase">
+              Pagamentos internacionais para o Brasil
+            </span>
+          </div>
+
+          {/* Título principal */}
+          <h1 className="font-black text-[clamp(36px,6vw,64px)] text-white leading-[1.1] tracking-tight">
+            Envie e receba dinheiro{" "}
+            <span className="text-[#7c22d5]">além-fronteiras</span>,
+            sem burocracia
+          </h1>
+
+          {/* Subtítulo */}
+          <p className="font-medium text-lg text-white/65 max-w-[520px] leading-relaxed">
+            Crie sua conta em minutos, passe pela verificação de identidade e
+            comece a movimentar seu dinheiro com segurança e agilidade.
+          </p>
+
+          {/* CTAs */}
+          <div className="flex gap-3 flex-wrap justify-center">
+            <Link
+              href="/register"
+              className="py-[15px] px-8 bg-[#7c22d5] rounded-[10px] text-white font-black text-[15px] tracking-wide no-underline hover:bg-[#6a1cb8] transition-colors"
+            >
+              Criar conta &rarr;
+            </Link>
+            <a
+              href="#como-funciona"
+              className="py-[15px] px-8 bg-transparent border border-white/10 rounded-[10px] text-white/65 font-bold text-[15px] no-underline hover:border-white/25 transition-colors"
+            >
+              Saiba mais
+            </a>
+          </div>
+
+          {/* Garantia social */}
+          <p className="font-bold text-[11px] text-white/45 tracking-wider uppercase">
+            Criptografia de ponta a ponta &middot; Verificação KYC &middot; Sem taxas ocultas
+          </p>
         </div>
-
-        {/* Título principal */}
-        <h1 className="font-black text-[clamp(36px,6vw,64px)] text-white leading-[1.1] max-w-[760px] mb-6 tracking-tight">
-          Envie e receba dinheiro{" "}
-          <span className="text-[#7c22d5]">além-fronteiras</span>,
-          sem burocracia
-        </h1>
-
-        {/* Subtítulo */}
-        <p className="font-medium text-lg text-white/65 max-w-[520px] leading-relaxed mb-11">
-          Crie sua conta em minutos, passe pela verificação de identidade e
-          comece a movimentar seu dinheiro com segurança e agilidade.
-        </p>
-
-        {/* CTAs */}
-        <div className="flex gap-3 flex-wrap justify-center">
-          <Link
-            href="/register"
-            className="py-[15px] px-8 bg-[#7c22d5] rounded-[10px] text-white font-black text-[15px] tracking-wide no-underline hover:bg-[#6a1cb8] transition-colors"
-          >
-            Criar conta &rarr;
-          </Link>
-          <a
-            href="#como-funciona"
-            className="py-[15px] px-8 bg-transparent border border-white/10 rounded-[10px] text-white/65 font-bold text-[15px] no-underline hover:border-white/25 transition-colors"
-          >
-            Saiba mais
-          </a>
-        </div>
-
-        {/* Garantia social */}
-        <p className="mt-7 font-bold text-[11px] text-white/45 tracking-wider uppercase">
-          Criptografia de ponta a ponta &middot; Verificação KYC &middot; Sem taxas ocultas
-        </p>
       </section>
 
       {/* ════════════════ COMO FUNCIONA ════════════════ */}
       <section
         id="como-funciona"
         aria-labelledby="como-funciona-titulo"
-        className="px-6 pt-20 pb-[100px] max-w-[900px] mx-auto animate-[fadeUp_0.5s_ease_0.15s_both]"
+        className="px-4 sm:px-6 pt-16 pb-24 max-w-[1000px] mx-auto animate-[fadeUp_0.5s_ease_0.15s_both]"
       >
         {/* Cabeçalho da seção */}
-        <div className="text-center mb-14">
+        <div className="text-center mb-12">
           <span className="font-bold text-[11px] text-[#7c22d5] tracking-[0.14em] uppercase">
             Como funciona
           </span>
@@ -127,7 +130,7 @@ function StepCard({
   icon: React.ReactNode;
 }) {
   return (
-    <div className="bg-white/[0.06] border border-white/10 rounded-2xl p-7 flex flex-col gap-4">
+    <div className="bg-white/[0.06] border border-white/10 rounded-2xl p-7 flex flex-col gap-5 h-full">
       {/* Ícone + número */}
       <div className="flex items-center justify-between">
         <div className="w-11 h-11 rounded-xl bg-[rgba(124,34,213,0.15)] border border-[rgba(124,34,213,0.35)] flex items-center justify-center">
@@ -139,8 +142,8 @@ function StepCard({
       </div>
 
       {/* Texto */}
-      <div>
-        <h3 className="font-black text-[17px] text-white mb-2">
+      <div className="flex flex-col gap-2">
+        <h3 className="font-black text-[17px] text-white">
           {title}
         </h3>
         <p className="font-medium text-sm text-white/65 leading-relaxed">

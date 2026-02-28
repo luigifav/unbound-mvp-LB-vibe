@@ -16,11 +16,10 @@ import type { Quote, Transaction } from '@/types'
 // ---------------------------------------------------------------------------
 
 interface WebhookBody {
-  event: string           // ex: "transaction.completed", "transaction.failed"
-  transaction_id: string  // UUID da transação na UnblockPay
-  transaction_type: string // "on_ramp" ou "off_ramp"
-  status: string          // novo status da transação
-  data: Transaction       // objeto Transaction completo
+  event: string  // ex: "payin.completed", "payout.failed", "payout.refunded"
+  data: Transaction & {
+    error_message?: string
+  }
 }
 
 // ---------------------------------------------------------------------------
@@ -51,19 +50,20 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const { event, transaction_id, transaction_type, data } = body
+    const { event, data } = body
+    const transactionId = data.id
 
-    // 3. Pay-in (on_ramp) concluído — buscar cotação off_ramp e criar payout
-    if (event === 'transaction.completed' && transaction_type === 'on_ramp') {
+    // 3. Pay-in concluído — buscar cotação off_ramp e criar payout
+    if (event === 'payin.completed') {
       // a. Busca a transação composta pelo id do pay-in
-      const compositeTx = await getCompositeTransactionByPayinId(transaction_id)
+      const compositeTx = await getCompositeTransactionByPayinId(transactionId)
 
-      // b. Se não encontrar, retorna 200 (pode ser transação antiga ou de outro sistema)
+      // b. Se não encontrar, retorna 200 (pode ser de outro sistema)
       if (!compositeTx) {
         return NextResponse.json({ received: true }, { status: 200 })
       }
 
-      // c. Atualiza status para 'converting' — indica que o payout está sendo preparado
+      // c. Atualiza status para 'converting' — payout sendo preparado
       await updateCompositeTransaction(compositeTx.id, { status: 'converting' })
 
       // d. Busca cotação off_ramp (USDC → moeda de destino)
@@ -115,8 +115,7 @@ export async function POST(request: NextRequest) {
 
       const wallet = walletsResult.data[0]
 
-      // f. Cria o payout (USDC → fiat destino) com wallet do usuário como sender
-      //    e dados do destinatário salvos na transação composta como receiver
+      // f. Cria o payout (USDC → fiat destino)
       const payoutResult = await createPayout({
         amount: data.receiver.amount ?? 0,
         quote_id: quote.id,
@@ -152,40 +151,56 @@ export async function POST(request: NextRequest) {
       })
 
       console.log(
-        `[Webhook UnblockPay] Pay-in ${transaction_id} concluído — payout ${payoutResult.data.id} criado para tx composta ${compositeTx.id}.`,
+        `[Webhook UnblockPay] payin.completed ${transactionId} — payout ${payoutResult.data.id} criado para tx composta ${compositeTx.id}.`,
       )
     }
 
-    // 4. Payout (off_ramp) concluído — marcar transação composta como completed
-    else if (event === 'transaction.completed' && transaction_type === 'off_ramp') {
-      // a. Busca a transação composta pelo id do payout
-      const compositeTx = await getCompositeTransactionByPayoutId(transaction_id)
+    // 4. Payout concluído — marcar transação composta como completed
+    else if (event === 'payout.completed') {
+      const compositeTx = await getCompositeTransactionByPayoutId(transactionId)
 
       if (!compositeTx) {
         return NextResponse.json({ received: true }, { status: 200 })
       }
 
-      // b. Atualiza status para 'completed' — fluxo completo encerrado com sucesso
       await updateCompositeTransaction(compositeTx.id, { status: 'completed' })
 
       console.log(
-        `[Webhook UnblockPay] Payout ${transaction_id} concluído — tx composta ${compositeTx.id} finalizada.`,
+        `[Webhook UnblockPay] payout.completed ${transactionId} — tx composta ${compositeTx.id} finalizada.`,
       )
     }
 
-    // 5. Transação falhou — marcar a transação composta como failed
-    else if (event === 'transaction.failed') {
-      // a. Tenta localizar a transação composta pelo payinId e depois pelo payoutId
+    // 5. Pay-in ou payout reembolsado — marcar como refunded
+    else if (event === 'payin.refunded' || event === 'payout.refunded') {
       const compositeTx =
-        (await getCompositeTransactionByPayinId(transaction_id)) ??
-        (await getCompositeTransactionByPayoutId(transaction_id))
+        event === 'payin.refunded'
+          ? await getCompositeTransactionByPayinId(transactionId)
+          : await getCompositeTransactionByPayoutId(transactionId)
 
       if (compositeTx) {
-        // b. Atualiza status para 'failed' com a mensagem de erro da UnblockPay
+        await updateCompositeTransaction(compositeTx.id, { status: 'refunded' })
+        console.log(
+          `[Webhook UnblockPay] ${event} ${transactionId} — tx composta ${compositeTx.id} marcada como refunded.`,
+        )
+      }
+    }
+
+    // 6. Pay-in ou payout falhou ou foi cancelado — marcar como failed
+    else if (
+      event === 'payin.failed' ||
+      event === 'payin.cancelled' ||
+      event === 'payout.failed' ||
+      event === 'payout.cancelled'
+    ) {
+      const compositeTx = event.startsWith('payin.')
+        ? await getCompositeTransactionByPayinId(transactionId)
+        : await getCompositeTransactionByPayoutId(transactionId)
+
+      if (compositeTx) {
         const errorMessage =
-          typeof (data as unknown as { error_message?: string }).error_message === 'string'
-            ? (data as unknown as { error_message: string }).error_message
-            : `Transação ${transaction_id} falhou com status: ${body.status}`
+          typeof data.error_message === 'string'
+            ? data.error_message
+            : `Transação ${transactionId} encerrada com evento: ${event}`
 
         await updateCompositeTransaction(compositeTx.id, {
           status: 'failed',
@@ -193,15 +208,14 @@ export async function POST(request: NextRequest) {
         })
 
         console.log(
-          `[Webhook UnblockPay] Transação ${transaction_id} falhou — tx composta ${compositeTx.id} marcada como failed.`,
+          `[Webhook UnblockPay] ${event} ${transactionId} — tx composta ${compositeTx.id} marcada como failed.`,
         )
       }
     }
 
-    // 6. Retorna 200 em todos os casos de sucesso — a UnblockPay não reenvia se receber 200
+    // 7. Retorna 200 em todos os casos — a UnblockPay não reenvia se receber 200
     return NextResponse.json({ received: true }, { status: 200 })
   } catch (err) {
-    // Captura erros inesperados e loga para depuração
     const mensagem =
       err instanceof Error ? err.message : 'Erro interno ao processar o webhook.'
 

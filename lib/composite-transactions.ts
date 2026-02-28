@@ -57,6 +57,14 @@ export async function getCompositeTransactionByPayinId(
   return all.find((tx) => tx.payinId === payinId) ?? null
 }
 
+// Busca uma transação composta pelo id do payout correspondente
+export async function getCompositeTransactionByPayoutId(
+  payoutId: string
+): Promise<CompositeTransaction | null> {
+  const all = await readAll()
+  return all.find((tx) => tx.payoutId === payoutId) ?? null
+}
+
 // Retorna todas as transações compostas de um usuário específico
 export async function listCompositeTransactionsByUser(
   userId: string

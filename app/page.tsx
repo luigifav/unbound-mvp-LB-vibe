@@ -10,9 +10,9 @@ export default function Home() {
       <div className="absolute top-[-250px] left-1/2 -translate-x-1/2 w-[800px] h-[600px] bg-[radial-gradient(ellipse,rgba(124,34,213,0.22)_0%,transparent_70%)] pointer-events-none" />
 
       {/* ════════════════ HERO ════════════════ */}
-      <section className="flex flex-col items-center text-center px-4 sm:px-6 pt-[100px] pb-24 relative animate-[fadeUp_0.5s_ease]">
+      <section className="py-24 px-4 sm:px-6 relative animate-[fadeUp_0.5s_ease]">
         {/* Container centralizado */}
-        <div className="w-full max-w-[800px] mx-auto flex flex-col items-center gap-8">
+        <div className="max-w-3xl mx-auto flex flex-col items-center text-center gap-6">
           {/* Chip de destaque */}
           <div className="inline-flex items-center gap-2 bg-[rgba(124,34,213,0.15)] border border-[rgba(124,34,213,0.35)] rounded-full px-3.5 py-1.5">
             <span className="text-sm">🇧🇷</span>
@@ -29,13 +29,12 @@ export default function Home() {
           </h1>
 
           {/* Subtítulo */}
-          <p className="font-medium text-lg text-white/65 max-w-[520px] leading-relaxed">
-            Crie sua conta em minutos, passe pela verificação de identidade e
-            comece a movimentar seu dinheiro com segurança e agilidade.
+          <p className="font-medium text-lg text-white/65 leading-relaxed">
+            Transações internacionais com câmbio justo, transferência rápida e total transparência de taxas.
           </p>
 
           {/* CTAs */}
-          <div className="flex gap-3 flex-wrap justify-center">
+          <div className="flex justify-center gap-4 flex-wrap">
             <Link
               href="/register"
               className="py-[15px] px-8 bg-[#7c22d5] rounded-[10px] text-white font-black text-[15px] tracking-wide no-underline hover:bg-[#6a1cb8] transition-colors"
@@ -51,9 +50,19 @@ export default function Home() {
           </div>
 
           {/* Garantia social */}
-          <p className="font-bold text-[11px] text-white/45 tracking-wider uppercase">
-            Criptografia de ponta a ponta &middot; Verificação KYC &middot; Sem taxas ocultas
-          </p>
+          <div className="flex justify-center items-center gap-2 flex-wrap">
+            <span className="font-bold text-[11px] text-white/45 tracking-wider uppercase">
+              Câmbio em tempo real
+            </span>
+            <span className="text-white/25 text-[11px]">&middot;</span>
+            <span className="font-bold text-[11px] text-white/45 tracking-wider uppercase">
+              Transferência internacional
+            </span>
+            <span className="text-white/25 text-[11px]">&middot;</span>
+            <span className="font-bold text-[11px] text-white/45 tracking-wider uppercase">
+              Sem taxas ocultas
+            </span>
+          </div>
         </div>
       </section>
 
@@ -61,57 +70,59 @@ export default function Home() {
       <section
         id="como-funciona"
         aria-labelledby="como-funciona-titulo"
-        className="px-4 sm:px-6 pt-16 pb-24 max-w-[1000px] mx-auto animate-[fadeUp_0.5s_ease_0.15s_both]"
+        className="py-24 animate-[fadeUp_0.5s_ease_0.15s_both]"
       >
-        {/* Cabeçalho da seção */}
-        <div className="text-center mb-12">
-          <span className="font-bold text-[11px] text-[#7c22d5] tracking-[0.14em] uppercase">
-            Como funciona
-          </span>
-          <h2
-            id="como-funciona-titulo"
-            className="font-black text-[clamp(26px,4vw,38px)] text-white mt-3 leading-tight"
-          >
-            Três passos para começar
-          </h2>
-        </div>
+        <div className="max-w-6xl mx-auto px-6">
+          {/* Cabeçalho da seção */}
+          <div className="text-center mb-12">
+            <span className="font-bold text-[11px] text-[#7c22d5] tracking-[0.14em] uppercase">
+              Como funciona
+            </span>
+            <h2
+              id="como-funciona-titulo"
+              className="font-black text-[clamp(26px,4vw,38px)] text-white mt-3 leading-tight"
+            >
+              Três passos para começar
+            </h2>
+          </div>
 
-        {/* Cards dos passos */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
-          <StepCard
-            number="01"
-            title="Crie sua conta"
-            description="Preencha seus dados pessoais, CPF e endereço. O processo é 100% online e leva menos de 5 minutos."
-            icon={
-              <svg width="22" height="22" fill="none" viewBox="0 0 24 24" stroke="#7c22d5" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
-                <circle cx="12" cy="7" r="4" />
-              </svg>
-            }
-          />
-          <StepCard
-            number="02"
-            title="Envie ou receba"
-            description="Faça transações internacionais de forma simples. Taxas transparentes e câmbio justo em tempo real."
-            icon={
-              <svg width="22" height="22" fill="none" viewBox="0 0 24 24" stroke="#7c22d5" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                <line x1="12" y1="1" x2="12" y2="23" />
-                <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
-              </svg>
-            }
-          />
-          <StepCard
-            number="03"
-            title="Acompanhe tudo"
-            description="Veja o status de cada transação no seu dashboard em tempo real. Histórico completo sempre disponível."
-            icon={
-              <svg width="22" height="22" fill="none" viewBox="0 0 24 24" stroke="#7c22d5" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                <rect x="2" y="3" width="20" height="14" rx="2" ry="2" />
-                <line x1="8" y1="21" x2="16" y2="21" />
-                <line x1="12" y1="17" x2="12" y2="21" />
-              </svg>
-            }
-          />
+          {/* Cards dos passos */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+            <StepCard
+              number="01"
+              title="Crie sua conta"
+              description="Cadastro 100% online. Preencha seus dados e comece em minutos."
+              icon={
+                <svg width="22" height="22" fill="none" viewBox="0 0 24 24" stroke="#7c22d5" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                  <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                  <circle cx="12" cy="7" r="4" />
+                </svg>
+              }
+            />
+            <StepCard
+              number="02"
+              title="Envie ou receba"
+              description="Converta moedas com câmbio justo e envie para qualquer país."
+              icon={
+                <svg width="22" height="22" fill="none" viewBox="0 0 24 24" stroke="#7c22d5" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                  <line x1="12" y1="1" x2="12" y2="23" />
+                  <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
+                </svg>
+              }
+            />
+            <StepCard
+              number="03"
+              title="Acompanhe tudo"
+              description="Histórico completo de transações e status em tempo real no seu dashboard."
+              icon={
+                <svg width="22" height="22" fill="none" viewBox="0 0 24 24" stroke="#7c22d5" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                  <rect x="2" y="3" width="20" height="14" rx="2" ry="2" />
+                  <line x1="8" y1="21" x2="16" y2="21" />
+                  <line x1="12" y1="17" x2="12" y2="21" />
+                </svg>
+              }
+            />
+          </div>
         </div>
       </section>
     </main>
@@ -130,7 +141,7 @@ function StepCard({
   icon: React.ReactNode;
 }) {
   return (
-    <div className="bg-white/[0.06] border border-white/10 rounded-2xl p-7 flex flex-col gap-5 h-full">
+    <div className="bg-white/[0.06] border border-white/10 rounded-2xl p-6 flex flex-col gap-5 h-full">
       {/* Ícone + número */}
       <div className="flex items-center justify-between">
         <div className="w-11 h-11 rounded-xl bg-[rgba(124,34,213,0.15)] border border-[rgba(124,34,213,0.35)] flex items-center justify-center">

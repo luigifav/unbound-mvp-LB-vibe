@@ -3,7 +3,7 @@ import Link from "next/link";
 export default function Footer() {
   return (
     <footer className="border-t border-white/10 bg-[#000904]">
-      <div className="max-w-[960px] mx-auto px-6 py-8 flex flex-col sm:flex-row items-center justify-between gap-4">
+      <div className="max-w-[960px] mx-auto px-6 pt-12 pb-8 flex flex-col sm:flex-row items-center justify-between gap-4">
         <p className="font-bold text-[10px] text-white/15 tracking-[0.12em] uppercase">
           &copy; {new Date().getFullYear()} UnboundCash &middot; Protegido com criptografia de ponta a ponta
         </p>

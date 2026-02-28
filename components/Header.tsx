@@ -5,10 +5,10 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 const navLinks = [
-  { label: "Início", href: "/" },
-  { label: "Enviar", href: "/send" },
-  { label: "Receber", href: "/receive" },
-  { label: "Dashboard", href: "/dashboard" },
+  { label: "Como funciona", href: "#como-funciona" },
+  { label: "Câmbio", href: "#cambio" },
+  { label: "Sobre", href: "#sobre" },
+  { label: "FAQ", href: "#faq" },
 ];
 
 export default function Header() {
@@ -17,7 +17,7 @@ export default function Header() {
 
   return (
     <header className="sticky top-0 z-50 w-full bg-[rgba(0,9,4,0.85)] backdrop-blur-[14px] border-b border-white/10">
-      <div className="max-w-[960px] mx-auto px-6 h-16 flex items-center justify-between">
+      <div className="max-w-6xl mx-auto flex items-center justify-between w-full px-6 py-4">
         {/* Logo */}
         <Link href="/" className="flex items-center gap-2 no-underline" aria-label="UnboundCash - Página inicial">
           <div className="w-[30px] h-[30px] rounded-lg bg-[#7c22d5] flex items-center justify-center shrink-0">
@@ -29,27 +29,27 @@ export default function Header() {
         </Link>
 
         {/* Nav desktop */}
-        <nav className="nav-desktop items-center gap-1" aria-label="Menu de navegação">
+        <nav className="nav-desktop items-center gap-8" aria-label="Menu de navegação">
           {navLinks.map((link) => (
             <Link
               key={link.href}
               href={link.href}
-              className={`py-2 px-3.5 rounded-lg font-bold text-[13px] no-underline transition-all duration-200 ${
-                pathname === link.href
-                  ? "text-white bg-white/[0.06]"
-                  : "text-white/65 hover:text-white hover:bg-white/[0.06]"
-              }`}
+              className="py-2 px-1 font-bold text-[13px] no-underline text-white/65 hover:text-white transition-colors duration-200"
             >
               {link.label}
             </Link>
           ))}
+        </nav>
+
+        {/* CTA button desktop */}
+        <div className="nav-desktop">
           <Link
             href="/register"
-            className="ml-3 py-2.5 px-[18px] bg-[#7c22d5] rounded-lg text-white font-bold text-[13px] no-underline tracking-wide hover:bg-[#9b4de0] transition-colors"
+            className="py-2.5 px-[18px] bg-[#7c22d5] rounded-lg text-white font-bold text-[13px] no-underline tracking-wide hover:bg-[#9b4de0] transition-colors"
           >
             Criar conta
           </Link>
-        </nav>
+        </div>
 
         {/* Botão hamburger mobile */}
         <button

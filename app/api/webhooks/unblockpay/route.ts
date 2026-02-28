@@ -1,9 +1,11 @@
 // Rota POST /api/webhooks/unblockpay
 // Recebe notificações automáticas da UnblockPay sobre mudanças de status de transações.
-// Não usa autenticação de sessão — a identidade é verificada via segredo compartilhado no header.
+// Não usa autenticação de sessão — a autenticidade é verificada consultando a própria API
+// da UnblockPay (verify-by-callback): se a transação existir e o status bater com o evento,
+// o webhook é legítimo.
 
 import { NextRequest, NextResponse } from 'next/server'
-import { createPayout, getWallets } from '@/lib/unblockpay'
+import { createPayout, getTransaction, getWallets } from '@/lib/unblockpay'
 import {
   getCompositeTransactionByPayinId,
   getCompositeTransactionByPayoutId,
@@ -26,20 +28,21 @@ interface WebhookBody {
 // POST /api/webhooks/unblockpay
 // ---------------------------------------------------------------------------
 
+// Mapeamento evento → status esperado na API da UnblockPay
+const EVENT_TO_STATUS: Record<string, string> = {
+  'payin.completed': 'completed',
+  'payin.failed': 'failed',
+  'payin.cancelled': 'cancelled',
+  'payin.refunded': 'refunded',
+  'payout.completed': 'completed',
+  'payout.failed': 'failed',
+  'payout.cancelled': 'cancelled',
+  'payout.refunded': 'refunded',
+}
+
 export async function POST(request: NextRequest) {
   try {
-    // 1. Verifica o segredo compartilhado no header para garantir autenticidade
-    const webhookSecret = process.env.UNBLOCKPAY_WEBHOOK_SECRET
-    const headerSecret = request.headers.get('x-webhook-secret')
-
-    if (!webhookSecret || headerSecret !== webhookSecret) {
-      return NextResponse.json(
-        { mensagem: 'Segredo inválido ou não informado.' },
-        { status: 401 },
-      )
-    }
-
-    // 2. Lê o corpo do webhook
+    // 1. Lê o corpo do webhook
     let body: WebhookBody
     try {
       body = (await request.json()) as WebhookBody
@@ -53,7 +56,30 @@ export async function POST(request: NextRequest) {
     const { event, data } = body
     const transactionId = data.id
 
-    // 3. Pay-in concluído — buscar cotação off_ramp e criar payout
+    // 2. Verify-by-callback: confirma que a transação existe na UnblockPay
+    //    e que o status dela é compatível com o evento recebido.
+    //    Isso garante que o webhook é legítimo sem precisar de um segredo compartilhado.
+    const txResult = await getTransaction(transactionId)
+
+    if (!txResult.success || !txResult.data) {
+      console.warn(
+        `[Webhook UnblockPay] Transação ${transactionId} não encontrada na API — webhook ignorado.`,
+      )
+      // Retorna 200 para a UnblockPay não reenviar; provavelmente é spoofing
+      return NextResponse.json({ received: true }, { status: 200 })
+    }
+
+    const expectedStatus = EVENT_TO_STATUS[event]
+    if (expectedStatus && txResult.data.status !== expectedStatus) {
+      console.warn(
+        `[Webhook UnblockPay] Status inconsistente para tx ${transactionId}: ` +
+          `evento="${event}" esperava status="${expectedStatus}" mas API retornou "${txResult.data.status}" — webhook ignorado.`,
+      )
+      return NextResponse.json({ received: true }, { status: 200 })
+    }
+
+    // 3. Processa o evento verificado
+    // Pay-in concluído — buscar cotação off_ramp e criar payout
     if (event === 'payin.completed') {
       // a. Busca a transação composta pelo id do pay-in
       const compositeTx = await getCompositeTransactionByPayinId(transactionId)
@@ -155,7 +181,7 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // 4. Payout concluído — marcar transação composta como completed
+    // Payout concluído — marcar transação composta como completed
     else if (event === 'payout.completed') {
       const compositeTx = await getCompositeTransactionByPayoutId(transactionId)
 
@@ -170,7 +196,7 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // 5. Pay-in ou payout reembolsado — marcar como refunded
+    // Pay-in ou payout reembolsado — marcar como refunded
     else if (event === 'payin.refunded' || event === 'payout.refunded') {
       const compositeTx =
         event === 'payin.refunded'
@@ -185,7 +211,7 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // 6. Pay-in ou payout falhou ou foi cancelado — marcar como failed
+    // Pay-in ou payout falhou ou foi cancelado — marcar como failed
     else if (
       event === 'payin.failed' ||
       event === 'payin.cancelled' ||
@@ -213,7 +239,7 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // 7. Retorna 200 em todos os casos — a UnblockPay não reenvia se receber 200
+    // 4. Retorna 200 em todos os casos — a UnblockPay não reenvia se receber 200
     return NextResponse.json({ received: true }, { status: 200 })
   } catch (err) {
     const mensagem =

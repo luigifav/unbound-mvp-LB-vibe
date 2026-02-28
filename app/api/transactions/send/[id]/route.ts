@@ -12,7 +12,7 @@ import { getCompositeTransaction } from '@/lib/composite-transactions'
 
 export async function GET(
   _request: NextRequest,
-  { params }: { params: { id: string } },
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
     // 1. Valida autenticação — retorna 401 se o usuário não estiver logado
@@ -26,7 +26,7 @@ export async function GET(
     }
 
     // 2. Pega o id da transação a partir dos parâmetros da URL
-    const { id } = params
+    const { id } = await params
 
     // 3. Busca a CompositeTransaction pelo ID
     const compositeTransaction = await getCompositeTransaction(id)

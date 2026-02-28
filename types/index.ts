@@ -252,3 +252,40 @@ export interface ApiResponse<T> {
   error: string | null
   success: boolean
 }
+
+// ---------------------------------------------------------------------------
+// Transação Composta (fluxo unificado pay-in + payout)
+// ---------------------------------------------------------------------------
+
+/** Possíveis estados de uma transação composta no fluxo unificado */
+export type CompositeTransactionStatus =
+  | 'pending_deposit'   // aguardando Pix do cliente
+  | 'converting'        // pay-in completo, disparando payout
+  | 'sending'           // payout em processamento
+  | 'completed'         // payout concluído
+  | 'failed'            // erro em qualquer etapa
+  | 'refunded'          // pay-in reembolsado
+
+export interface CompositeTransaction {
+  id: string                     // UUID gerado pelo backend
+  userId: string                 // id do usuário logado (session)
+  payinId: string                // id da transação pay-in na UnblockPay
+  payoutId?: string              // id da transação payout (preenchido depois)
+  status: CompositeTransactionStatus
+  amount: number                 // valor em fiat de origem
+  senderCurrency: string         // ex: BRL
+  receiverCurrency: string       // ex: MXN
+  recipientName: string
+  recipientPixKey?: string
+  recipientExternalAccountId?: string
+  depositInstructions?: {
+    amount: number
+    currency: string
+    payment_rail: string
+    deposit_address: string
+  }
+  quoteRate?: string             // taxa de câmbio usada
+  createdAt: string
+  updatedAt: string
+  errorMessage?: string
+}

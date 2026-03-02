@@ -48,7 +48,7 @@ function computeStepStates(
     status !== 'pending_deposit',
     (['converting', 'sending', 'completed'] as CompositeTransactionStatus[]).includes(status),
     (['sending', 'completed'] as CompositeTransactionStatus[]).includes(status),
-    status === 'completed',
+    false, // 'completed' já foi tratado pelo early return acima; aqui nunca é true
   ];
 
   // Etapa atual = última ativada; se nenhuma foi ativada (pending_deposit), usa a primeira

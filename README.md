@@ -20,6 +20,60 @@ You can start editing the page by modifying `app/page.tsx`. The page auto-update
 
 This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
+## Configuração de Variáveis de Ambiente
+
+Copie o arquivo `.env.example` para `.env.local` e preencha os valores:
+
+```bash
+cp .env.example .env.local
+```
+
+### Configuração do Webhook da UnblockPay
+
+O endpoint `/api/webhooks/unblockpay` recebe notificações automáticas da UnblockPay sobre mudanças
+de status das transações. Para que funcione corretamente, siga os passos abaixo.
+
+#### 1. Gerar o segredo do webhook
+
+Execute o comando abaixo para gerar um valor aleatório seguro:
+
+```bash
+node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
+```
+
+#### 2. Adicionar o segredo ao ambiente local
+
+Abra o `.env.local` e adicione o valor gerado:
+
+```env
+UNBLOCKPAY_WEBHOOK_SECRET=<valor-gerado-acima>
+```
+
+#### 3. Adicionar o segredo nas variáveis de ambiente da Vercel
+
+No painel da Vercel, acesse **Settings > Environment Variables** e adicione:
+
+| Variável | Valor |
+|---|---|
+| `UNBLOCKPAY_WEBHOOK_SECRET` | `<valor-gerado-acima>` |
+| `NEXT_PUBLIC_APP_URL` | `https://luzdiaria.com/` |
+
+#### 4. Registrar o webhook no painel da UnblockPay
+
+No painel da UnblockPay, cadastre um novo webhook com as seguintes configurações:
+
+- **URL do webhook:** `[NEXT_PUBLIC_APP_URL]/api/webhooks/unblockpay`
+  - Exemplo: `https://luzdiaria.com/api/webhooks/unblockpay`
+- **Eventos para assinar:**
+  - `transaction.completed`
+  - `transaction.failed`
+  - `transaction.refunded`
+- **Segredo compartilhado:** o mesmo valor definido em `UNBLOCKPAY_WEBHOOK_SECRET`
+
+> **Importante:** o segredo configurado no painel da UnblockPay deve ser **exatamente igual**
+> ao valor em `UNBLOCKPAY_WEBHOOK_SECRET`. Ele é enviado no header `x-webhook-secret` de cada
+> requisição e validado pelo servidor antes de processar qualquer evento.
+
 ## Learn More
 
 To learn more about Next.js, take a look at the following resources:

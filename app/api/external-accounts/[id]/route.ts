@@ -7,14 +7,15 @@ import { deleteExternalAccount } from '@/lib/external-accounts'
 
 export async function DELETE(
   _request: NextRequest,
-  { params }: { params: { id: string } },
+  { params }: { params: Promise<{ id: string }> },
 ) {
   const session = await getServerSession(authOptions)
   if (!session?.user?.id) {
     return NextResponse.json({ mensagem: 'Não autenticado.' }, { status: 401 })
   }
 
-  const deleted = await deleteExternalAccount(params.id, session.user.id)
+  const { id } = await params
+  const deleted = await deleteExternalAccount(id, session.user.id)
   if (!deleted) {
     return NextResponse.json(
       { mensagem: 'Conta não encontrada ou sem permissão para excluir.' },

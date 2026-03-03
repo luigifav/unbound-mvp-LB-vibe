@@ -60,7 +60,7 @@ const navLinks = [
   { label: "Dashboard", icon: LayoutDashboard, href: "/dashboard", active: true },
   { label: "Enviar", icon: ArrowUpRight, href: "/send", active: false },
   { label: "Receber", icon: ArrowDownLeft, href: "/receive", active: false },
-  { label: "Destinatários", icon: Users, href: "/recipients", active: false },
+  { label: "Destinatários", icon: Users, href: "/external-accounts", active: false },
   { label: "Histórico", icon: Clock, href: "/history", active: false },
   { label: "Perfil", icon: UserCircle, href: "/profile", active: false },
 ];

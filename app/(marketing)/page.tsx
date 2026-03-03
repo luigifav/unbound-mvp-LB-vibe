@@ -7,7 +7,7 @@ export default function Home() {
       <JsonLd />
 
       {/* Brilho roxo decorativo no topo */}
-      <div className="absolute top-[-250px] left-1/2 -translate-x-1/2 w-[800px] h-[600px] bg-[radial-gradient(ellipse,rgba(124,34,213,0.22)_0%,transparent_70%)] pointer-events-none" />
+      <div className="absolute top-[-250px] left-1/2 -translate-x-1/2 w-[800px] h-[600px] bg-[radial-gradient(ellipse,rgba(124,34,213,0.22)_0%,transparent_70%)] pointer-events-none z-0" />
 
       {/* ════════════════ HERO ════════════════ */}
       <section className="flex flex-col items-center justify-center text-center py-32 px-6 relative animate-[fadeUp_0.5s_ease]">

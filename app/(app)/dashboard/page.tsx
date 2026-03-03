@@ -277,7 +277,7 @@ export default function DashboardPage() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   return (
-    <div className="fixed inset-0 z-50 flex h-screen overflow-hidden bg-gray-950">
+    <div className="flex h-screen overflow-hidden bg-gray-950">
       {/* ── Desktop sidebar ── */}
       <div className="hidden md:block">
         <Sidebar />

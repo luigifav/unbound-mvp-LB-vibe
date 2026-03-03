@@ -725,7 +725,7 @@ export default function RegisterPage() {
       `}</style>
 
       <div style={{
-        minHeight: "calc(100vh - 64px)",
+        minHeight: "100vh",
         background: "#000904",
         display: "flex",
         flexDirection: "column",
@@ -741,10 +741,12 @@ export default function RegisterPage() {
           width: "700px", height: "500px",
           background: "radial-gradient(ellipse, rgba(124,34,213,0.2) 0%, transparent 70%)",
           pointerEvents: "none",
+          zIndex: 0,
         }} />
 
         {/* Card */}
         <div style={{
+          position: "relative", zIndex: 1,
           width: "100%", maxWidth: "500px",
           background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.08)",
           borderRadius: "20px", padding: "36px",

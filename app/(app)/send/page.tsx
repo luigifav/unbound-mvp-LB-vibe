@@ -402,17 +402,17 @@ export default function SendPage() {
     'text-white/45 font-bold text-[11px] uppercase tracking-widest';
 
   return (
-    <div className="min-h-[calc(100vh-64px)] bg-[#0D0D1A] flex flex-col items-center justify-center px-5 py-12 relative overflow-hidden">
+    <div className="min-h-screen bg-[#000904] flex flex-col items-center justify-center px-5 py-12 relative overflow-hidden">
 
       {/* Brilho roxo decorativo ao fundo */}
-      <div className="fixed top-[-200px] left-1/2 -translate-x-1/2 w-[700px] h-[500px] bg-[radial-gradient(ellipse,rgba(124,34,213,0.2)_0%,transparent_70%)] pointer-events-none" />
+      <div className="fixed top-[-200px] left-1/2 -translate-x-1/2 w-[700px] h-[500px] bg-[radial-gradient(ellipse,rgba(124,34,213,0.2)_0%,transparent_70%)] pointer-events-none z-0" />
 
       {/* ══════════════════════════════════════════════════════════════════
           ETAPA: FORMULÁRIO
           Coleta dados do envio e exibe preview de cotação
       ══════════════════════════════════════════════════════════════════ */}
       {etapa === 'form' && (
-        <div className="w-full max-w-[480px] bg-white/[0.03] border border-white/[0.08] rounded-[20px] p-9 animate-[fadeUp_0.45s_ease_0.1s_both]">
+        <div className="relative z-10 w-full max-w-[480px] bg-white/[0.03] border border-white/[0.08] rounded-[20px] p-9 animate-[fadeUp_0.45s_ease_0.1s_both]">
 
           {/* Cabeçalho */}
           <div className="mb-8">
@@ -454,7 +454,7 @@ export default function SendPage() {
               <select
                 value={paisSelecionado}
                 onChange={e => setPaisSelecionado(e.target.value)}
-                className="bg-[#0D0D1A] border border-white/10 rounded-[10px] px-4 py-3.5 text-white font-medium text-[15px] outline-none cursor-pointer transition-colors focus:border-[#7c22d5] appearance-none"
+                className="bg-[#000904] border border-white/10 rounded-[10px] px-4 py-3.5 text-white font-medium text-[15px] outline-none cursor-pointer transition-colors focus:border-[#7c22d5] appearance-none"
               >
                 {PAISES.map(p => (
                   <option key={p.valor} value={p.valor}>
@@ -595,7 +595,7 @@ export default function SendPage() {
           Instrui o usuário a realizar o Pix para a chave retornada
       ══════════════════════════════════════════════════════════════════ */}
       {etapa === 'deposit' && instrucoesDeposito && (
-        <div className="w-full max-w-[480px] bg-white/[0.03] border border-white/[0.08] rounded-[20px] p-9 animate-[fadeUp_0.45s_ease_0.1s_both]">
+        <div className="relative z-10 w-full max-w-[480px] bg-white/[0.03] border border-white/[0.08] rounded-[20px] p-9 animate-[fadeUp_0.45s_ease_0.1s_both]">
 
           {/* Ícone representando Pix */}
           <div className="w-14 h-14 rounded-2xl bg-[rgba(124,34,213,0.15)] border border-[rgba(124,34,213,0.25)] flex items-center justify-center mb-6">
@@ -698,7 +698,7 @@ export default function SendPage() {
           Polling de status com timeline visual de progresso
       ══════════════════════════════════════════════════════════════════ */}
       {etapa === 'tracking' && (
-        <div className="w-full max-w-[480px] animate-[fadeUp_0.45s_ease_0.1s_both]">
+        <div className="relative z-10 w-full max-w-[480px] animate-[fadeUp_0.45s_ease_0.1s_both]">
 
           {/* Card principal de tracking */}
           <div className="bg-white/[0.03] border border-white/[0.08] rounded-[20px] p-9 mb-4">
@@ -835,7 +835,7 @@ export default function SendPage() {
       )}
 
       {/* Rodapé de segurança */}
-      <p className="mt-6 font-bold text-[10px] text-white/15 tracking-[0.12em] uppercase animate-[fadeUp_0.5s_ease_0.2s_both]">
+      <p className="relative z-10 mt-6 font-bold text-[10px] text-white/15 tracking-[0.12em] uppercase animate-[fadeUp_0.5s_ease_0.2s_both]">
         Protegido por UnboundCash
       </p>
     </div>

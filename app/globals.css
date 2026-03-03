@@ -93,6 +93,24 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   }
 }
 
+/* ─── Marquee de logos ──────────────────────────────────────────── */
+.marquee-track {
+  width: max-content;
+}
+
+.marquee-content {
+  animation: marquee 30s linear infinite;
+}
+
+@keyframes marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-100%);
+  }
+}
+
 /* ─── Acessibilidade: respeitar preferência de movimento reduzido ── */
 @media (prefers-reduced-motion: reduce) {
   *,

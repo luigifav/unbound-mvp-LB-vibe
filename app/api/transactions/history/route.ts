@@ -1,6 +1,6 @@
 // Rota GET /api/transactions/history
 // Retorna o histórico de transações compostas do usuário autenticado,
-// ordenado da mais recente para a mais antiga.
+// ordenadas da mais recente para a mais antiga.
 
 import { NextResponse } from 'next/server'
 import { getServerSession } from '@/lib/auth'
@@ -12,7 +12,7 @@ import { listCompositeTransactionsByUser } from '@/lib/composite-transactions'
 // Requer autenticação via sessão NextAuth (JWT).
 //
 // Possíveis respostas:
-//   200 — array de transações ordenado por createdAt decrescente
+//   200 — { transacoes: [...] } ordenado por createdAt decrescente
 //   401 — usuário não autenticado
 //   500 — erro interno ao buscar as transações
 //
@@ -39,8 +39,7 @@ export async function GET() {
       (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
     )
 
-    // Retorna o histórico ordenado
-    return NextResponse.json(transacoesOrdenadas, { status: 200 })
+    return NextResponse.json({ transacoes: transacoesOrdenadas }, { status: 200 })
   } catch (err) {
     // Captura erros inesperados (ex: arquivo de storage corrompido ou ausente)
     const mensagem =

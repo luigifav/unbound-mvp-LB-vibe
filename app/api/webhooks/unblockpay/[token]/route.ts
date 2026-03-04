@@ -49,6 +49,7 @@ export async function POST(
     const { token } = await params
     const expectedToken = process.env.UNBLOCKPAY_WEBHOOK_TOKEN
     if (!expectedToken || token !== expectedToken) {
+      console.warn('[Webhook] Token inválido — acesso negado.')
       return NextResponse.json({ mensagem: 'Não autorizado.' }, { status: 401 })
     }
 

@@ -3,6 +3,7 @@
 
 import { NextRequest, NextResponse } from 'next/server'
 import { getTransaction } from '@/lib/unblockpay'
+import { getServerSession } from '@/lib/auth'
 
 // ---------------------------------------------------------------------------
 // GET /api/transactions/[id]
@@ -22,6 +23,19 @@ export async function GET(
   _request: NextRequest,
   { params }: { params: Promise<{ id: string }> },
 ) {
+  const session = await getServerSession()
+  if (!session?.user?.id) {
+    return NextResponse.json(
+      { mensagem: 'Não autorizado. Faça login para continuar.' },
+      { status: 401 },
+    )
+  }
+
+  // TODO: verificar se a transação pertence ao usuário autenticado.
+  // A UnblockPay v1 não retorna customer_id direto em GET /v1/transactions/{id}.
+  // Alternativa: buscar via GET /v1/customers/{session.user.id}/transactions
+  // e checar se o id está na lista antes de retornar detalhes.
+
   // Extrai o id da transação dos parâmetros de rota
   const { id } = await params
 

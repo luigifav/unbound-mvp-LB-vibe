@@ -27,17 +27,6 @@ export enum TransactionType {
 
 export type CustomerType = 'individual' | 'business'
 export type CustomerStatus = 'approved' | 'pending' | 'rejected'
-export type IdentityDocumentType =
-  | 'passport'
-  | 'national_id'
-  | 'driver_license'
-  | 'tax_id'
-
-export interface IdentityDocument {
-  type: IdentityDocumentType
-  value: string
-  country: string // ISO 3166-1 alpha-3 (ex: "BRA", "MEX")
-}
 
 export interface Address {
   street_line_1: string
@@ -53,19 +42,35 @@ export interface CreateIndividualCustomerData {
   first_name: string
   last_name: string
   email: string
-  phone_number: string
-  date_of_birth: string // formato YYYY-MM-DD
-  identity_documents: IdentityDocument[]
+  phone_number: string          // formato: +5511999999999
+  date_of_birth: string         // formato: YYYY-MM-DD
+  tin: string                   // CPF, SSN, etc.
+  country: string               // ISO 3166-1 alpha-3: "BRA", "USA", "MEX"
   address: Address
 }
 
 export interface CreateBusinessCustomerData {
   type: 'business'
   business_legal_name: string
+  date_of_incorporation: string // formato: YYYY-MM-DD
   email: string
   phone_number: string
-  identity_documents: IdentityDocument[]
+  tax_id: string                // CNPJ, EIN, etc.
+  country: string               // ISO 3166-1 alpha-3
   address: Address
+  website?: string
+  no_ubos?: boolean             // true se não há sócios/beneficiários
+  beneficiaries?: Array<{
+    first_name: string
+    last_name: string
+    email: string
+    phone_number: string
+    date_of_birth: string
+    tin: string
+    country: string
+    share_size?: string         // ex: "25.5"
+    address: Address
+  }>
 }
 
 export type CreateCustomerData =
@@ -84,7 +89,6 @@ export interface Customer {
   date_of_birth?: string
   // Campos de pessoa jurídica
   business_legal_name?: string
-  identity_documents: IdentityDocument[]
   address: Address
   created_at: string
   updated_at: string

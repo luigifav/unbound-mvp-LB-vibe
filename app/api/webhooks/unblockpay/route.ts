@@ -131,7 +131,7 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ received: true }, { status: 200 })
       }
 
-      const quoteResponse = await fetch(`${baseUrl}/quote`, {
+      const quoteResponse = await fetch(`${baseUrl}/v1/quote`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

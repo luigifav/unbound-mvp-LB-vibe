@@ -131,7 +131,7 @@ export default function Home() {
       <JsonLd />
 
       {/* Decorative purple glow — top */}
-      <div className="absolute top-[-250px] left-1/2 -translate-x-1/2 w-[900px] h-[650px] bg-[radial-gradient(ellipse,rgba(124,34,213,0.18)_0%,transparent_70%)] pointer-events-none z-0" />
+      <div className="absolute top-[-250px] inset-x-0 h-[650px] bg-[radial-gradient(ellipse,rgba(124,34,213,0.18)_0%,transparent_70%)] pointer-events-none z-0" />
 
       {/* ═══════════════════ HERO ═══════════════════ */}
       <section className="flex flex-col items-center text-center pt-20 sm:pt-28 pb-12 px-6 relative animate-[fadeUp_0.5s_ease]">

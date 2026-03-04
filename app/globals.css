@@ -75,27 +75,10 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   cursor: pointer;
 }
 
-/* ─── Responsividade do Header ──────────────────────────────────── */
-/* Nav desktop visível por padrão, hamburguer oculto */
-.nav-desktop {
-  display: flex;
-}
-.nav-mobile-btn {
-  display: none;
-}
-
-@media (max-width: 768px) {
-  .nav-desktop {
-    display: none !important;
-  }
-  .nav-mobile-btn {
-    display: flex !important;
-  }
-}
-
 /* ─── Marquee de logos ──────────────────────────────────────────── */
 .marquee-track {
-  width: max-content;
+  width: 100%;
+  overflow: hidden;
 }
 
 .marquee-content {

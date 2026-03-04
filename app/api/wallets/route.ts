@@ -4,6 +4,7 @@
 
 import { NextRequest, NextResponse } from 'next/server'
 import { createWallet, getWallets } from '@/lib/unblockpay'
+import { getServerSession } from '@/lib/auth'
 import type { CreateWalletData } from '@/types'
 
 // ---------------------------------------------------------------------------
@@ -18,16 +19,17 @@ import type { CreateWalletData } from '@/types'
 // curl "https://unbound-mvp.vercel.app/api/wallets?customerId=uuid-do-customer"
 
 export async function GET(request: NextRequest) {
-  const { searchParams } = new URL(request.url)
-  const customerId = searchParams.get('customerId')
+  const session = await getServerSession()
 
-  // Valida se o customerId foi enviado na query string
-  if (!customerId) {
+  if (!session?.user?.id) {
     return NextResponse.json(
-      { mensagem: 'O parâmetro "customerId" é obrigatório.' },
-      { status: 400 },
+      { mensagem: 'Não autenticado.' },
+      { status: 401 },
     )
   }
+
+  // customerId é sempre extraído da sessão — ignora qualquer query string
+  const customerId = session.user.id
 
   try {
     const resultado = await getWallets(customerId)
@@ -76,6 +78,18 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
+    const session = await getServerSession()
+
+    if (!session?.user?.id) {
+      return NextResponse.json(
+        { mensagem: 'Não autenticado.' },
+        { status: 401 },
+      )
+    }
+
+    // customerId é sempre extraído da sessão — ignora body.customerId
+    const customerId = session.user.id
+
     // Lê e valida o corpo da requisição
     let body: Record<string, unknown>
     try {
@@ -86,16 +100,6 @@ export async function POST(request: NextRequest) {
         { status: 400 },
       )
     }
-
-    // Valida se o customerId foi enviado
-    if (!body.customerId || typeof body.customerId !== 'string') {
-      return NextResponse.json(
-        { mensagem: 'O campo "customerId" é obrigatório.' },
-        { status: 400 },
-      )
-    }
-
-    const customerId = body.customerId
 
     // Define os dados da wallet com valores padrão para campos opcionais
     const walletData: CreateWalletData = {

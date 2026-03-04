@@ -4,6 +4,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createCustomer, createWallet } from '@/lib/unblockpay'
 import { saveUser } from '@/lib/users'
+import { getServerSession } from '@/lib/auth'
 import type { CreateCustomerData, CreateWalletData } from '@/types'
 
 // ---------------------------------------------------------------------------
@@ -17,7 +18,8 @@ import type { CreateCustomerData, CreateWalletData } from '@/types'
 //   "email": "joao@exemplo.com",
 //   "phone_number": "+5511999999999",
 //   "date_of_birth": "1990-01-15",
-//   "identity_documents": [{ "type": "tax_id", "value": "123.456.789-00", "country": "BRA" }],
+//   "tin": "12345678900",            // CPF, SSN, etc.
+//   "country": "BRA",                // ISO 3166-1 alpha-3
 //   "address": {
 //     "street_line_1": "Rua das Flores, 100",
 //     "city": "São Paulo",
@@ -33,10 +35,14 @@ import type { CreateCustomerData, CreateWalletData } from '@/types'
 // {
 //   "type": "business",
 //   "business_legal_name": "Empresa LTDA",
+//   "date_of_incorporation": "2010-05-20",
 //   "email": "contato@empresa.com",
 //   "phone_number": "+5511999999999",
-//   "identity_documents": [...],
-//   "address": { ... }
+//   "tax_id": "12345678000195",       // CNPJ, EIN, etc.
+//   "country": "BRA",
+//   "address": { ... },
+//   "website": "https://empresa.com", // opcional
+//   "no_ubos": false                  // opcional — true se não há sócios
 // }
 //
 // Exemplo de teste com curl (substitua pela URL do seu projeto na Vercel):
@@ -49,7 +55,8 @@ import type { CreateCustomerData, CreateWalletData } from '@/types'
 //     "email": "joao@exemplo.com",
 //     "phone_number": "+5511999999999",
 //     "date_of_birth": "1990-01-15",
-//     "identity_documents": [{ "type": "tax_id", "value": "12345678900", "country": "BRA" }],
+//     "tin": "12345678900",
+//     "country": "BRA",
 //     "address": {
 //       "street_line_1": "Rua das Flores, 100",
 //       "city": "São Paulo",
@@ -61,6 +68,10 @@ import type { CreateCustomerData, CreateWalletData } from '@/types'
 
 export async function POST(request: NextRequest) {
   try {
+    // O endpoint de cadastro é chamado ANTES do login — o usuário ainda não tem sessão neste ponto do fluxo.
+    // Por isso NÃO bloqueamos com 401; a sessão é registrada apenas para eventual auditoria futura.
+    await getServerSession()
+
     // Lê e valida o corpo da requisição
     let body: Record<string, unknown>
     try {

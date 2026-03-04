@@ -1,6 +1,6 @@
-// Rota POST /api/webhooks/unblockpay
+// Rota POST /api/webhooks/unblockpay/[token]
 // Recebe notificações automáticas da UnblockPay sobre mudanças de status de transações.
-// A autenticidade é verificada via HMAC-SHA256 (segredo compartilhado) e também pelo
+// A autenticidade é verificada via token no path e HMAC-SHA256 (segredo compartilhado) e também pelo
 // verify-by-callback: consulta a própria API da UnblockPay para confirmar o status.
 
 import { createHmac, timingSafeEqual } from 'crypto'
@@ -25,7 +25,7 @@ interface WebhookBody {
 }
 
 // ---------------------------------------------------------------------------
-// POST /api/webhooks/unblockpay
+// POST /api/webhooks/unblockpay/[token]
 // ---------------------------------------------------------------------------
 
 // Mapeamento evento → status esperado na API da UnblockPay
@@ -40,8 +40,18 @@ const EVENT_TO_STATUS: Record<string, string> = {
   'payout.refunded': 'refunded',
 }
 
-export async function POST(request: NextRequest) {
+export async function POST(
+  request: NextRequest,
+  { params }: { params: Promise<{ token: string }> },
+) {
   try {
+    // 0. Verifica token do path
+    const { token } = await params
+    const expectedToken = process.env.UNBLOCKPAY_WEBHOOK_TOKEN
+    if (!expectedToken || token !== expectedToken) {
+      return NextResponse.json({ mensagem: 'Não autorizado.' }, { status: 401 })
+    }
+
     // 1. Lê o corpo como texto RAW para calcular o HMAC antes de fazer parse
     const rawBody = await request.text()
     let body: WebhookBody

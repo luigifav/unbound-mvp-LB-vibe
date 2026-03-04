@@ -134,7 +134,7 @@ export default function Home() {
       <div className="absolute top-[-250px] inset-x-0 h-[650px] bg-[radial-gradient(ellipse,rgba(124,34,213,0.18)_0%,transparent_70%)] pointer-events-none z-0" />
 
       {/* ═══════════════════ HERO ═══════════════════ */}
-      <section className="flex flex-col items-center text-center pt-20 sm:pt-28 pb-12 px-6 relative animate-[fadeUp_0.5s_ease]">
+      <section className="flex flex-col items-center text-center pt-20 sm:pt-28 pb-12 px-4 sm:px-6 relative animate-[fadeUp_0.5s_ease]">
         <div className="max-w-3xl mx-auto flex flex-col gap-5 items-center">
           <SectionChip>Plataforma de câmbio internacional</SectionChip>
 
@@ -186,7 +186,7 @@ export default function Home() {
       <section
         id="vantagens"
         aria-labelledby="vantagens-titulo"
-        className="py-20 sm:py-28 px-6"
+        className="py-20 sm:py-28 px-4 sm:px-6"
       >
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-4 flex flex-col items-center gap-3">
@@ -232,7 +232,7 @@ export default function Home() {
       <section
         id="como-funciona"
         aria-labelledby="como-funciona-titulo"
-        className="py-20 sm:py-28 px-6 relative"
+        className="py-20 sm:py-28 px-4 sm:px-6 relative"
       >
         {/* Subtle purple glow */}
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[400px] bg-[radial-gradient(ellipse,rgba(124,34,213,0.08)_0%,transparent_70%)] pointer-events-none" />
@@ -276,7 +276,7 @@ export default function Home() {
       </section>
 
       {/* ═══════════════════ FAQ ═══════════════════ */}
-      <section id="faq" aria-labelledby="faq-titulo" className="py-20 sm:py-28 px-6">
+      <section id="faq" aria-labelledby="faq-titulo" className="py-20 sm:py-28 px-4 sm:px-6">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-4 flex flex-col items-center gap-3">
             <SectionChip>Dúvidas frequentes</SectionChip>
@@ -296,7 +296,7 @@ export default function Home() {
       </section>
 
       {/* ═══════════════════ CTA SECTION ═══════════════════ */}
-      <section className="py-20 sm:py-28 px-6 relative overflow-hidden">
+      <section className="py-20 sm:py-28 px-4 sm:px-6 relative overflow-hidden">
         {/* Purple gradient background */}
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(124,34,213,0.15)_0%,transparent_60%)] pointer-events-none" />
         <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[rgba(124,34,213,0.3)] to-transparent" />

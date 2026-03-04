@@ -1,9 +1,9 @@
-// Rota POST /api/webhooks/unblockpay
+// Rota POST /api/webhooks/unblockpay/[token]
 // Recebe notificações automáticas da UnblockPay sobre mudanças de status de transações.
-// Não usa autenticação de sessão — a autenticidade é verificada consultando a própria API
-// da UnblockPay (verify-by-callback): se a transação existir e o status bater com o evento,
-// o webhook é legítimo.
+// A autenticidade é verificada via token no path e HMAC-SHA256 (segredo compartilhado) e também pelo
+// verify-by-callback: consulta a própria API da UnblockPay para confirmar o status.
 
+import { createHmac, timingSafeEqual } from 'crypto'
 import { NextRequest, NextResponse } from 'next/server'
 import { createPayout, getTransaction, getWallets } from '@/lib/unblockpay'
 import {
@@ -25,7 +25,7 @@ interface WebhookBody {
 }
 
 // ---------------------------------------------------------------------------
-// POST /api/webhooks/unblockpay
+// POST /api/webhooks/unblockpay/[token]
 // ---------------------------------------------------------------------------
 
 // Mapeamento evento → status esperado na API da UnblockPay
@@ -40,25 +40,60 @@ const EVENT_TO_STATUS: Record<string, string> = {
   'payout.refunded': 'refunded',
 }
 
-export async function POST(request: NextRequest) {
+export async function POST(
+  request: NextRequest,
+  { params }: { params: Promise<{ token: string }> },
+) {
   try {
-    // 1. Lê o corpo do webhook
+    // 0. Verifica token do path
+    const { token } = await params
+    const expectedToken = process.env.UNBLOCKPAY_WEBHOOK_TOKEN
+    if (!expectedToken || token !== expectedToken) {
+      console.warn('[Webhook] Token inválido — acesso negado.')
+      return NextResponse.json({ mensagem: 'Não autorizado.' }, { status: 401 })
+    }
+
+    // 1. Lê o corpo como texto RAW para calcular o HMAC antes de fazer parse
+    const rawBody = await request.text()
     let body: WebhookBody
     try {
-      body = (await request.json()) as WebhookBody
+      body = JSON.parse(rawBody) as WebhookBody
     } catch {
-      return NextResponse.json(
-        { mensagem: 'O corpo da requisição deve ser um JSON válido.' },
-        { status: 400 },
-      )
+      return NextResponse.json({ mensagem: 'JSON inválido.' }, { status: 400 })
+    }
+
+    // 2. Verifica se o segredo está configurado
+    const secret = process.env.UNBLOCKPAY_WEBHOOK_SECRET
+    if (!secret) {
+      console.error('[Webhook] UNBLOCKPAY_WEBHOOK_SECRET não configurado.')
+      return NextResponse.json({ mensagem: 'Configuração interna inválida.' }, { status: 500 })
+    }
+
+    // 3. Verifica a assinatura HMAC-SHA256
+    // TODO: confirmar nome exato do header com o suporte da UnblockPay
+    const assinatura = request.headers.get('x-unblockpay-signature') ?? ''
+
+    const hmacEsperado = createHmac('sha256', secret)
+      .update(rawBody, 'utf8')
+      .digest('hex')
+
+    const bufferRecebido = Buffer.from(assinatura, 'hex')
+    const bufferEsperado = Buffer.from(hmacEsperado, 'hex')
+
+    const assinaturaValida =
+      bufferRecebido.length === bufferEsperado.length &&
+      timingSafeEqual(bufferRecebido, bufferEsperado)
+
+    if (!assinaturaValida) {
+      console.warn('[Webhook] Assinatura inválida — possível spoofing.')
+      return NextResponse.json({ mensagem: 'Assinatura inválida.' }, { status: 401 })
     }
 
     const { event, data } = body
     const transactionId = data.id
 
-    // 2. Verify-by-callback: confirma que a transação existe na UnblockPay
+    // 4. Verify-by-callback: confirma que a transação existe na UnblockPay
     //    e que o status dela é compatível com o evento recebido.
-    //    Isso garante que o webhook é legítimo sem precisar de um segredo compartilhado.
     const txResult = await getTransaction(transactionId)
 
     if (!txResult.success || !txResult.data) {
@@ -78,7 +113,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ received: true }, { status: 200 })
     }
 
-    // 3. Processa o evento verificado
+    // 5. Processa o evento verificado
     // Pay-in concluído — buscar cotação off_ramp e criar payout
     if (event === 'payin.completed') {
       // a. Busca a transação composta pelo id do pay-in
@@ -89,10 +124,16 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ received: true }, { status: 200 })
       }
 
-      // c. Atualiza status para 'converting' — payout sendo preparado
+      // c. Evita criar payout duplicado se webhook for entregue mais de uma vez
+      if (['converting', 'sending', 'completed'].includes(compositeTx.status)) {
+        console.warn(`[Webhook] payin.completed já processado para tx ${compositeTx.id} — ignorando.`)
+        return NextResponse.json({ received: true }, { status: 200 })
+      }
+
+      // d. Atualiza status para 'converting' — payout sendo preparado
       await updateCompositeTransaction(compositeTx.id, { status: 'converting' })
 
-      // d. Busca cotação off_ramp (USDC → moeda de destino)
+      // e. Busca cotação off_ramp (USDC → moeda de destino)
       const apiKey = process.env.UNBLOCKPAY_API_KEY
       const baseUrl = process.env.UNBLOCKPAY_BASE_URL
 
@@ -101,7 +142,7 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ received: true }, { status: 200 })
       }
 
-      const quoteResponse = await fetch(`${baseUrl}/quote`, {
+      const quoteResponse = await fetch(`${baseUrl}/v1/quote`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -127,7 +168,7 @@ export async function POST(request: NextRequest) {
 
       const quote = (await quoteResponse.json()) as Quote
 
-      // e. Busca a wallet do usuário para usar como sender no payout
+      // f. Busca a wallet do usuário para usar como sender no payout
       const walletsResult = await getWallets(compositeTx.userId)
 
       if (!walletsResult.success || !walletsResult.data || walletsResult.data.length === 0) {
@@ -141,7 +182,7 @@ export async function POST(request: NextRequest) {
 
       const wallet = walletsResult.data[0]
 
-      // f. Cria o payout (USDC → fiat destino)
+      // g. Cria o payout (USDC → fiat destino)
       const payoutResult = await createPayout({
         amount: data.receiver.amount ?? 0,
         quote_id: quote.id,
@@ -170,7 +211,7 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ received: true }, { status: 200 })
       }
 
-      // g. Atualiza a transação composta com o id do payout e status 'sending'
+      // h. Atualiza a transação composta com o id do payout e status 'sending'
       await updateCompositeTransaction(compositeTx.id, {
         payoutId: payoutResult.data.id,
         status: 'sending',
@@ -239,7 +280,7 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // 4. Retorna 200 em todos os casos — a UnblockPay não reenvia se receber 200
+    // 6. Retorna 200 em todos os casos — a UnblockPay não reenvia se receber 200
     return NextResponse.json({ received: true }, { status: 200 })
   } catch (err) {
     const mensagem =

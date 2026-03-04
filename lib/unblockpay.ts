@@ -13,6 +13,34 @@ import type {
 } from '@/types'
 
 // ---------------------------------------------------------------------------
+// Tipos auxiliares para KYC
+// ---------------------------------------------------------------------------
+
+type DocumentType =
+  | 'PASSPORT'
+  | 'NATIONAL_ID'
+  | 'DRIVER_LICENSE'
+  | 'PROOF_OF_ADDRESS'
+  | 'SELFIE'
+  | 'INCORPORATION_ARTICLES'
+  | 'INCORPORATION_CERTIFICATE'
+  | 'INCUMBENCY_CERTIFICATE'
+  | 'SHAREHOLDER_REGISTRY'
+  | 'STATE_COMPANY_REGISTRY'
+
+interface VerificationDetails {
+  customer_id: string
+  customer_status: string
+  verification_steps: {
+    pending: string[]
+    under_review: string[]
+    partially_rejected: Array<{ name: string; rejection_code: string[]; rejection_description: string }>
+    approved: string[]
+    rejected: Array<{ name: string; rejection_code: string[]; rejection_description: string }>
+  }
+}
+
+// ---------------------------------------------------------------------------
 // Configuração base
 // ---------------------------------------------------------------------------
 
@@ -120,7 +148,7 @@ async function callApi<T>(
 export async function createCustomer(
   data: CreateCustomerData,
 ): Promise<ApiResponse<Customer>> {
-  return callApi<Customer>('/customers', {
+  return callApi<Customer>('/v1/customers', {
     method: 'POST',
     body: JSON.stringify(data),
   })
@@ -144,7 +172,7 @@ export async function getCustomer(
     }
   }
 
-  return callApi<Customer>(`/customers/${customerId}`)
+  return callApi<Customer>(`/v1/customers/${customerId}`)
 }
 
 // ---------------------------------------------------------------------------
@@ -171,7 +199,7 @@ export async function createWallet(
     }
   }
 
-  return callApi<Wallet>(`/customers/${customerId}/wallets`, {
+  return callApi<Wallet>(`/v1/customers/${customerId}/wallets`, {
     method: 'POST',
     body: JSON.stringify(data),
   })
@@ -194,7 +222,7 @@ export async function getWallets(
     }
   }
 
-  return callApi<Wallet[]>(`/customers/${customerId}/wallets`)
+  return callApi<Wallet[]>(`/v1/customers/${customerId}/wallets`)
 }
 
 /**
@@ -217,7 +245,7 @@ export async function getWalletBalance(
   }
 
   return callApi<WalletBalance>(
-    `/customers/${customerId}/wallets/${walletId}/balance`,
+    `/v1/customers/${customerId}/wallets/${walletId}/balance`,
   )
 }
 
@@ -250,7 +278,7 @@ export async function createPayin(
     }
   }
 
-  return callApi<Transaction>('/payin', {
+  return callApi<Transaction>('/v1/payin', {
     method: 'POST',
     body: JSON.stringify(data),
   })
@@ -276,7 +304,7 @@ export async function createPayin(
 export async function createPayout(
   data: CreatePayoutData,
 ): Promise<ApiResponse<Transaction>> {
-  return callApi<Transaction>('/payout', {
+  return callApi<Transaction>('/v1/payout', {
     method: 'POST',
     body: JSON.stringify(data),
   })
@@ -307,7 +335,7 @@ export async function getTransaction(
     }
   }
 
-  return callApi<Transaction>(`/transactions/${transactionId}`)
+  return callApi<Transaction>(`/v1/transactions/${transactionId}`)
 }
 
 /**
@@ -328,5 +356,113 @@ export async function getTransactions(
     }
   }
 
-  return callApi<Transaction[]>(`/customers/${customerId}/transactions`)
+  return callApi<Transaction[]>(`/v1/customers/${customerId}/transactions`)
+}
+
+// ---------------------------------------------------------------------------
+// KYC — Upload de documento, verificação e consulta de detalhes
+// ---------------------------------------------------------------------------
+
+/**
+ * Faz upload de um documento para o processo de KYC/KYB de um cliente.
+ * Deve ser chamado para cada documento exigido antes de iniciar a verificação.
+ *
+ * Usa FormData (multipart/form-data) — o Content-Type é definido automaticamente
+ * pelo fetch com o boundary correto, por isso NÃO passamos Content-Type manual.
+ *
+ * @param customerId  UUID do cliente na UnblockPay
+ * @param file        Arquivo do documento (File ou Blob)
+ * @param metadata    Tipo do documento e informações opcionais
+ * @returns           O id do documento criado
+ */
+export async function uploadCustomerDocument(
+  customerId: string,
+  file: File | Blob,
+  metadata: {
+    document_type: DocumentType
+    document_side?: 'FRONT' | 'BACK'
+    country?: string
+    beneficiary_id?: string
+  },
+): Promise<ApiResponse<{ id: string }>> {
+  if (!customerId) {
+    return { data: null, error: 'O parâmetro customerId é obrigatório.', success: false }
+  }
+
+  const { apiKey, baseUrl } = getConfig()
+
+  const form = new FormData()
+  form.append('file', file)
+  form.append('document_type', metadata.document_type)
+  if (metadata.document_side) form.append('document_side', metadata.document_side)
+  if (metadata.country) form.append('country', metadata.country)
+  if (metadata.beneficiary_id) form.append('beneficiary_id', metadata.beneficiary_id)
+
+  try {
+    const response = await fetch(
+      `${baseUrl}/v1/customers/${customerId}/documents`,
+      {
+        method: 'POST',
+        headers: { Authorization: apiKey }, // sem Content-Type — o fetch define o boundary automaticamente
+        body: form,
+      },
+    )
+
+    let body: unknown
+    const contentType = response.headers.get('content-type') ?? ''
+    if (contentType.includes('application/json')) {
+      body = await response.json()
+    } else {
+      body = await response.text()
+    }
+
+    if (!response.ok) {
+      const message =
+        typeof body === 'object' &&
+        body !== null &&
+        'message' in body &&
+        typeof (body as Record<string, unknown>).message === 'string'
+          ? (body as Record<string, string>).message
+          : `Erro ${response.status}: ${response.statusText}`
+      return { data: null, error: message, success: false }
+    }
+
+    return { data: body as { id: string }, error: null, success: true }
+  } catch (err) {
+    const message =
+      err instanceof Error
+        ? `Falha no upload do documento: ${err.message}`
+        : 'Erro desconhecido ao fazer upload do documento.'
+    return { data: null, error: message, success: false }
+  }
+}
+
+/**
+ * Inicia a verificação KYC/KYB de um cliente.
+ * Deve ser chamado APÓS o upload de todos os documentos exigidos.
+ *
+ * @param customerId UUID do cliente na UnblockPay
+ */
+export async function runKycCheck(customerId: string): Promise<ApiResponse<null>> {
+  if (!customerId) {
+    return { data: null, error: 'O parâmetro customerId é obrigatório.', success: false }
+  }
+
+  return callApi<null>(`/v1/customers/${customerId}/check`, { method: 'POST' })
+}
+
+/**
+ * Consulta os detalhes da verificação KYC/KYB de um cliente,
+ * incluindo quais etapas estão pendentes, aprovadas ou rejeitadas.
+ *
+ * @param customerId UUID do cliente na UnblockPay
+ */
+export async function getVerificationDetails(
+  customerId: string,
+): Promise<ApiResponse<VerificationDetails>> {
+  if (!customerId) {
+    return { data: null, error: 'O parâmetro customerId é obrigatório.', success: false }
+  }
+
+  return callApi<VerificationDetails>(`/v1/customers/${customerId}/verification-details`)
 }

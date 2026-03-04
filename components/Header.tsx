@@ -36,7 +36,7 @@ export default function Header() {
 
         {/* Nav desktop */}
         <nav
-          className="nav-desktop items-center gap-7"
+          className="hidden md:flex items-center gap-7"
           aria-label="Menu de navegação"
         >
           {navLinks.map((link) => (
@@ -51,7 +51,7 @@ export default function Header() {
         </nav>
 
         {/* CTA buttons desktop */}
-        <div className="nav-desktop items-center gap-3">
+        <div className="hidden md:flex items-center gap-3">
           <Link
             href="/login"
             className="py-2.5 px-4 text-white/60 hover:text-white font-bold text-[13px] no-underline transition-colors"
@@ -68,7 +68,7 @@ export default function Header() {
 
         {/* Hamburger button mobile */}
         <button
-          className="nav-mobile-btn"
+          className="flex md:hidden"
           onClick={() => setMenuAberto(!menuAberto)}
           aria-label={menuAberto ? "Fechar menu" : "Abrir menu"}
           aria-expanded={menuAberto}

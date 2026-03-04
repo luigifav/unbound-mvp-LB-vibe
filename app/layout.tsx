@@ -1,7 +1,5 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
-import Header from "@/components/Header";
-import Footer from "@/components/Footer";
 import Providers from "@/components/Providers";
 
 export const viewport: Viewport = {
@@ -55,11 +53,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="pt-BR">
-      <body className="flex flex-col min-h-screen overflow-x-hidden">
+      <body className="min-h-screen overflow-x-hidden bg-[#000904] text-white">
         <Providers>
-          <Header />
-          <div className="flex-1">{children}</div>
-          <Footer />
+          {children}
         </Providers>
       </body>
     </html>

@@ -98,7 +98,7 @@ export default function SendDetailPage() {
   // ── Estado: carregando ────────────────────────────────────────────────────
   if (carregando) {
     return (
-      <div className="min-h-[calc(100vh-64px)] bg-[#000904] flex items-center justify-center">
+      <div className="min-h-screen bg-[#000904] flex items-center justify-center">
         <div className="w-8 h-8 border-2 border-[#7C22D5] border-t-transparent rounded-full animate-spin" />
       </div>
     );
@@ -107,7 +107,7 @@ export default function SendDetailPage() {
   // ── Estado: erro ou transação não encontrada ──────────────────────────────
   if (erroCarregamento || !transacao) {
     return (
-      <div className="min-h-[calc(100vh-64px)] bg-[#000904] flex flex-col items-center justify-center px-5 gap-4">
+      <div className="min-h-screen bg-[#000904] flex flex-col items-center justify-center px-5 gap-4">
         <p className="text-white/50 text-sm font-medium text-center">
           {erroCarregamento ?? 'Transação não encontrada.'}
         </p>
@@ -129,12 +129,12 @@ export default function SendDetailPage() {
   });
 
   return (
-    <div className="min-h-[calc(100vh-64px)] bg-[#000904] flex flex-col items-center justify-center px-5 py-12 relative overflow-hidden">
+    <div className="min-h-screen bg-[#000904] flex flex-col items-center justify-center px-5 py-12 relative overflow-hidden">
 
       {/* Brilho roxo decorativo ao fundo */}
-      <div className="fixed top-[-200px] left-1/2 -translate-x-1/2 w-[700px] h-[500px] bg-[radial-gradient(ellipse,rgba(124,34,213,0.2)_0%,transparent_70%)] pointer-events-none" />
+      <div className="fixed top-[-200px] left-1/2 -translate-x-1/2 w-[700px] h-[500px] bg-[radial-gradient(ellipse,rgba(124,34,213,0.2)_0%,transparent_70%)] pointer-events-none z-0" />
 
-      <div className="w-full max-w-[480px] flex flex-col gap-6 animate-[fadeUp_0.45s_ease_0.1s_both]">
+      <div className="relative z-10 w-full max-w-[480px] flex flex-col gap-6 animate-[fadeUp_0.45s_ease_0.1s_both]">
 
         {/* Link de voltar ao painel */}
         <Link

@@ -4,6 +4,7 @@
 
 import { NextRequest, NextResponse } from 'next/server'
 import { createPayout } from '@/lib/unblockpay'
+import { getServerSession } from '@/lib/auth'
 import type { CreatePayoutData } from '@/types'
 
 // ---------------------------------------------------------------------------
@@ -37,6 +38,15 @@ import type { CreatePayoutData } from '@/types'
 
 export async function POST(request: NextRequest) {
   try {
+    const session = await getServerSession()
+
+    if (!session?.user?.id) {
+      return NextResponse.json(
+        { mensagem: 'Não autenticado.' },
+        { status: 401 },
+      )
+    }
+
     // Lê e valida o corpo da requisição
     let body: Record<string, unknown>
     try {
@@ -49,13 +59,6 @@ export async function POST(request: NextRequest) {
     }
 
     // Valida os campos obrigatórios
-    if (!body.customerId || typeof body.customerId !== 'string') {
-      return NextResponse.json(
-        { mensagem: 'O campo "customerId" é obrigatório.' },
-        { status: 400 },
-      )
-    }
-
     if (!body.amount || typeof body.amount !== 'number' || body.amount <= 0) {
       return NextResponse.json(
         { mensagem: 'O campo "amount" é obrigatório e deve ser um número positivo.' },

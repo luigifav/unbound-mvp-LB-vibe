@@ -9,6 +9,21 @@ import { useSession } from 'next-auth/react';
 
 type Etapa = 'form' | 'deposit' | 'tracking';
 
+// Rail da UnblockPay para cada país de destino (apenas os mapeados em ExternalAccounts)
+const RAIL_POR_PAIS: Record<string, string> = {
+  MEX: 'SPEI',
+};
+
+interface ContaExterna {
+  id: string;
+  rail: string;
+  beneficiaryName: string;
+  clabe?: string;
+  accountNumber?: string;
+  iban?: string;
+  pixKey?: string;
+}
+
 type StatusComposito =
   | 'pending_deposit'
   | 'converting'
@@ -224,6 +239,10 @@ export default function SendPage() {
   const [nomeRemetente, setNomeRemetente] = useState('');
   const [cpfRemetente, setCpfRemetente] = useState('');
 
+  // ─── Contas externas salvas ───────────────────────────────────────────
+  const [contasExternas, setContasExternas] = useState<ContaExterna[]>([]);
+  const [contaSelecionadaId, setContaSelecionadaId] = useState<string | null>(null);
+
   // ─── Controle do preview de cotação ──────────────────────────────────
   const [cotacaoVisivel, setCotacaoVisivel] = useState(false);
 
@@ -250,9 +269,19 @@ export default function SendPage() {
   // Taxa aproximada para preview (sem chamada à API de cotação)
   const valorConvertido = valorNumerico * paisConfig.taxaAprox;
 
-  // ─── Limpa campo bancário e preview ao trocar de país ─────────────────
+  // ─── Carrega contas externas salvas ao montar ─────────────────────────
+  useEffect(() => {
+    fetch('/api/external-accounts')
+      .then(r => r.ok ? r.json() : { accounts: [] })
+      .then(d => setContasExternas(d.accounts ?? []))
+      .catch(() => {});
+  }, []);
+
+  // ─── Limpa campo bancário e conta selecionada ao trocar de país ────────
   useEffect(() => {
     setCampoBancario('');
+    setNomeDestinatario('');
+    setContaSelecionadaId(null);
     setCotacaoVisivel(false);
     setErroEnvio(null);
   }, [paisSelecionado]);
@@ -340,7 +369,10 @@ export default function SendPage() {
           receiverCurrency: paisConfig.moeda,
           receiverPaymentRail: paisConfig.rail,
           recipientName: nomeDestinatario,
-          recipientExternalAccountId: campoBancario,
+          // Usa o ID da conta salva ou o valor digitado manualmente como referência bancária
+          ...(contaSelecionadaId
+            ? { recipientExternalAccountId: contaSelecionadaId }
+            : { recipientBankingField: campoBancario }),
         }),
       });
 
@@ -386,6 +418,7 @@ export default function SendPage() {
     setCampoBancario('');
     setNomeRemetente('');
     setCpfRemetente('');
+    setContaSelecionadaId(null);
     setCotacaoVisivel(false);
     setErroEnvio(null);
     setCompositeTransactionId(null);
@@ -402,17 +435,17 @@ export default function SendPage() {
     'text-white/45 font-bold text-[11px] uppercase tracking-widest';
 
   return (
-    <div className="min-h-[calc(100vh-64px)] bg-[#0D0D1A] flex flex-col items-center justify-center px-5 py-12 relative overflow-hidden">
+    <div className="min-h-screen bg-[#000904] flex flex-col items-center justify-center px-5 py-12 relative overflow-hidden">
 
       {/* Brilho roxo decorativo ao fundo */}
-      <div className="fixed top-[-200px] left-1/2 -translate-x-1/2 w-[700px] h-[500px] bg-[radial-gradient(ellipse,rgba(124,34,213,0.2)_0%,transparent_70%)] pointer-events-none" />
+      <div className="fixed top-[-200px] left-1/2 -translate-x-1/2 w-[700px] h-[500px] bg-[radial-gradient(ellipse,rgba(124,34,213,0.2)_0%,transparent_70%)] pointer-events-none z-0" />
 
       {/* ══════════════════════════════════════════════════════════════════
           ETAPA: FORMULÁRIO
           Coleta dados do envio e exibe preview de cotação
       ══════════════════════════════════════════════════════════════════ */}
       {etapa === 'form' && (
-        <div className="w-full max-w-[480px] bg-white/[0.03] border border-white/[0.08] rounded-[20px] p-9 animate-[fadeUp_0.45s_ease_0.1s_both]">
+        <div className="relative z-10 w-full max-w-[480px] bg-white/[0.03] border border-white/[0.08] rounded-[20px] p-9 animate-[fadeUp_0.45s_ease_0.1s_both]">
 
           {/* Cabeçalho */}
           <div className="mb-8">
@@ -454,7 +487,7 @@ export default function SendPage() {
               <select
                 value={paisSelecionado}
                 onChange={e => setPaisSelecionado(e.target.value)}
-                className="bg-[#0D0D1A] border border-white/10 rounded-[10px] px-4 py-3.5 text-white font-medium text-[15px] outline-none cursor-pointer transition-colors focus:border-[#7c22d5] appearance-none"
+                className="bg-[#000904] border border-white/10 rounded-[10px] px-4 py-3.5 text-white font-medium text-[15px] outline-none cursor-pointer transition-colors focus:border-[#7c22d5] appearance-none"
               >
                 {PAISES.map(p => (
                   <option key={p.valor} value={p.valor}>
@@ -464,29 +497,109 @@ export default function SendPage() {
               </select>
             </div>
 
-            {/* Campo: Nome completo do destinatário */}
-            <div className="flex flex-col gap-1.5">
-              <label className={labelClass}>Nome Completo do Destinatário</label>
-              <input
-                type="text"
-                placeholder="Nome como consta na conta bancária"
-                value={nomeDestinatario}
-                onChange={e => setNomeDestinatario(e.target.value)}
-                className={inputClass}
-              />
-            </div>
+            {/* Contas salvas — exibidas quando o país tem rail mapeado e há contas */}
+            {(() => {
+              const railPais = RAIL_POR_PAIS[paisSelecionado];
+              const contasFiltradas = railPais
+                ? contasExternas.filter(c => c.rail === railPais)
+                : [];
+              if (contasFiltradas.length === 0) return null;
 
-            {/* Campo condicional por país: CLABE (México), CBU (Argentina), etc. */}
-            <div className="flex flex-col gap-1.5">
-              <label className={labelClass}>{paisConfig.campoLabel}</label>
-              <input
-                type="text"
-                placeholder={paisConfig.campoPlaceholder}
-                value={campoBancario}
-                onChange={e => setCampoBancario(e.target.value)}
-                className={inputClass}
-              />
-            </div>
+              return (
+                <div className="flex flex-col gap-2">
+                  <label className={labelClass}>Conta salva</label>
+                  <div className="flex flex-col gap-2">
+                    {contasFiltradas.map(conta => {
+                      const selecionada = contaSelecionadaId === conta.id;
+                      const detalhe = conta.clabe ?? conta.accountNumber ?? conta.iban ?? conta.pixKey ?? '';
+                      return (
+                        <button
+                          key={conta.id}
+                          type="button"
+                          onClick={() => {
+                            if (selecionada) {
+                              // Deseleciona — volta para entrada manual
+                              setContaSelecionadaId(null);
+                              setNomeDestinatario('');
+                              setCampoBancario('');
+                            } else {
+                              setContaSelecionadaId(conta.id);
+                              setNomeDestinatario(conta.beneficiaryName);
+                              setCampoBancario(detalhe);
+                              setErroEnvio(null);
+                            }
+                          }}
+                          className={`flex items-center justify-between px-4 py-3 rounded-[10px] border text-left transition-all duration-150 ${
+                            selecionada
+                              ? 'border-[#7c22d5] bg-[rgba(124,34,213,0.12)]'
+                              : 'border-white/10 bg-white/[0.03] hover:border-white/20'
+                          }`}
+                        >
+                          <div>
+                            <p className="text-white font-semibold text-sm">{conta.beneficiaryName}</p>
+                            {detalhe && (
+                              <p className="text-white/40 text-xs font-mono mt-0.5 truncate max-w-[240px]">
+                                {detalhe}
+                              </p>
+                            )}
+                          </div>
+                          {selecionada && (
+                            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" className="shrink-0 ml-3">
+                              <circle cx="8" cy="8" r="7" fill="#7c22d5" />
+                              <path d="M4.5 8L7 10.5L11.5 6" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                            </svg>
+                          )}
+                        </button>
+                      );
+                    })}
+                  </div>
+
+                  {/* Opção de entrada manual */}
+                  {contaSelecionadaId !== null && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setContaSelecionadaId(null);
+                        setNomeDestinatario('');
+                        setCampoBancario('');
+                      }}
+                      className="text-xs text-white/30 hover:text-white/55 text-left transition-colors"
+                    >
+                      Ou preencher manualmente →
+                    </button>
+                  )}
+                </div>
+              );
+            })()}
+
+            {/* Campo: Nome completo do destinatário — oculto se conta salva selecionada */}
+            {contaSelecionadaId === null && (
+              <div className="flex flex-col gap-1.5">
+                <label className={labelClass}>Nome Completo do Destinatário</label>
+                <input
+                  type="text"
+                  placeholder="Nome como consta na conta bancária"
+                  value={nomeDestinatario}
+                  onChange={e => setNomeDestinatario(e.target.value)}
+                  className={inputClass}
+                />
+              </div>
+            )}
+
+            {/* Campo condicional por país: CLABE (México), CBU (Argentina), etc.
+                Oculto quando conta salva está selecionada */}
+            {contaSelecionadaId === null && (
+              <div className="flex flex-col gap-1.5">
+                <label className={labelClass}>{paisConfig.campoLabel}</label>
+                <input
+                  type="text"
+                  placeholder={paisConfig.campoPlaceholder}
+                  value={campoBancario}
+                  onChange={e => setCampoBancario(e.target.value)}
+                  className={inputClass}
+                />
+              </div>
+            )}
 
             {/* Separador visual: dados do remetente */}
             <div className="relative flex items-center gap-3 my-1">
@@ -595,7 +708,7 @@ export default function SendPage() {
           Instrui o usuário a realizar o Pix para a chave retornada
       ══════════════════════════════════════════════════════════════════ */}
       {etapa === 'deposit' && instrucoesDeposito && (
-        <div className="w-full max-w-[480px] bg-white/[0.03] border border-white/[0.08] rounded-[20px] p-9 animate-[fadeUp_0.45s_ease_0.1s_both]">
+        <div className="relative z-10 w-full max-w-[480px] bg-white/[0.03] border border-white/[0.08] rounded-[20px] p-9 animate-[fadeUp_0.45s_ease_0.1s_both]">
 
           {/* Ícone representando Pix */}
           <div className="w-14 h-14 rounded-2xl bg-[rgba(124,34,213,0.15)] border border-[rgba(124,34,213,0.25)] flex items-center justify-center mb-6">
@@ -698,7 +811,7 @@ export default function SendPage() {
           Polling de status com timeline visual de progresso
       ══════════════════════════════════════════════════════════════════ */}
       {etapa === 'tracking' && (
-        <div className="w-full max-w-[480px] animate-[fadeUp_0.45s_ease_0.1s_both]">
+        <div className="relative z-10 w-full max-w-[480px] animate-[fadeUp_0.45s_ease_0.1s_both]">
 
           {/* Card principal de tracking */}
           <div className="bg-white/[0.03] border border-white/[0.08] rounded-[20px] p-9 mb-4">
@@ -835,7 +948,7 @@ export default function SendPage() {
       )}
 
       {/* Rodapé de segurança */}
-      <p className="mt-6 font-bold text-[10px] text-white/15 tracking-[0.12em] uppercase animate-[fadeUp_0.5s_ease_0.2s_both]">
+      <p className="relative z-10 mt-6 font-bold text-[10px] text-white/15 tracking-[0.12em] uppercase animate-[fadeUp_0.5s_ease_0.2s_both]">
         Protegido por UnboundCash
       </p>
     </div>

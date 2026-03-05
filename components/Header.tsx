@@ -5,11 +5,9 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 const navLinks = [
+  { label: "Vantagens", href: "#seguranca" },
   { label: "Como funciona", href: "#como-funciona" },
-  { label: "Câmbio", href: "#cambio" },
-  { label: "Vantagens", href: "#vantagens" },
   { label: "FAQ", href: "#faq" },
-  { label: "Sobre nós", href: "#sobre" },
 ];
 
 export default function Header() {
@@ -62,7 +60,7 @@ export default function Header() {
             href="/register"
             className="py-2.5 px-[18px] bg-[#7c22d5] rounded-lg text-white font-bold text-[13px] no-underline tracking-wide hover:bg-[#6a1cb8] transition-colors"
           >
-            Abrir conta
+            Usar Unbound
           </Link>
         </div>
 
@@ -133,7 +131,7 @@ export default function Header() {
               onClick={() => setMenuAberto(false)}
               className="block py-3.5 bg-[#7c22d5] rounded-lg text-white font-black text-sm no-underline text-center"
             >
-              Abrir conta
+              Usar Unbound
             </Link>
           </div>
         </nav>

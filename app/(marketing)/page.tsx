@@ -7,7 +7,7 @@ import CTASection from "@/components/landing/CTASection";
 
 export default function Home() {
   return (
-    <main className="bg-[#050A08] min-h-screen relative overflow-x-hidden">
+    <main className="bg-white min-h-screen relative overflow-x-hidden">
       <HeroSection />
       <IntegrationsSection />
       <SecuritySection />

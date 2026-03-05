@@ -18,10 +18,10 @@ export default function FAQSection() {
               Duvidas frequentes
             </span>
           </div>
-          <h2 className="text-3xl lg:text-4xl font-black text-white mb-4">
+          <h2 className="text-3xl lg:text-4xl font-black text-gray-900 mb-4">
             {t("faq.title")}
           </h2>
-          <p className="text-base text-white/40 max-w-2xl mx-auto font-medium">
+          <p className="text-base text-gray-500 max-w-2xl mx-auto font-medium">
             {t("faq.subtitle")}
           </p>
         </div>
@@ -32,25 +32,25 @@ export default function FAQSection() {
             return (
               <div
                 key={key}
-                className="rounded-2xl border border-white/[0.06] bg-white/[0.02] overflow-hidden transition-colors hover:border-white/10"
+                className="rounded-2xl border border-gray-200 bg-white overflow-hidden transition-colors hover:border-gray-300"
               >
                 <button
                   onClick={() => setOpenIndex(isOpen ? null : index)}
                   className="w-full flex items-center justify-between px-6 py-4 text-left cursor-pointer"
                 >
-                  <span className="font-bold text-white text-sm sm:text-base pr-4">
+                  <span className="font-bold text-gray-900 text-sm sm:text-base pr-4">
                     {t(`faq.${key}.title`)}
                   </span>
                   <ChevronDown
                     size={18}
-                    className={`text-white/40 shrink-0 transition-transform duration-200 ${isOpen ? "rotate-180" : ""}`}
+                    className={`text-gray-400 shrink-0 transition-transform duration-200 ${isOpen ? "rotate-180" : ""}`}
                   />
                 </button>
                 <div
                   className={`grid transition-all duration-200 ease-out ${isOpen ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"}`}
                 >
                   <div className="overflow-hidden">
-                    <p className="px-6 pb-4 text-sm text-white/45 leading-relaxed">
+                    <p className="px-6 pb-4 text-sm text-gray-500 leading-relaxed">
                       {t(`faq.${key}.answer`)}
                     </p>
                   </div>

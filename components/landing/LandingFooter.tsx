@@ -7,7 +7,7 @@ import { t } from "@/lib/landing/translations";
 
 export default function LandingFooter() {
   return (
-    <footer className="border-t border-white/[0.06] bg-[#050A08] pt-16 pb-8 px-6">
+    <footer className="border-t border-gray-200 bg-gray-50 pt-16 pb-8 px-6">
       <div className="max-w-6xl mx-auto">
         <div className="grid md:grid-cols-4 gap-10 mb-12">
           <div className="md:col-span-2">
@@ -16,23 +16,23 @@ export default function LandingFooter() {
               alt="Logotipo Unbound"
               width={120}
               height={32}
-              className="max-h-8 w-auto mb-4 brightness-0 invert"
+              className="max-h-8 w-auto mb-4 brightness-0"
               loading="lazy"
             />
-            <p className="text-white/25 text-sm font-medium max-w-[300px] leading-relaxed">
+            <p className="text-gray-400 text-sm font-medium max-w-[300px] leading-relaxed">
               {t("footer.description")}
             </p>
           </div>
 
           <div>
-            <h3 className="font-bold text-[10px] tracking-[0.14em] uppercase text-white/30 mb-4">
+            <h3 className="font-bold text-[10px] tracking-[0.14em] uppercase text-gray-400 mb-4">
               {t("footer.product")}
             </h3>
-            <ul className="space-y-2 text-white/20">
+            <ul className="space-y-2 text-gray-400">
               <li>
                 <a
                   href="#como-funciona"
-                  className="text-sm font-medium hover:text-white/50 transition-colors no-underline"
+                  className="text-sm font-medium hover:text-gray-600 transition-colors no-underline"
                 >
                   {t("footer.howItWorks")}
                 </a>
@@ -40,7 +40,7 @@ export default function LandingFooter() {
               <li>
                 <a
                   href="#seguranca"
-                  className="text-sm font-medium hover:text-white/50 transition-colors no-underline"
+                  className="text-sm font-medium hover:text-gray-600 transition-colors no-underline"
                 >
                   {t("footer.advantages")}
                 </a>
@@ -48,7 +48,7 @@ export default function LandingFooter() {
               <li>
                 <a
                   href="#faq"
-                  className="text-sm font-medium hover:text-white/50 transition-colors no-underline"
+                  className="text-sm font-medium hover:text-gray-600 transition-colors no-underline"
                 >
                   {t("footer.faq")}
                 </a>
@@ -57,10 +57,10 @@ export default function LandingFooter() {
           </div>
 
           <div>
-            <h3 className="font-bold text-[10px] tracking-[0.14em] uppercase text-white/30 mb-4">
+            <h3 className="font-bold text-[10px] tracking-[0.14em] uppercase text-gray-400 mb-4">
               {t("footer.contact")}
             </h3>
-            <ul className="space-y-2 text-white/20">
+            <ul className="space-y-2 text-gray-400">
               <li className="flex items-center gap-2">
                 <Mail className="h-4 w-4" />
                 <span className="text-sm">{t("footer.email")}</span>
@@ -77,28 +77,28 @@ export default function LandingFooter() {
           </div>
         </div>
 
-        <div className="h-px bg-white/[0.05] mb-6" />
+        <div className="h-px bg-gray-200 mb-6" />
 
         <div className="flex flex-col md:flex-row justify-between items-center gap-4">
-          <p className="text-white/15 text-xs font-medium">
+          <p className="text-gray-400 text-xs font-medium">
             &copy; {t("footer.rights")}
           </p>
-          <div className="flex gap-6 text-xs text-white/15 font-medium">
+          <div className="flex gap-6 text-xs text-gray-400 font-medium">
             <Link
               href="#"
-              className="hover:text-white/30 transition-colors no-underline"
+              className="hover:text-gray-600 transition-colors no-underline"
             >
               {t("footer.terms")}
             </Link>
             <Link
               href="#"
-              className="hover:text-white/30 transition-colors no-underline"
+              className="hover:text-gray-600 transition-colors no-underline"
             >
               {t("footer.privacy")}
             </Link>
             <Link
               href="#"
-              className="hover:text-white/30 transition-colors no-underline"
+              className="hover:text-gray-600 transition-colors no-underline"
             >
               {t("footer.support")}
             </Link>

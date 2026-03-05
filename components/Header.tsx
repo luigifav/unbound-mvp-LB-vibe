@@ -17,7 +17,7 @@ export default function Header() {
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 flex justify-center px-4 pt-4">
-      <div className="w-full max-w-5xl bg-white/[0.05] backdrop-blur-[20px] border border-white/[0.08] rounded-2xl px-5 py-3 flex items-center justify-between">
+      <div className="w-full max-w-5xl bg-white/80 backdrop-blur-[20px] border border-black/[0.06] rounded-2xl px-5 py-3 flex items-center justify-between shadow-sm">
         {/* Logo */}
         <Link
           href="/"
@@ -27,7 +27,7 @@ export default function Header() {
           <div className="w-[30px] h-[30px] rounded-lg bg-[#7c22d5] flex items-center justify-center shrink-0 group-hover:bg-[#6a1cb8] transition-colors">
             <span className="text-white font-black text-xs">U</span>
           </div>
-          <span className="text-white font-black text-base tracking-tight">
+          <span className="text-gray-900 font-black text-base tracking-tight">
             Unbound
           </span>
         </Link>
@@ -41,7 +41,7 @@ export default function Header() {
             <Link
               key={link.href}
               href={isHome ? link.href : `/${link.href}`}
-              className="py-1.5 px-1 font-bold text-[13px] no-underline text-white/50 hover:text-white transition-colors duration-200"
+              className="py-1.5 px-1 font-bold text-[13px] no-underline text-gray-500 hover:text-gray-900 transition-colors duration-200"
             >
               {link.label}
             </Link>
@@ -52,7 +52,7 @@ export default function Header() {
         <div className="hidden md:flex items-center gap-3">
           <Link
             href="/login"
-            className="py-2 px-4 text-white/60 hover:text-white font-bold text-[13px] no-underline transition-colors"
+            className="py-2 px-4 text-gray-500 hover:text-gray-900 font-bold text-[13px] no-underline transition-colors"
           >
             Entrar
           </Link>
@@ -66,7 +66,7 @@ export default function Header() {
 
         {/* Hamburger button mobile */}
         <button
-          className="flex md:hidden text-white"
+          className="flex md:hidden text-gray-900"
           onClick={() => setMenuAberto(!menuAberto)}
           aria-label={menuAberto ? "Fechar menu" : "Abrir menu"}
           aria-expanded={menuAberto}
@@ -102,7 +102,7 @@ export default function Header() {
       {menuAberto && (
         <div className="absolute top-full left-4 right-4 mt-2 max-w-5xl mx-auto">
           <nav
-            className="bg-[rgba(10,15,12,0.95)] backdrop-blur-[20px] border border-white/[0.08] rounded-2xl px-5 py-4 flex flex-col gap-1"
+            className="bg-white/95 backdrop-blur-[20px] border border-black/[0.06] rounded-2xl px-5 py-4 flex flex-col gap-1 shadow-lg"
             aria-label="Menu de navegação mobile"
           >
             {navLinks.map((link) => (
@@ -112,8 +112,8 @@ export default function Header() {
                 onClick={() => setMenuAberto(false)}
                 className={`block py-3 px-3.5 rounded-xl font-bold text-sm no-underline ${
                   pathname === link.href
-                    ? "text-white bg-white/[0.06]"
-                    : "text-white/55"
+                    ? "text-gray-900 bg-gray-100"
+                    : "text-gray-500"
                 }`}
               >
                 {link.label}
@@ -123,7 +123,7 @@ export default function Header() {
               <Link
                 href="/login"
                 onClick={() => setMenuAberto(false)}
-                className="block py-3.5 bg-white/[0.04] border border-white/[0.08] rounded-xl text-white/70 font-bold text-sm no-underline text-center"
+                className="block py-3.5 bg-gray-50 border border-gray-200 rounded-xl text-gray-600 font-bold text-sm no-underline text-center"
               >
                 Entrar
               </Link>

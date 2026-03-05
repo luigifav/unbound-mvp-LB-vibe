@@ -94,7 +94,87 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   }
 }
 
-/* ─── Acessibilidade: respeitar preferência de movimento reduzido ── */
+/* ─── Landing page animations ─────────────────────────────────────── */
+@keyframes lp-fade-in-up {
+  0% { opacity: 0; transform: translateY(30px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes lp-fade-in-scale {
+  0% { opacity: 0; transform: scale(0.95); }
+  100% { opacity: 1; transform: scale(1); }
+}
+
+@keyframes lp-slide-in-right {
+  0% { opacity: 0; transform: translateX(30px); }
+  100% { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes lp-shimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(200%); }
+}
+
+@keyframes lp-marquee {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+.lp-fade-in-up {
+  animation: lp-fade-in-up 0.6s ease-out forwards;
+}
+
+.lp-fade-in-scale {
+  animation: lp-fade-in-scale 0.5s ease-out forwards;
+}
+
+.lp-slide-in-right {
+  animation: lp-slide-in-right 0.6s ease-out forwards;
+}
+
+.lp-shimmer {
+  animation: lp-shimmer 2s ease-in-out infinite;
+}
+
+.lp-marquee {
+  animation: lp-marquee 30s linear infinite;
+}
+
+/* ─── Spotlight card effect ───────────────────────────────────────── */
+.spotlight-card {
+  position: relative;
+  border-radius: 1.5rem;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  background-color: rgba(255, 255, 255, 0.02);
+  padding: 1.5rem;
+  overflow: hidden;
+  --mouse-x: 50%;
+  --mouse-y: 50%;
+  --spotlight-color: rgba(124, 34, 213, 0.15);
+  backdrop-filter: blur(10px);
+}
+
+.spotlight-card::before {
+  content: "";
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: radial-gradient(circle at var(--mouse-x) var(--mouse-y), var(--spotlight-color), transparent 80%);
+  opacity: 0;
+  transition: opacity 0.5s ease;
+  pointer-events: none;
+}
+
+.spotlight-card:hover::before,
+.spotlight-card:focus-within::before {
+  opacity: 0.6;
+}
+
+.spotlight-card:hover {
+  border-color: rgba(255, 255, 255, 0.1);
+  background-color: rgba(255, 255, 255, 0.04);
+}
+
+/* ─── Acessibilidade: respeitar preferencia de movimento reduzido ── */
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,

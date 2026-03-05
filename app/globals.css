@@ -7,6 +7,7 @@
 :root {
   --background: #000904;
   --foreground: #ffffff;
+  --font-red-hat: "Red Hat Display", sans-serif;
 }
 
 @theme inline {
@@ -16,17 +17,19 @@
 }
 
 /* ─── Reset e base ──────────────────────────────────────────────── */
-* {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-}
+@layer base {
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: var(--font-red-hat), "Red Hat Display", sans-serif;
-  -webkit-font-smoothing: antialiased;
+  body {
+    background: var(--background);
+    color: var(--foreground);
+    font-family: var(--font-red-hat), "Red Hat Display", sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
 }
 
 /* ─── Animações globais ─────────────────────────────────────────── */

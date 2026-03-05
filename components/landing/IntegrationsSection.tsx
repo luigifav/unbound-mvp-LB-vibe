@@ -15,10 +15,10 @@ export default function IntegrationsSection() {
   const allLogos = [...partnerLogos, ...partnerLogos, ...partnerLogos];
 
   return (
-    <section className="relative py-12 border-y border-white/[0.04]">
+    <section className="relative py-12 border-y border-gray-100">
       <div className="max-w-6xl mx-auto px-6 relative z-10">
         <div className="text-center mb-8">
-          <p className="text-base font-medium text-white/40">
+          <p className="text-base font-medium text-gray-400">
             {t("integrations.title")}
           </p>
         </div>
@@ -33,7 +33,7 @@ export default function IntegrationsSection() {
                     alt={`Logo ${partner.name}`}
                     width={128}
                     height={48}
-                    className="h-full w-full object-contain brightness-0 invert opacity-30 hover:opacity-60 transition-opacity duration-300"
+                    className="h-full w-full object-contain brightness-0 opacity-30 hover:opacity-60 transition-opacity duration-300"
                     loading="lazy"
                   />
                 </div>

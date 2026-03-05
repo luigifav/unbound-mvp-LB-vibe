@@ -65,29 +65,29 @@ export default function FXCalculator() {
         : "";
 
   return (
-    <div className="relative overflow-hidden rounded-3xl border border-white/10 bg-white/[0.03] p-6 sm:p-8 shadow-xl backdrop-blur-sm transition-all duration-300 hover:shadow-2xl hover:border-white/20 max-w-lg mx-auto">
+    <div className="relative overflow-hidden rounded-3xl border border-gray-200 bg-white p-6 sm:p-8 shadow-xl transition-all duration-300 hover:shadow-2xl max-w-lg mx-auto">
       <div className="relative space-y-5">
         {/* BRL */}
         <div className="lp-fade-in-scale" style={{ animationDelay: "0.1s" }}>
           <div className="flex items-center justify-between mb-3">
-            <span className="text-sm font-medium text-white/50">
+            <span className="text-sm font-medium text-gray-500">
               {direction === "BRL_TO_USD"
                 ? t("calculator.youSend")
                 : t("calculator.youReceive")}
             </span>
-            <span className="inline-flex items-center gap-1.5 text-xs bg-white/[0.06] text-white/50 px-3 py-1.5 rounded-full font-medium">
+            <span className="inline-flex items-center gap-1.5 text-xs bg-gray-100 text-gray-600 px-3 py-1.5 rounded-full font-medium">
               <span className="text-sm leading-none">🇧🇷</span> BRL
             </span>
           </div>
           <div className="relative">
-            <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-3xl sm:text-4xl lg:text-5xl font-bold text-white pointer-events-none z-10">
+            <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-3xl sm:text-4xl lg:text-5xl font-bold text-gray-900 pointer-events-none z-10">
               R$
             </span>
             <input
               type="text"
               value={displayBRLValue}
               onChange={handleBRLChange}
-              className="w-full text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight border-0 bg-transparent pl-16 sm:pl-20 pr-4 py-6 text-white placeholder:text-white/20 focus:outline-none focus:ring-0"
+              className="w-full text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight border-0 bg-transparent pl-16 sm:pl-20 pr-4 py-6 text-gray-900 placeholder:text-gray-300 focus:outline-none focus:ring-0"
               placeholder="0"
               readOnly={direction === "USD_TO_BRL"}
             />
@@ -101,34 +101,34 @@ export default function FXCalculator() {
         >
           <button
             onClick={toggleDirection}
-            className="rounded-full p-3 border border-white/10 hover:scale-110 transition-all duration-200 hover:bg-[#7c22d5]/20 hover:border-[#7c22d5]/40 cursor-pointer"
+            className="rounded-full p-3 border border-gray-200 hover:scale-110 transition-all duration-200 hover:bg-[#7c22d5]/10 hover:border-[#7c22d5]/40 cursor-pointer"
             aria-label="Trocar direcao da conversao"
           >
-            <ArrowUpDown size={20} className="text-white/60" />
+            <ArrowUpDown size={20} className="text-gray-400" />
           </button>
         </div>
 
         {/* USD */}
         <div className="lp-fade-in-scale" style={{ animationDelay: "0.3s" }}>
           <div className="flex items-center justify-between mb-3">
-            <span className="text-sm font-medium text-white/50">
+            <span className="text-sm font-medium text-gray-500">
               {direction === "USD_TO_BRL"
                 ? t("calculator.youSend")
                 : t("calculator.youReceive")}
             </span>
-            <span className="inline-flex items-center gap-1.5 text-xs bg-white/[0.06] text-white/50 px-3 py-1.5 rounded-full font-medium">
+            <span className="inline-flex items-center gap-1.5 text-xs bg-gray-100 text-gray-600 px-3 py-1.5 rounded-full font-medium">
               <span className="text-sm leading-none">🇺🇸</span> USD
             </span>
           </div>
           <div className="relative">
-            <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-3xl sm:text-4xl lg:text-5xl font-bold text-emerald-400 pointer-events-none z-10">
+            <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-3xl sm:text-4xl lg:text-5xl font-bold text-emerald-500 pointer-events-none z-10">
               $
             </span>
             <input
               type="text"
               value={displayUSDValue}
               onChange={handleUSDChange}
-              className="w-full text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight border-0 bg-transparent pl-12 sm:pl-16 pr-4 py-6 text-emerald-400 placeholder:text-white/20 focus:outline-none focus:ring-0"
+              className="w-full text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight border-0 bg-transparent pl-12 sm:pl-16 pr-4 py-6 text-emerald-500 placeholder:text-gray-300 focus:outline-none focus:ring-0"
               placeholder="0"
               readOnly={direction === "BRL_TO_USD"}
             />
@@ -137,18 +137,18 @@ export default function FXCalculator() {
 
         {/* Rate info */}
         <div
-          className="bg-white/[0.03] rounded-2xl p-5 border border-white/[0.06] lp-fade-in-scale"
+          className="bg-gray-50 rounded-2xl p-5 border border-gray-100 lp-fade-in-scale"
           style={{ animationDelay: "0.4s" }}
         >
           <div className="text-sm space-y-1">
-            <p className="text-white/50">
+            <p className="text-gray-500">
               {t("calculator.exchangeRate")}:{" "}
-              <span className="font-medium text-white">
+              <span className="font-medium text-gray-900">
                 R$ {formatRate(rateData.effective)}
               </span>{" "}
               {t("calculator.per")} US$1
             </p>
-            <p className="text-xs text-white/30">
+            <p className="text-xs text-gray-400">
               {isLoading
                 ? t("calculator.updating")
                 : `${t("calculator.updatedAgo")} ${secondsSince}${t("calculator.seconds")}`}

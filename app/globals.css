@@ -5,8 +5,8 @@
 
 /* ─── Design tokens globais — mesma paleta do formulário de cadastro ─── */
 :root {
-  --background: #050A08;
-  --foreground: #ffffff;
+  --background: #ffffff;
+  --foreground: #1a1a2e;
   --font-red-hat: "Red Hat Display", sans-serif;
 }
 
@@ -55,18 +55,17 @@
   width: 4px;
 }
 ::-webkit-scrollbar-thumb {
-  background: rgba(124, 34, 213, 0.3);
+  background: rgba(124, 34, 213, 0.4);
   border-radius: 2px;
 }
 
 /* ─── Placeholder suave ─────────────────────────────────────────── */
 input::placeholder {
-  color: rgba(255, 255, 255, 0.18);
+  color: rgba(0, 0, 0, 0.25);
 }
 
 /* ─── Calendário do input date ──────────────────────────────────── */
 input[type="date"]::-webkit-calendar-picker-indicator {
-  filter: invert(0.5) sepia(1) saturate(3) hue-rotate(240deg);
   cursor: pointer;
 }
 
@@ -120,14 +119,14 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 .spotlight-card {
   position: relative;
   border-radius: 1.5rem;
-  border: 1px solid rgba(255, 255, 255, 0.06);
-  background-color: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  background-color: #ffffff;
   padding: 1.5rem;
   overflow: hidden;
   --mouse-x: 50%;
   --mouse-y: 50%;
-  --spotlight-color: rgba(124, 34, 213, 0.15);
-  backdrop-filter: blur(10px);
+  --spotlight-color: rgba(124, 34, 213, 0.1);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
 }
 
 .spotlight-card::before {
@@ -146,8 +145,9 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 }
 
 .spotlight-card:hover {
-  border-color: rgba(255, 255, 255, 0.1);
-  background-color: rgba(255, 255, 255, 0.04);
+  border-color: rgba(124, 34, 213, 0.2);
+  background-color: #ffffff;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
 }
 
 /* ─── Acessibilidade: respeitar preferencia de movimento reduzido ── */

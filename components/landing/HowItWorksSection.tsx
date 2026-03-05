@@ -12,8 +12,8 @@ const steps = [
 
 export default function HowItWorksSection() {
   return (
-    <section id="como-funciona" className="py-16 sm:py-24 relative">
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[400px] bg-[radial-gradient(ellipse,rgba(124,34,213,0.08)_0%,transparent_70%)] pointer-events-none" />
+    <section id="como-funciona" className="py-16 sm:py-24 relative bg-gray-50">
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[400px] bg-[radial-gradient(ellipse,rgba(124,34,213,0.04)_0%,transparent_70%)] pointer-events-none" />
 
       <div className="max-w-6xl mx-auto px-6 relative">
         <div className="text-center mb-14">
@@ -22,10 +22,10 @@ export default function HowItWorksSection() {
               Simples e rapido
             </span>
           </div>
-          <h2 className="text-3xl lg:text-4xl font-black text-white mb-4">
+          <h2 className="text-3xl lg:text-4xl font-black text-gray-900 mb-4">
             {t("howItWorks.title")}
           </h2>
-          <p className="text-base text-white/40 max-w-2xl mx-auto font-medium">
+          <p className="text-base text-gray-500 max-w-2xl mx-auto font-medium">
             {t("howItWorks.subtitle")}
           </p>
         </div>
@@ -41,10 +41,10 @@ export default function HowItWorksSection() {
                   <div className="inline-flex items-center justify-center w-14 h-14 rounded-full bg-[rgba(124,34,213,0.12)] border border-[rgba(124,34,213,0.25)] mb-5">
                     <step.icon className={`h-7 w-7 ${step.color}`} />
                   </div>
-                  <h3 className="text-lg font-bold text-white mb-3">
+                  <h3 className="text-lg font-bold text-gray-900 mb-3">
                     {t(`howItWorks.${step.key}.title`)}
                   </h3>
-                  <p className="text-sm text-white/40 leading-relaxed">
+                  <p className="text-sm text-gray-500 leading-relaxed">
                     {t(`howItWorks.${step.key}.description`)}
                   </p>
                 </div>

@@ -5,7 +5,7 @@ import Providers from "@/components/Providers";
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
-  themeColor: "#050A08",
+  themeColor: "#ffffff",
 };
 
 export const metadata: Metadata = {

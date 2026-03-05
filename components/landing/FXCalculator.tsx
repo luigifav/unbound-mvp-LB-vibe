@@ -75,8 +75,8 @@ export default function FXCalculator() {
                 ? t("calculator.youSend")
                 : t("calculator.youReceive")}
             </span>
-            <span className="text-xs bg-white/[0.06] text-white/50 px-3 py-1.5 rounded-full font-medium">
-              BRL
+            <span className="inline-flex items-center gap-1.5 text-xs bg-white/[0.06] text-white/50 px-3 py-1.5 rounded-full font-medium">
+              <span className="text-sm leading-none">🇧🇷</span> BRL
             </span>
           </div>
           <div className="relative">
@@ -116,8 +116,8 @@ export default function FXCalculator() {
                 ? t("calculator.youSend")
                 : t("calculator.youReceive")}
             </span>
-            <span className="text-xs bg-white/[0.06] text-white/50 px-3 py-1.5 rounded-full font-medium">
-              USD
+            <span className="inline-flex items-center gap-1.5 text-xs bg-white/[0.06] text-white/50 px-3 py-1.5 rounded-full font-medium">
+              <span className="text-sm leading-none">🇺🇸</span> USD
             </span>
           </div>
           <div className="relative">

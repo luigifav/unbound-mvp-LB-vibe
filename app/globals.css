@@ -7,14 +7,6 @@
 :root {
   --background: #000904;
   --foreground: #ffffff;
-  --purple: #7c22d5;
-  --purple-light: #9b4de0;
-  --purple-dim: rgba(124, 34, 213, 0.15);
-  --purple-border: rgba(124, 34, 213, 0.35);
-  --gray-light: rgba(255, 255, 255, 0.06);
-  --gray-border: rgba(255, 255, 255, 0.1);
-  --text-muted: rgba(255, 255, 255, 0.45);
-  --text-sub: rgba(255, 255, 255, 0.65);
 }
 
 @theme inline {
@@ -73,25 +65,6 @@ input::placeholder {
 input[type="date"]::-webkit-calendar-picker-indicator {
   filter: invert(0.5) sepia(1) saturate(3) hue-rotate(240deg);
   cursor: pointer;
-}
-
-/* ─── Marquee de logos ──────────────────────────────────────────── */
-.marquee-track {
-  width: 100%;
-  overflow: hidden;
-}
-
-.marquee-content {
-  animation: marquee 30s linear infinite;
-}
-
-@keyframes marquee {
-  from {
-    transform: translateX(0);
-  }
-  to {
-    transform: translateX(-100%);
-  }
 }
 
 /* ─── Landing page animations ─────────────────────────────────────── */

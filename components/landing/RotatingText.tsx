@@ -58,7 +58,7 @@ export default function RotatingText({
         aria-hidden="true"
       />
       <motion.span
-        className={`inline-flex items-center justify-center bg-white text-black rounded-md px-2 py-1 overflow-hidden ${className}`}
+        className={`inline-flex items-center justify-center bg-gray-900 text-white rounded-md px-2 py-1 overflow-hidden ${className}`}
         animate={{ width: currentWidth }}
         transition={{ width: { duration: 0.3, ease: "easeOut" } }}
       >

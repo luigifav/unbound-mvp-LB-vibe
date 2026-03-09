@@ -8,7 +8,6 @@ import {
   ArrowDownLeft,
   Users,
   Clock,
-  UserCircle,
   LogOut,
   Bell,
   RefreshCw,
@@ -61,8 +60,7 @@ const navLinks = [
   { label: "Enviar", icon: ArrowUpRight, href: "/send", active: false },
   { label: "Receber", icon: ArrowDownLeft, href: "/receive", active: false },
   { label: "Destinatários", icon: Users, href: "/external-accounts", active: false },
-  { label: "Histórico", icon: Clock, href: "/history", active: false },
-  { label: "Perfil", icon: UserCircle, href: "/profile", active: false },
+  { label: "Histórico", icon: Clock, href: "/transactions", active: false },
 ];
 
 /* ═══════════════════════════════════════════════
@@ -387,7 +385,7 @@ export default function DashboardPage() {
               Receber
             </Link>
             <Link
-              href="/history"
+              href="/transactions"
               className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-medium transition-colors bg-gray-800 hover:bg-gray-700 text-white border border-gray-700"
             >
               <Clock className="w-4 h-4" />
@@ -436,7 +434,7 @@ export default function DashboardPage() {
               Seus envios
             </h2>
             <Link
-              href="/history"
+              href="/transactions"
               className="text-sm text-purple-400 hover:text-purple-300 transition-colors"
             >
               Ver todos →

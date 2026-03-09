@@ -15,5 +15,6 @@ export const config = {
     "/send/:path*",
     "/receive/:path*",
     "/transactions/:path*",
+    "/external-accounts/:path*",
   ],
 };

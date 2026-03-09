@@ -674,8 +674,8 @@ export default function RegisterPage() {
           email:         formData.email,
           phone_number:  formData.phone_number,
           date_of_birth: formData.date_of_birth,
-          // Documento no formato esperado pela UnblockPay
-          identity_documents: [{ type: "tax_id", value: formData.doc_value.replace(/\D/g, ""), country: "BRA" }],
+          // CPF enviado como "tin" conforme o tipo CreateIndividualCustomerData
+          tin: formData.doc_value.replace(/\D/g, ""),
           // Endereço aninhado conforme exigido pela API
           address: {
             street_line_1: streetFull,

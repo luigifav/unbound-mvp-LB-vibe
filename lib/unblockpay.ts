@@ -393,10 +393,15 @@ export async function uploadCustomerDocument(
 
   const form = new FormData()
   form.append('file', file)
-  form.append('document_type', metadata.document_type)
-  if (metadata.document_side) form.append('document_side', metadata.document_side)
-  if (metadata.country) form.append('country', metadata.country)
-  if (metadata.beneficiary_id) form.append('beneficiary_id', metadata.beneficiary_id)
+
+  const metadataPayload: Record<string, string> = {
+    document_type: metadata.document_type,
+  }
+  if (metadata.document_side) metadataPayload.document_side = metadata.document_side
+  if (metadata.country) metadataPayload.country = metadata.country
+  if (metadata.beneficiary_id) metadataPayload.beneficiary_id = metadata.beneficiary_id
+
+  form.append('metadata', JSON.stringify(metadataPayload))
 
   try {
     const response = await fetch(

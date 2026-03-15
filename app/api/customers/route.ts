@@ -5,6 +5,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createCustomer, createWallet } from '@/lib/unblockpay'
 import { saveUser } from '@/lib/users'
 import { getServerSession } from '@/lib/auth'
+import { checkRateLimit } from '@/lib/rate-limit'
 import type { CreateCustomerData, CreateWalletData } from '@/types'
 
 // ---------------------------------------------------------------------------
@@ -87,9 +88,27 @@ function validateAddress(
 
 export async function POST(request: NextRequest) {
   try {
-    // O endpoint de cadastro é chamado ANTES do login — o usuário ainda não tem sessão neste ponto do fluxo.
-    // Por isso NÃO bloqueamos com 401; a sessão é registrada apenas para eventual auditoria futura.
-    await getServerSession()
+    // Rate limiting por IP — máximo 3 requisições por hora
+    const ip =
+      request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ??
+      request.headers.get('x-real-ip') ??
+      'unknown'
+    const { allowed } = checkRateLimit(ip, 3, 60 * 60 * 1000)
+    if (!allowed) {
+      return NextResponse.json(
+        { mensagem: 'Limite de requisições excedido. Tente novamente mais tarde.' },
+        { status: 429 },
+      )
+    }
+
+    // Verificação de sessão — exige autenticação
+    const session = await getServerSession()
+    if (!session?.user?.id) {
+      return NextResponse.json(
+        { mensagem: 'Não autorizado. Faça login para continuar.' },
+        { status: 401 },
+      )
+    }
 
     // Lê e valida o corpo da requisição
     let body: Record<string, unknown>

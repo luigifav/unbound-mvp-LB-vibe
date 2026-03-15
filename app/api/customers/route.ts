@@ -4,7 +4,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createCustomer, createWallet } from '@/lib/unblockpay'
 import { saveUser } from '@/lib/users'
-import { getServerSession } from '@/lib/auth'
 import { checkRateLimit } from '@/lib/rate-limit'
 import type { CreateCustomerData, CreateWalletData } from '@/types'
 
@@ -98,15 +97,6 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(
         { mensagem: 'Limite de requisições excedido. Tente novamente mais tarde.' },
         { status: 429 },
-      )
-    }
-
-    // Verificação de sessão — exige autenticação
-    const session = await getServerSession()
-    if (!session?.user?.id) {
-      return NextResponse.json(
-        { mensagem: 'Não autorizado. Faça login para continuar.' },
-        { status: 401 },
       )
     }
 

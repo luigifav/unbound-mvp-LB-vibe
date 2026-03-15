@@ -278,7 +278,7 @@ export async function POST(request: NextRequest) {
 
     // Retorna os dados completos do cliente e da wallet criados
     return NextResponse.json(
-      { customer, wallet },
+      { customer, wallet, verificationLink: customer.verification?.verification_link ?? null },
       { status: 201 },
     )
   } catch (err) {

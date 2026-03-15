@@ -122,6 +122,12 @@ async function callApi<T>(
       return { data: null, error: message, success: false }
     }
 
+    // Resposta bem-sucedida com corpo vazio (ex.: POST de KYC check)
+    const contentLength = response.headers.get('content-length')
+    if (contentLength === '0' || !contentType) {
+      return { data: null as T, error: null, success: true }
+    }
+
     return { data: body as T, error: null, success: true }
   } catch (err) {
     // Erros de rede ou de parse

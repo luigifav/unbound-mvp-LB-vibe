@@ -153,7 +153,7 @@ export async function POST(request: NextRequest) {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        Authorization: apiKey,
+        Authorization: `Bearer ${apiKey}`,
       },
       body: JSON.stringify({
         type: 'on_ramp',

@@ -74,7 +74,7 @@ function getConfig() {
 function buildHeaders(apiKey: string): HeadersInit {
   return {
     'Content-Type': 'application/json',
-    Authorization: apiKey,
+    Authorization: `Bearer ${apiKey}`,
   }
 }
 
@@ -423,7 +423,7 @@ export async function uploadCustomerDocument(
       `${baseUrl}/v1/customers/${customerId}/documents`,
       {
         method: 'POST',
-        headers: { Authorization: apiKey }, // sem Content-Type — o fetch define o boundary automaticamente
+        headers: { Authorization: `Bearer ${apiKey}` }, // sem Content-Type — o fetch define o boundary automaticamente
         body: form,
       },
     )

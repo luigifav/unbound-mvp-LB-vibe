@@ -685,6 +685,7 @@ export default function RegisterPage() {
             postal_code:   formData.postal_code.replace(/\D/g, ""),
             country:       "BRA",
           },
+          country: "BRA",
         }),
       });
 

@@ -389,6 +389,15 @@ export async function uploadCustomerDocument(
     return { data: null, error: 'O parâmetro customerId é obrigatório.', success: false }
   }
 
+  const identityDocTypes: DocumentType[] = ['PASSPORT', 'NATIONAL_ID', 'DRIVER_LICENSE']
+  if (identityDocTypes.includes(metadata.document_type) && !metadata.document_side) {
+    return {
+      data: null,
+      error: 'document_side é obrigatório para documentos de identidade (PASSPORT, NATIONAL_ID, DRIVER_LICENSE). Use FRONT ou BACK.',
+      success: false,
+    }
+  }
+
   const { apiKey, baseUrl } = getConfig()
 
   const form = new FormData()

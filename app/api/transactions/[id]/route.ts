@@ -2,7 +2,7 @@
 // Busca o status e os dados completos de uma transação na UnblockPay pelo seu ID.
 
 import { NextRequest, NextResponse } from 'next/server'
-import { getTransaction } from '@/lib/unblockpay'
+import { getTransaction, getTransactions } from '@/lib/unblockpay'
 import { getServerSession } from '@/lib/auth'
 
 // ---------------------------------------------------------------------------
@@ -31,13 +31,9 @@ export async function GET(
     )
   }
 
-  // TODO: verificar se a transação pertence ao usuário autenticado.
-  // A UnblockPay v1 não retorna customer_id direto em GET /v1/transactions/{id}.
-  // Alternativa: buscar via GET /v1/customers/{session.user.id}/transactions
-  // e checar se o id está na lista antes de retornar detalhes.
-
   // Extrai o id da transação dos parâmetros de rota
   const { id } = await params
+  const customerId = session.user.id
 
   // Valida se o id foi fornecido
   if (!id) {
@@ -48,6 +44,18 @@ export async function GET(
   }
 
   try {
+    // Verifica se a transação pertence ao usuário autenticado
+    const userTxResult = await getTransactions(customerId)
+    if (userTxResult.success && userTxResult.data) {
+      const belongsToUser = userTxResult.data.some(tx => tx.id === id)
+      if (!belongsToUser) {
+        return NextResponse.json(
+          { mensagem: 'Transação não encontrada.' },
+          { status: 404 },
+        )
+      }
+    }
+
     // Busca a transação na UnblockPay pelo ID fornecido
     const resultado = await getTransaction(id)
 

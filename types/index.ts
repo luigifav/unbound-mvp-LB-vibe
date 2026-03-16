@@ -92,6 +92,7 @@ export interface Customer {
   address: Address
   created_at: string
   updated_at: string
+  verification?: { verification_link: string; verification_type: string }
 }
 
 // ---------------------------------------------------------------------------

@@ -1,92 +1,61 @@
 "use client";
 
-import { useState } from "react";
-import { ChevronDown } from "lucide-react";
+import ScrollReveal from "@/components/ScrollReveal";
 
 const FAQ_ITEMS = [
   {
-    question: "Como funciona o envio de dinheiro pela Unbound?",
-    answer:
-      "Você cria sua conta, escolhe o valor e a moeda de destino, e realiza o pagamento via PIX. Nós convertemos automaticamente e enviamos para o destinatário. Todo o processo é rastreável em tempo real pelo seu dashboard.",
+    q: "O que é a Unbound?",
+    a: "A Unbound é uma plataforma de câmbio digital que permite enviar e receber dólares com taxas até 10x menores que bancos tradicionais, sem IOF e sem burocracia.",
   },
   {
-    question: "Qual é a taxa de câmbio utilizada?",
-    answer:
-      "Utilizamos câmbio comercial em tempo real, atualizado a cada 30 segundos. Nossa taxa é significativamente mais competitiva que bancos tradicionais e casas de câmbio, sem spreads ocultos.",
+    q: "Quanto tempo demora a transferência?",
+    a: "A maioria das transferências é processada em minutos. Em casos excepcionais, pode levar até algumas horas.",
   },
   {
-    question: "Quanto tempo demora para o dinheiro chegar?",
-    answer:
-      "Transferências via PIX são processadas em minutos. Para transferências internacionais, o prazo médio é de 1 a 2 dias úteis, dependendo do país e método de pagamento do destinatário.",
+    q: "A Unbound é segura?",
+    a: "Sim. Utilizamos criptografia de ponta a ponta, parceiros regulados e compliance rigoroso para garantir a segurança de todas as operações.",
   },
   {
-    question: "É seguro usar a Unbound?",
-    answer:
-      "Sim. Utilizamos criptografia de ponta a ponta, autenticação multifator e somos regulamentados. Todas as transações passam por verificação de compliance e prevenção a fraudes.",
+    q: "Qual o valor mínimo de envio?",
+    a: "O valor mínimo é de R$ 100 ou US$ 20 por operação.",
   },
   {
-    question: "Quais documentos preciso para criar minha conta?",
-    answer:
-      "Para pessoas físicas, basta seu CPF, dados pessoais e um endereço válido no Brasil. O cadastro é 100% digital e leva menos de 5 minutos.",
+    q: "Preciso ter conta nos EUA?",
+    a: "Não. A Unbound cuida de tudo. Basta criar sua conta e começar a operar.",
   },
   {
-    question: "Existe um limite de envio?",
-    answer:
-      "Sim, os limites variam conforme o nível de verificação da sua conta. Contas verificadas podem enviar até R$ 50.000 por transação. Para valores maiores, entre em contato com nosso suporte.",
+    q: "A Unbound cobra IOF?",
+    a: "Não. A operação é estruturada de forma que não incide IOF para o cliente.",
+  },
+  {
+    q: "Quais moedas são suportadas?",
+    a: "Atualmente suportamos BRL ↔ USD. Estamos expandindo para EUR, GBP e outras moedas em breve.",
   },
 ];
 
 export default function FaqAccordion() {
-  const [openIndex, setOpenIndex] = useState<number | null>(null);
-
-  const toggle = (index: number) => {
-    setOpenIndex(openIndex === index ? null : index);
-  };
-
   return (
-    <div className="flex flex-col gap-3 max-w-3xl mx-auto">
-      {FAQ_ITEMS.map((item, i) => {
-        const isOpen = openIndex === i;
-        return (
-          <div
-            key={i}
-            className={`border rounded-xl transition-all duration-300 ${
-              isOpen
-                ? "bg-white/[0.04] border-[rgba(124,34,213,0.25)]"
-                : "bg-white/[0.02] border-white/[0.06] hover:border-white/[0.12]"
-            }`}
+    <div className="max-w-[720px] mx-auto flex flex-col gap-3">
+      {FAQ_ITEMS.map((item, i) => (
+        <ScrollReveal key={i} delay={i * 50}>
+          <details
+            className="bg-white border border-[#e8e0f0] rounded-2xl overflow-hidden transition-all duration-300 group hover:border-[rgba(149,35,239,0.25)] open:border-[rgba(149,35,239,0.3)] open:shadow-[0_4px_16px_rgba(149,35,239,0.06)]"
           >
-            <button
-              onClick={() => toggle(i)}
-              className="w-full flex items-center justify-between gap-4 px-5 py-4 text-left cursor-pointer bg-transparent border-none"
-              aria-expanded={isOpen}
-            >
-              <span
-                className={`font-bold text-[15px] transition-colors duration-200 ${
-                  isOpen ? "text-white" : "text-white/70"
-                }`}
-              >
-                {item.question}
+            <summary className="flex justify-between items-center py-5 px-6 text-base font-semibold cursor-pointer select-none list-none transition-colors hover:text-[#9523ef] [&::-webkit-details-marker]:hidden">
+              {item.q}
+              <span className="text-[22px] font-light text-[#9523ef] transition-transform duration-300 group-open:rotate-45">
+                +
               </span>
-              <ChevronDown
-                size={18}
-                className={`shrink-0 text-[#7c22d5] transition-transform duration-300 ${
-                  isOpen ? "rotate-180" : ""
-                }`}
-              />
-            </button>
-            <div
-              className={`overflow-hidden transition-all duration-300 ease-[cubic-bezier(0.4,0,0.2,1)] ${
-                isOpen ? "max-h-60 opacity-100" : "max-h-0 opacity-0"
-              }`}
+            </summary>
+            <p
+              className="px-6 pb-5 text-[15px] leading-[1.7] text-[#52525b]"
+              style={{ animation: "fadeUp 0.3s ease" }}
             >
-              <p className="px-5 pb-5 pt-0 text-sm text-white/50 leading-relaxed font-medium">
-                {item.answer}
-              </p>
-            </div>
-          </div>
-        );
-      })}
+              {item.a}
+            </p>
+          </details>
+        </ScrollReveal>
+      ))}
     </div>
   );
 }

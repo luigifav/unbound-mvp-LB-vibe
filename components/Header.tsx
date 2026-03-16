@@ -1,143 +1,118 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 const navLinks = [
-  { label: "Como funciona", href: "#como-funciona" },
-  { label: "Câmbio", href: "#cambio" },
   { label: "Vantagens", href: "#vantagens" },
+  { label: "Como funciona", href: "#como-funciona" },
   { label: "FAQ", href: "#faq" },
-  { label: "Sobre nós", href: "#sobre" },
+  { label: "Sobre nós", href: "/sobre" },
 ];
 
 export default function Header() {
   const [menuAberto, setMenuAberto] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
   const pathname = usePathname();
   const isHome = pathname === "/";
 
+  useEffect(() => {
+    const handleScroll = () => setScrolled(window.scrollY > 60);
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
   return (
-    <header className="sticky top-0 z-50 w-full bg-[rgba(0,9,4,0.85)] backdrop-blur-[14px] border-b border-white/[0.06]">
-      <div className="max-w-6xl mx-auto flex items-center justify-between w-full px-6 py-4">
-        {/* Logo */}
+    <nav
+      className={`fixed top-4 left-1/2 -translate-x-1/2 z-[1000] flex items-center gap-8 py-3 px-7 bg-white/[0.92] backdrop-blur-[20px] rounded-full transition-shadow duration-300 ${
+        scrolled
+          ? "shadow-[0_4px_24px_rgba(0,0,0,0.12),0_1px_3px_rgba(0,0,0,0.06)]"
+          : "shadow-[0_4px_24px_rgba(0,0,0,0.08),0_1px_3px_rgba(0,0,0,0.04)]"
+      }`}
+    >
+      {/* Logo */}
+      <Link
+        href="/"
+        className="font-[800] text-xl tracking-tight text-[#9523ef] no-underline"
+        style={{ letterSpacing: "-0.03em" }}
+      >
+        unbound
+      </Link>
+
+      {/* Desktop nav */}
+      <div className="hidden md:flex items-center gap-6">
+        {navLinks.map((link) => (
+          <Link
+            key={link.href}
+            href={link.href.startsWith("#") && isHome ? link.href : link.href.startsWith("#") ? `/${link.href}` : link.href}
+            className={`text-sm font-medium no-underline transition-colors duration-200 ${
+              pathname === link.href
+                ? "text-[#9523ef] font-semibold"
+                : "text-[#52525b] hover:text-[#0a0a0a]"
+            }`}
+          >
+            {link.label}
+          </Link>
+        ))}
         <Link
-          href="/"
-          className="flex items-center gap-2.5 no-underline group"
-          aria-label="Unbound - Página inicial"
+          href="/register"
+          className="relative overflow-hidden inline-flex items-center py-2 px-5 text-sm font-semibold bg-[#9523ef] text-white rounded-full no-underline hover:bg-[#7a1bc9] transition-all duration-300 hover:-translate-y-px"
         >
-          <div className="w-[32px] h-[32px] rounded-lg bg-[#7c22d5] flex items-center justify-center shrink-0 group-hover:bg-[#6a1cb8] transition-colors">
-            <span className="text-white font-black text-sm">U</span>
-          </div>
-          <span className="text-white font-black text-lg tracking-tight">
-            Unbound
-          </span>
+          <span className="relative z-10">Use a Unbound</span>
+          <span
+            className="absolute top-0 left-[-100%] w-full h-full pointer-events-none"
+            style={{
+              background: "linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent)",
+              animation: "shimmerSlide 2.5s ease-in-out infinite",
+            }}
+          />
         </Link>
-
-        {/* Nav desktop */}
-        <nav
-          className="hidden md:flex items-center gap-7"
-          aria-label="Menu de navegação"
-        >
-          {navLinks.map((link) => (
-            <Link
-              key={link.href}
-              href={isHome ? link.href : `/${link.href}`}
-              className="py-2 px-1 font-bold text-[13px] no-underline text-white/50 hover:text-white transition-colors duration-200"
-            >
-              {link.label}
-            </Link>
-          ))}
-        </nav>
-
-        {/* CTA buttons desktop */}
-        <div className="hidden md:flex items-center gap-3">
-          <Link
-            href="/login"
-            className="py-2.5 px-4 text-white/60 hover:text-white font-bold text-[13px] no-underline transition-colors"
-          >
-            Entrar
-          </Link>
-          <Link
-            href="/register"
-            className="py-2.5 px-[18px] bg-[#7c22d5] rounded-lg text-white font-bold text-[13px] no-underline tracking-wide hover:bg-[#6a1cb8] transition-colors"
-          >
-            Abrir conta
-          </Link>
-        </div>
-
-        {/* Hamburger button mobile */}
-        <button
-          className="flex md:hidden"
-          onClick={() => setMenuAberto(!menuAberto)}
-          aria-label={menuAberto ? "Fechar menu" : "Abrir menu"}
-          aria-expanded={menuAberto}
-        >
-          <svg
-            width="22"
-            height="22"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-            aria-hidden="true"
-          >
-            {menuAberto ? (
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M6 18L18 6M6 6l12 12"
-              />
-            ) : (
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M4 6h16M4 12h16M4 18h16"
-              />
-            )}
-          </svg>
-        </button>
       </div>
+
+      {/* Mobile hamburger */}
+      <button
+        className="flex md:hidden flex-col gap-1 bg-transparent border-none cursor-pointer p-1.5"
+        onClick={() => setMenuAberto(!menuAberto)}
+        aria-label={menuAberto ? "Fechar menu" : "Abrir menu"}
+        aria-expanded={menuAberto}
+      >
+        <span
+          className="block w-5 h-0.5 bg-[#0a0a0a] rounded-sm transition-all duration-300"
+          style={menuAberto ? { transform: "rotate(45deg) translate(4px, 4px)" } : {}}
+        />
+        <span
+          className="block w-5 h-0.5 bg-[#0a0a0a] rounded-sm transition-all duration-300"
+          style={menuAberto ? { opacity: 0 } : {}}
+        />
+        <span
+          className="block w-5 h-0.5 bg-[#0a0a0a] rounded-sm transition-all duration-300"
+          style={menuAberto ? { transform: "rotate(-45deg) translate(4px, -4px)" } : {}}
+        />
+      </button>
 
       {/* Mobile menu */}
       {menuAberto && (
-        <nav
-          className="bg-[rgba(0,9,4,0.97)] border-t border-white/[0.06] px-6 py-3 flex flex-col gap-1"
-          aria-label="Menu de navegação mobile"
-        >
+        <div className="absolute top-full left-0 right-0 mt-2 flex flex-col bg-white/[0.96] backdrop-blur-[20px] rounded-b-3xl shadow-[0_8px_24px_rgba(0,0,0,0.1)] p-4 gap-3">
           {navLinks.map((link) => (
             <Link
               key={link.href}
-              href={isHome ? link.href : `/${link.href}`}
+              href={link.href.startsWith("#") && isHome ? link.href : link.href.startsWith("#") ? `/${link.href}` : link.href}
               onClick={() => setMenuAberto(false)}
-              className={`block py-3 px-3.5 rounded-lg font-bold text-sm no-underline ${
-                pathname === link.href
-                  ? "text-white bg-white/[0.06]"
-                  : "text-white/55"
-              }`}
+              className="block py-3 px-4 rounded-xl text-sm font-medium no-underline text-[#52525b] hover:bg-[#f5f0fc]"
             >
               {link.label}
             </Link>
           ))}
-          <div className="flex flex-col gap-2 mt-2">
-            <Link
-              href="/login"
-              onClick={() => setMenuAberto(false)}
-              className="block py-3.5 bg-white/[0.04] border border-white/[0.08] rounded-lg text-white/70 font-bold text-sm no-underline text-center"
-            >
-              Entrar
-            </Link>
-            <Link
-              href="/register"
-              onClick={() => setMenuAberto(false)}
-              className="block py-3.5 bg-[#7c22d5] rounded-lg text-white font-black text-sm no-underline text-center"
-            >
-              Abrir conta
-            </Link>
-          </div>
-        </nav>
+          <Link
+            href="/register"
+            onClick={() => setMenuAberto(false)}
+            className="block py-3.5 bg-[#9523ef] rounded-xl text-white font-[800] text-sm no-underline text-center"
+          >
+            Use a Unbound
+          </Link>
+        </div>
       )}
-    </header>
+    </nav>
   );
 }

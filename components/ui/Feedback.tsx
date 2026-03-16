@@ -1,33 +1,27 @@
 "use client";
 
-// Componente de mensagem de erro e sucesso — mesmo visual dos banners do formulário
-const font = "'Red Hat Display', sans-serif";
+const font = "'Red Hat Display', -apple-system, BlinkMacSystemFont, sans-serif";
 
 interface FeedbackProps {
-  /** "success" exibe banner verde, "error" exibe banner vermelho */
   type: "success" | "error";
-  /** Mensagem exibida ao usuário */
   message: string;
-  /** Callback opcional para fechar o banner */
   onClose?: () => void;
 }
 
-// Componente Feedback: banner de sucesso ou erro com ícone e botão de fechar opcional
 export default function Feedback({ type, message, onClose }: FeedbackProps) {
   const isSuccess = type === "success";
 
-  // Cores específicas para cada tipo de feedback
   const colors = isSuccess
     ? {
-        bg:     "rgba(76,175,130,0.1)",
-        border: "rgba(76,175,130,0.3)",
-        text:   "rgba(100,220,170,0.9)",
-        icon:   "#4caf82",
+        bg:     "rgba(34,197,94,0.10)",
+        border: "rgba(34,197,94,0.30)",
+        text:   "#166534",
+        icon:   "#22c55e",
       }
     : {
         bg:     "rgba(240,96,96,0.08)",
         border: "rgba(240,96,96,0.25)",
-        text:   "rgba(240,150,150,0.9)",
+        text:   "#991b1b",
         icon:   "#f06060",
       };
 
@@ -46,12 +40,10 @@ export default function Feedback({ type, message, onClose }: FeedbackProps) {
         fontFamily:   font,
       }}
     >
-      {/* Ícone: check para sucesso, exclamação para erro */}
       <div style={{ flexShrink: 0, marginTop: "1px" }}>
         {isSuccess ? <IconCheck color={colors.icon} /> : <IconAlert color={colors.icon} />}
       </div>
 
-      {/* Texto da mensagem */}
       <p style={{
         fontWeight:  500,
         fontSize:    "13px",
@@ -63,7 +55,6 @@ export default function Feedback({ type, message, onClose }: FeedbackProps) {
         {message}
       </p>
 
-      {/* Botão de fechar — só exibido se onClose for fornecido */}
       {onClose && (
         <button
           onClick={onClose}
@@ -86,8 +77,6 @@ export default function Feedback({ type, message, onClose }: FeedbackProps) {
     </div>
   );
 }
-
-// ─── Ícones internos ──────────────────────────────────────────────
 
 function IconCheck({ color }: { color: string }) {
   return (

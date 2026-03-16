@@ -7,6 +7,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from '@/lib/auth'
 import { getWallets, createPayin } from '@/lib/unblockpay'
 import { saveCompositeTransaction } from '@/lib/composite-transactions'
+import { saveExternalAccount, type ExternalAccount, type PaymentRail } from '@/lib/external-accounts'
 import type { CompositeTransaction, Quote } from '@/types'
 
 // ---------------------------------------------------------------------------
@@ -152,7 +153,7 @@ export async function POST(request: NextRequest) {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        Authorization: apiKey,
+        Authorization: `Bearer ${apiKey}`,
       },
       body: JSON.stringify({
         type: 'on_ramp',
@@ -203,10 +204,55 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // 6. Gera um UUID único para a transação composta
+    // 6. Resolve os campos bancários do destinatário a partir de recipientBankingField
+    //    quando o usuário digitou manualmente (sem selecionar conta salva)
+    let resolvedPixKey =
+      typeof body.recipientPixKey === 'string' && body.recipientPixKey
+        ? body.recipientPixKey
+        : undefined
+
+    let resolvedExternalAccountId =
+      typeof body.recipientExternalAccountId === 'string' && body.recipientExternalAccountId
+        ? body.recipientExternalAccountId
+        : undefined
+
+    const recipientBankingField =
+      typeof body.recipientBankingField === 'string' && body.recipientBankingField
+        ? body.recipientBankingField
+        : undefined
+
+    if (!resolvedExternalAccountId && recipientBankingField) {
+      const rail = body.receiverPaymentRail as string
+
+      if (rail === 'pix') {
+        // PIX → salva diretamente como recipientPixKey
+        resolvedPixKey = recipientBankingField
+      } else {
+        // Demais rails (spei, cbu, pse, transfer) → cria ExternalAccount temporária
+        const railFieldMap: Record<string, Partial<ExternalAccount>> = {
+          spei: { clabe: recipientBankingField },
+        }
+        const railFields = railFieldMap[rail] ?? { accountNumber: recipientBankingField }
+
+        const newAccount: ExternalAccount = {
+          id: crypto.randomUUID(),
+          userId: customerId,
+          rail: rail.toUpperCase() as PaymentRail,
+          currency: body.receiverCurrency as string,
+          beneficiaryName: body.recipientName as string,
+          ...railFields,
+          createdAt: new Date().toISOString(),
+        }
+
+        await saveExternalAccount(newAccount)
+        resolvedExternalAccountId = newAccount.id
+      }
+    }
+
+    // 7. Gera um UUID único para a transação composta
     const compositeTransactionId = crypto.randomUUID()
 
-    // 7. Salva a transação composta com status inicial 'pending_deposit'
+    // 8. Salva a transação composta com status inicial 'pending_deposit'
     const agora = new Date().toISOString()
 
     const compositeTransaction: CompositeTransaction = {
@@ -218,12 +264,8 @@ export async function POST(request: NextRequest) {
       senderCurrency: body.senderCurrency as string,
       receiverCurrency: body.receiverCurrency as string,
       recipientName: body.recipientName as string,
-      ...(typeof body.recipientPixKey === 'string' && body.recipientPixKey
-        ? { recipientPixKey: body.recipientPixKey }
-        : {}),
-      ...(typeof body.recipientExternalAccountId === 'string' && body.recipientExternalAccountId
-        ? { recipientExternalAccountId: body.recipientExternalAccountId }
-        : {}),
+      ...(resolvedPixKey ? { recipientPixKey: resolvedPixKey } : {}),
+      ...(resolvedExternalAccountId ? { recipientExternalAccountId: resolvedExternalAccountId } : {}),
       depositInstructions: payinResult.data.sender_deposit_instructions,
       quoteRate: quote.quotation,
       createdAt: agora,
@@ -232,7 +274,7 @@ export async function POST(request: NextRequest) {
 
     await saveCompositeTransaction(compositeTransaction)
 
-    // 8. Retorna 201 com as instruções de depósito e dados da cotação
+    // 9. Retorna 201 com as instruções de depósito e dados da cotação
     return NextResponse.json(
       {
         compositeTransactionId,

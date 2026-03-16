@@ -4,7 +4,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createCustomer, createWallet } from '@/lib/unblockpay'
 import { saveUser } from '@/lib/users'
-import { getServerSession } from '@/lib/auth'
+import { checkRateLimit } from '@/lib/rate-limit'
 import type { CreateCustomerData, CreateWalletData } from '@/types'
 
 // ---------------------------------------------------------------------------
@@ -66,11 +66,39 @@ import type { CreateCustomerData, CreateWalletData } from '@/types'
 //     }
 //   }'
 
+// Valida os campos obrigatórios do objeto address.
+// Retorna a mensagem de erro ou null se válido.
+function validateAddress(
+  address: unknown,
+  tipo: string,
+): string | null {
+  if (!address || typeof address !== 'object') {
+    return `O campo "address" é obrigatório para clientes do tipo "${tipo}".`
+  }
+  const addr = address as Record<string, unknown>
+  const requiredFields = ['street_line_1', 'city', 'state', 'postal_code', 'country'] as const
+  for (const field of requiredFields) {
+    if (!addr[field]) {
+      return `O campo "address.${field}" é obrigatório para clientes do tipo "${tipo}".`
+    }
+  }
+  return null
+}
+
 export async function POST(request: NextRequest) {
   try {
-    // O endpoint de cadastro é chamado ANTES do login — o usuário ainda não tem sessão neste ponto do fluxo.
-    // Por isso NÃO bloqueamos com 401; a sessão é registrada apenas para eventual auditoria futura.
-    await getServerSession()
+    // Rate limiting por IP — máximo 3 requisições por hora
+    const ip =
+      request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ??
+      request.headers.get('x-real-ip') ??
+      'unknown'
+    const { allowed } = checkRateLimit(ip, 3, 60 * 60 * 1000)
+    if (!allowed) {
+      return NextResponse.json(
+        { mensagem: 'Limite de requisições excedido. Tente novamente mais tarde.' },
+        { status: 429 },
+      )
+    }
 
     // Lê e valida o corpo da requisição
     let body: Record<string, unknown>
@@ -106,10 +134,72 @@ export async function POST(request: NextRequest) {
           { status: 400 },
         )
       }
+      if (!body.phone_number) {
+        return NextResponse.json(
+          { mensagem: 'O campo "phone_number" é obrigatório para clientes do tipo "individual".' },
+          { status: 400 },
+        )
+      }
+      if (!body.date_of_birth) {
+        return NextResponse.json(
+          { mensagem: 'O campo "date_of_birth" é obrigatório para clientes do tipo "individual" (formato YYYY-MM-DD).' },
+          { status: 400 },
+        )
+      }
+      if (!body.tin) {
+        return NextResponse.json(
+          { mensagem: 'O campo "tin" é obrigatório para clientes do tipo "individual".' },
+          { status: 400 },
+        )
+      }
+      if (!body.country) {
+        return NextResponse.json(
+          { mensagem: 'O campo "country" é obrigatório para clientes do tipo "individual" (código ISO de 3 letras).' },
+          { status: 400 },
+        )
+      }
+      const individualAddressError = validateAddress(body.address, 'individual')
+      if (individualAddressError) {
+        return NextResponse.json(
+          { mensagem: individualAddressError },
+          { status: 400 },
+        )
+      }
     } else if (body.type === 'business') {
       if (!body.business_legal_name) {
         return NextResponse.json(
           { mensagem: 'Para clientes do tipo "business", o campo "business_legal_name" é obrigatório.' },
+          { status: 400 },
+        )
+      }
+      if (!body.date_of_incorporation) {
+        return NextResponse.json(
+          { mensagem: 'O campo "date_of_incorporation" é obrigatório para clientes do tipo "business" (formato YYYY-MM-DD).' },
+          { status: 400 },
+        )
+      }
+      if (!body.phone_number) {
+        return NextResponse.json(
+          { mensagem: 'O campo "phone_number" é obrigatório para clientes do tipo "business".' },
+          { status: 400 },
+        )
+      }
+      if (!body.tax_id) {
+        return NextResponse.json(
+          { mensagem: 'O campo "tax_id" é obrigatório para clientes do tipo "business".' },
+          { status: 400 },
+        )
+      }
+      if (!body.country) {
+        return NextResponse.json(
+          { mensagem: 'O campo "country" é obrigatório para clientes do tipo "business" (código ISO de 3 letras).' },
+          { status: 400 },
+        )
+      }
+      const businessAddressError = validateAddress(body.address, 'business')
+      if (businessAddressError) {
+        return NextResponse.json(
+          { mensagem: businessAddressError },
           { status: 400 },
         )
       }
@@ -197,7 +287,7 @@ export async function POST(request: NextRequest) {
 
     // Retorna os dados completos do cliente e da wallet criados
     return NextResponse.json(
-      { customer, wallet },
+      { customer, wallet, verificationLink: customer.verification?.verification_link ?? null },
       { status: 201 },
     )
   } catch (err) {

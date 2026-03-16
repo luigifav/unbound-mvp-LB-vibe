@@ -5,7 +5,7 @@ import Providers from "@/components/Providers";
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
-  themeColor: "#000904",
+  themeColor: "#ffffff",
 };
 
 export const metadata: Metadata = {
@@ -53,7 +53,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="pt-BR">
-      <body className="min-h-screen overflow-x-hidden bg-[#000904] text-white">
+      <body className="min-h-screen overflow-x-hidden bg-white text-[#0a0a0a] font-sans">
         <Providers>
           {children}
         </Providers>

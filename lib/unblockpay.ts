@@ -74,7 +74,7 @@ function getConfig() {
 function buildHeaders(apiKey: string): HeadersInit {
   return {
     'Content-Type': 'application/json',
-    Authorization: apiKey,
+    Authorization: `Bearer ${apiKey}`,
   }
 }
 
@@ -120,6 +120,12 @@ async function callApi<T>(
           : `Erro ${response.status}: ${response.statusText}`
 
       return { data: null, error: message, success: false }
+    }
+
+    // Resposta bem-sucedida com corpo vazio (ex.: POST de KYC check)
+    const contentLength = response.headers.get('content-length')
+    if (contentLength === '0' || !contentType) {
+      return { data: null as T, error: null, success: true }
     }
 
     return { data: body as T, error: null, success: true }
@@ -389,21 +395,35 @@ export async function uploadCustomerDocument(
     return { data: null, error: 'O parâmetro customerId é obrigatório.', success: false }
   }
 
+  const identityDocTypes: DocumentType[] = ['PASSPORT', 'NATIONAL_ID', 'DRIVER_LICENSE']
+  if (identityDocTypes.includes(metadata.document_type) && !metadata.document_side) {
+    return {
+      data: null,
+      error: 'document_side é obrigatório para documentos de identidade (PASSPORT, NATIONAL_ID, DRIVER_LICENSE). Use FRONT ou BACK.',
+      success: false,
+    }
+  }
+
   const { apiKey, baseUrl } = getConfig()
 
   const form = new FormData()
   form.append('file', file)
-  form.append('document_type', metadata.document_type)
-  if (metadata.document_side) form.append('document_side', metadata.document_side)
-  if (metadata.country) form.append('country', metadata.country)
-  if (metadata.beneficiary_id) form.append('beneficiary_id', metadata.beneficiary_id)
+
+  const metadataPayload: Record<string, string> = {
+    document_type: metadata.document_type,
+  }
+  if (metadata.document_side) metadataPayload.document_side = metadata.document_side
+  if (metadata.country) metadataPayload.country = metadata.country
+  if (metadata.beneficiary_id) metadataPayload.beneficiary_id = metadata.beneficiary_id
+
+  form.append('metadata', JSON.stringify(metadataPayload))
 
   try {
     const response = await fetch(
       `${baseUrl}/v1/customers/${customerId}/documents`,
       {
         method: 'POST',
-        headers: { Authorization: apiKey }, // sem Content-Type — o fetch define o boundary automaticamente
+        headers: { Authorization: `Bearer ${apiKey}` }, // sem Content-Type — o fetch define o boundary automaticamente
         body: form,
       },
     )

@@ -1,6 +1,6 @@
 export default function DashboardLoading() {
   return (
-    <main className="min-h-screen bg-[#000904] py-8 px-6">
+    <main className="flex-1 bg-gray-950 py-8 px-6">
       <div className="max-w-2xl mx-auto flex flex-col gap-8 animate-pulse">
         {/* Title skeleton */}
         <div className="h-8 w-40 bg-white/[0.06] rounded-lg" />

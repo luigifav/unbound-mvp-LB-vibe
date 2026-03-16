@@ -2,6 +2,7 @@
 
 import { useState, useRef, type ReactNode, type CSSProperties, type InputHTMLAttributes, type ChangeEvent } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import LoadingButton from "@/components/ui/LoadingButton";
 import Feedback from "@/components/ui/Feedback";
 import { colors as C, font } from "@/lib/theme";
@@ -14,7 +15,6 @@ const STEPS = [
   { id: 4, label: "Review" },
 ];
 
-// ─── Helpers ───────────────────────────────────────────────────────
 function formatCPF(value: string) {
   const digits = value.replace(/\D/g, "").slice(0, 11);
   return digits
@@ -28,7 +28,6 @@ function formatCEP(value: string) {
   return digits.replace(/(\d{5})(\d)/, "$1-$2");
 }
 
-// ─── Base UI ───────────────────────────────────────────────────────
 function Field({ label, error, hint, children }: {
   label: string;
   error?: string;
@@ -53,10 +52,10 @@ function Field({ label, error, hint, children }: {
 }
 
 const inputBase: CSSProperties = {
-  fontFamily: font, fontWeight: 500, fontSize: "15px", color: C.white,
-  background: C.grayLight, border: `1px solid ${C.grayBorder}`,
+  fontFamily: font, fontWeight: 500, fontSize: "15px", color: C.textPrimary,
+  background: C.inputBg, border: `1px solid ${C.inputBorder}`,
   borderRadius: "10px", padding: "13px 16px", outline: "none",
-  width: "100%", boxSizing: "border-box", transition: "border-color 0.2s, background 0.2s",
+  width: "100%", boxSizing: "border-box", transition: "border-color 0.2s, background 0.2s, box-shadow 0.2s",
 };
 
 function Input({ label, error, hint, suffix, ...props }: {
@@ -75,12 +74,12 @@ function Input({ label, error, hint, suffix, ...props }: {
           {...(props as InputHTMLAttributes<HTMLInputElement>)}
           style={{
             ...inputBase,
-            borderColor: error ? C.error : C.grayBorder,
+            borderColor: error ? C.error : C.inputBorder,
             paddingRight: suffix ? "48px" : "16px",
             ...((props.style as CSSProperties) || {}),
           }}
-          onFocus={e => { e.target.style.borderColor = C.purple; e.target.style.background = "rgba(124,34,213,0.08)"; }}
-          onBlur={e => { e.target.style.borderColor = error ? C.error : C.grayBorder; e.target.style.background = C.grayLight; }}
+          onFocus={e => { e.target.style.borderColor = C.purple; e.target.style.boxShadow = "0 0 0 3px rgba(149,35,239,0.1)"; }}
+          onBlur={e => { e.target.style.borderColor = error ? C.error : C.inputBorder; e.target.style.boxShadow = "none"; }}
         />
         {suffix && (
           <div style={{ position: "absolute", right: "14px", top: "50%", transform: "translateY(-50%)", pointerEvents: "none" }}>
@@ -97,18 +96,18 @@ function ReadonlyInput({ label, value, loading }: { label: string; value: string
     <Field label={label}>
       <div style={{
         ...inputBase,
-        borderColor: value ? "rgba(76,175,130,0.4)" : C.grayBorder,
-        background: "rgba(255,255,255,0.03)",
-        color: value ? C.textSub : C.textMuted,
+        borderColor: value ? "rgba(34,197,94,0.4)" : C.inputBorder,
+        background: value ? "rgba(34,197,94,0.06)" : C.inputBg,
+        color: value ? C.textSecondary : C.textMuted,
         display: "flex", alignItems: "center", gap: "8px",
         cursor: "default",
       }}>
         {loading ? (
-          <div style={{ width: "14px", height: "14px", border: `2px solid rgba(124,34,213,0.3)`, borderTopColor: C.purple, borderRadius: "50%", animation: "spin 0.7s linear infinite", flexShrink: 0 }} />
+          <div style={{ width: "14px", height: "14px", border: `2px solid rgba(149,35,239,0.3)`, borderTopColor: C.purple, borderRadius: "50%", animation: "spin 0.7s linear infinite", flexShrink: 0 }} />
         ) : value ? (
           <svg width="14" height="14" viewBox="0 0 14 14" fill="none" style={{ flexShrink: 0 }}>
-            <circle cx="7" cy="7" r="6" fill="rgba(76,175,130,0.2)" stroke="#4caf82" strokeWidth="1.2"/>
-            <path d="M4 7l2 2 4-4" stroke="#4caf82" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/>
+            <circle cx="7" cy="7" r="6" fill="rgba(34,197,94,0.2)" stroke="#22c55e" strokeWidth="1.2"/>
+            <path d="M4 7l2 2 4-4" stroke="#22c55e" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/>
           </svg>
         ) : null}
         <span style={{ fontSize: "15px" }}>{value || "—"}</span>
@@ -117,7 +116,6 @@ function ReadonlyInput({ label, value, loading }: { label: string; value: string
   );
 }
 
-// ─── Step Indicator ────────────────────────────────────────────────
 function StepIndicator({ current }: { current: number }) {
   return (
     <div style={{ display: "flex", alignItems: "flex-start", marginBottom: "40px" }}>
@@ -130,7 +128,7 @@ function StepIndicator({ current }: { current: number }) {
               <div style={{
                 width: "34px", height: "34px", borderRadius: "50%",
                 background: done ? C.purple : active ? C.purpleDim : "transparent",
-                border: `2px solid ${done || active ? C.purple : "rgba(255,255,255,0.12)"}`,
+                border: `2px solid ${done || active ? C.purple : C.inputBorder}`,
                 display: "flex", alignItems: "center", justifyContent: "center",
                 transition: "all 0.3s", flexShrink: 0,
               }}>
@@ -139,7 +137,7 @@ function StepIndicator({ current }: { current: number }) {
                     <path d="M2.5 7L5.5 10L11.5 4" stroke="#fff" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"/>
                   </svg>
                 ) : (
-                  <span style={{ fontFamily: font, fontWeight: 700, fontSize: "12px", color: active ? C.purple : "rgba(255,255,255,0.25)" }}>
+                  <span style={{ fontFamily: font, fontWeight: 700, fontSize: "12px", color: active ? C.purple : C.textMuted }}>
                     {step.id}
                   </span>
                 )}
@@ -147,14 +145,14 @@ function StepIndicator({ current }: { current: number }) {
               <span style={{
                 fontFamily: font, fontWeight: 700, fontSize: "10px",
                 letterSpacing: "0.08em", textTransform: "uppercase",
-                color: active ? C.white : done ? C.textSub : "rgba(255,255,255,0.2)",
+                color: active ? C.textPrimary : done ? C.textSecondary : C.textMuted,
                 whiteSpace: "nowrap",
               }}>{step.label}</span>
             </div>
             {i < STEPS.length - 1 && (
               <div style={{
                 flex: 1, height: "2px",
-                background: done ? C.purple : "rgba(255,255,255,0.08)",
+                background: done ? C.purple : C.inputBorder,
                 margin: "0 8px", marginBottom: "22px",
                 transition: "background 0.3s", borderRadius: "1px",
               }} />
@@ -169,13 +167,12 @@ function StepIndicator({ current }: { current: number }) {
 function StepHeader({ title, sub }: { title: string; sub: string }) {
   return (
     <div style={{ marginBottom: "28px" }}>
-      <h2 style={{ fontFamily: font, fontWeight: 900, fontSize: "26px", color: C.white, margin: 0, marginBottom: "6px", lineHeight: 1.2 }}>{title}</h2>
+      <h2 style={{ fontFamily: font, fontWeight: 900, fontSize: "26px", color: C.textPrimary, margin: 0, marginBottom: "6px", lineHeight: 1.2 }}>{title}</h2>
       <p style={{ fontFamily: font, fontWeight: 500, fontSize: "14px", color: C.textMuted, margin: 0 }}>{sub}</p>
     </div>
   );
 }
 
-// ─── Step 1: Personal ─────────────────────────────────────────────
 function Step1({ data, onChange, errors, senha, confirmarSenha, onSenhaChange, onConfirmarSenhaChange }: {
   data: FormData;
   onChange: (key: string, value: string) => void;
@@ -195,14 +192,12 @@ function Step1({ data, onChange, errors, senha, confirmarSenha, onSenhaChange, o
       <Input label="E-mail" type="email" value={data.email} onChange={(e: ChangeEvent<HTMLInputElement>) => onChange("email", e.target.value)} error={errors.email} placeholder="joao@email.com" />
       <Input label="Telefone" type="tel" value={data.phone_number} onChange={(e: ChangeEvent<HTMLInputElement>) => onChange("phone_number", e.target.value)} error={errors.phone_number} placeholder="+55 11 91234-5678" />
       <Input label="Data de Nascimento" type="date" value={data.date_of_birth} onChange={(e: ChangeEvent<HTMLInputElement>) => onChange("date_of_birth", e.target.value)} error={errors.date_of_birth} />
-      {/* Campos de senha — validados localmente, não enviados à API */}
       <Input label="Senha" type="password" value={senha} onChange={(e: ChangeEvent<HTMLInputElement>) => onSenhaChange(e.target.value)} error={errors.senha} placeholder="Mínimo 6 caracteres" />
       <Input label="Confirmar Senha" type="password" value={confirmarSenha} onChange={(e: ChangeEvent<HTMLInputElement>) => onConfirmarSenhaChange(e.target.value)} error={errors.confirmarSenha} placeholder="Repita a senha" />
     </div>
   );
 }
 
-// ─── Step 2: Document (CPF only) ──────────────────────────────────
 function Step2({ data, onChange, errors }: {
   data: FormData;
   onChange: (key: string, value: string) => void;
@@ -211,13 +206,12 @@ function Step2({ data, onChange, errors }: {
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: "18px", animation: "fadeUp 0.3s ease" }}>
       <StepHeader title="Documento" sub="Informe seu CPF para verificação de identidade" />
-
       <Field label="Tipo de Documento">
         <div style={{
           ...inputBase,
-          background: "rgba(255,255,255,0.03)",
-          borderColor: "rgba(255,255,255,0.07)",
-          color: C.textSub,
+          background: C.bgSubtle,
+          borderColor: C.inputBorder,
+          color: C.textSecondary,
           display: "flex", alignItems: "center", justifyContent: "space-between",
           cursor: "default",
         }}>
@@ -230,7 +224,6 @@ function Step2({ data, onChange, errors }: {
           }}>BR</div>
         </div>
       </Field>
-
       <Input
         label="CPF"
         value={data.doc_value}
@@ -240,13 +233,12 @@ function Step2({ data, onChange, errors }: {
         inputMode="numeric"
         maxLength={14}
       />
-
       <Field label="País Emissor">
         <div style={{
           ...inputBase,
-          background: "rgba(255,255,255,0.03)",
-          borderColor: "rgba(255,255,255,0.07)",
-          color: C.textSub,
+          background: C.bgSubtle,
+          borderColor: C.inputBorder,
+          color: C.textSecondary,
           display: "flex", alignItems: "center", gap: "10px",
           cursor: "default",
         }}>
@@ -254,7 +246,6 @@ function Step2({ data, onChange, errors }: {
           <span>Brasil</span>
         </div>
       </Field>
-
       <div style={{
         display: "flex", gap: "10px",
         background: C.purpleDim, border: `1px solid ${C.purpleBorder}`,
@@ -264,7 +255,7 @@ function Step2({ data, onChange, errors }: {
           <circle cx="8" cy="8" r="6.5" stroke={C.purple} strokeWidth="1.5"/>
           <path d="M8 5v4M8 10.5v.5" stroke={C.purple} strokeWidth="1.5" strokeLinecap="round"/>
         </svg>
-        <p style={{ fontFamily: font, fontWeight: 500, fontSize: "12px", color: C.textSub, margin: 0, lineHeight: "1.6" }}>
+        <p style={{ fontFamily: font, fontWeight: 500, fontSize: "12px", color: C.textSecondary, margin: 0, lineHeight: "1.6" }}>
           Seu CPF é criptografado e processado com segurança pela infraestrutura da UnboundCash.
         </p>
       </div>
@@ -272,7 +263,6 @@ function Step2({ data, onChange, errors }: {
   );
 }
 
-// ─── Step 3: Address (CEP API) ────────────────────────────────────
 function Step3({ data, onChange, errors }: {
   data: FormData;
   onChange: (key: string, value: string) => void;
@@ -356,7 +346,6 @@ function Step3({ data, onChange, errors }: {
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: "18px", animation: "fadeUp 0.3s ease" }}>
       <StepHeader title="Endereço" sub="Insira seu CEP" />
-
       <Input
         label="CEP"
         value={data.postal_code}
@@ -366,11 +355,11 @@ function Step3({ data, onChange, errors }: {
         inputMode="numeric"
         maxLength={9}
         suffix={cepLoading ? (
-          <div style={{ width: "16px", height: "16px", border: `2px solid rgba(124,34,213,0.3)`, borderTopColor: C.purple, borderRadius: "50%", animation: "spin 0.7s linear infinite" }} />
+          <div style={{ width: "16px", height: "16px", border: `2px solid rgba(149,35,239,0.3)`, borderTopColor: C.purple, borderRadius: "50%", animation: "spin 0.7s linear infinite" }} />
         ) : addressFound ? (
           <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-            <circle cx="8" cy="8" r="7" fill="rgba(76,175,130,0.15)" stroke="#4caf82" strokeWidth="1.2"/>
-            <path d="M4.5 8l2.5 2.5L11.5 5" stroke="#4caf82" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/>
+            <circle cx="8" cy="8" r="7" fill="rgba(34,197,94,0.15)" stroke="#22c55e" strokeWidth="1.2"/>
+            <path d="M4.5 8l2.5 2.5L11.5 5" stroke="#22c55e" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/>
           </svg>
         ) : null}
       />
@@ -385,7 +374,7 @@ function Step3({ data, onChange, errors }: {
             <circle cx="8" cy="8" r="6.5" stroke="#f06060" strokeWidth="1.4"/>
             <path d="M8 5v3.5M8 10.5v.5" stroke="#f06060" strokeWidth="1.4" strokeLinecap="round"/>
           </svg>
-          <p style={{ fontFamily: font, fontWeight: 500, fontSize: "12px", color: "rgba(240,150,150,0.9)", margin: 0, lineHeight: "1.6" }}>
+          <p style={{ fontFamily: font, fontWeight: 500, fontSize: "12px", color: "#991b1b", margin: 0, lineHeight: "1.6" }}>
             CEP não encontrado automaticamente. Preencha o endereço abaixo.
           </p>
         </div>
@@ -409,33 +398,21 @@ function Step3({ data, onChange, errors }: {
 
       {manualMode && (
         <div style={{ display: "flex", flexDirection: "column", gap: "14px", animation: "fadeUp 0.35s ease" }}>
-          <Input
-            label="Logradouro"
-            value={data.street_line_1}
-            onChange={(e: ChangeEvent<HTMLInputElement>) => onChange("street_line_1", e.target.value)}
-            error={errors.street_line_1}
-            placeholder="Rua das Flores"
-          />
-          <Input
-            label="Bairro"
-            value={data.neighborhood}
-            onChange={(e: ChangeEvent<HTMLInputElement>) => onChange("neighborhood", e.target.value)}
-            placeholder="Bairro"
-          />
+          <Input label="Logradouro" value={data.street_line_1} onChange={(e: ChangeEvent<HTMLInputElement>) => onChange("street_line_1", e.target.value)} error={errors.street_line_1} placeholder="Rua das Flores" />
+          <Input label="Bairro" value={data.neighborhood} onChange={(e: ChangeEvent<HTMLInputElement>) => onChange("neighborhood", e.target.value)} placeholder="Bairro" />
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "14px" }}>
             <Field label="Estado" error={errors.state}>
               <select
                 value={data.state}
                 onChange={e => handleStateChange(e.target.value)}
-                style={{ ...inputBase, background: "#0a1a14", borderColor: errors.state ? C.error : C.grayBorder, cursor: "pointer" }}
-                onFocus={e => { e.target.style.borderColor = C.purple; e.target.style.background = "rgba(124,34,213,0.12)"; }}
-                onBlur={e => { e.target.style.borderColor = errors.state ? C.error : C.grayBorder; e.target.style.background = "#0a1a14"; }}
+                style={{ ...inputBase, background: C.white, borderColor: errors.state ? C.error : C.inputBorder, cursor: "pointer" }}
+                onFocus={e => { e.target.style.borderColor = C.purple; }}
+                onBlur={e => { e.target.style.borderColor = errors.state ? C.error : C.inputBorder; }}
               >
                 <option value="">UF</option>
                 {UF_LIST.map(uf => <option key={uf} value={uf}>{uf}</option>)}
               </select>
             </Field>
-
             <Field label="Cidade" error={errors.city}>
               <select
                 value={data.city}
@@ -443,13 +420,13 @@ function Step3({ data, onChange, errors }: {
                 disabled={!data.state}
                 style={{
                   ...inputBase,
-                  background: "#0a1a14",
-                  borderColor: errors.city ? C.error : C.grayBorder,
+                  background: C.white,
+                  borderColor: errors.city ? C.error : C.inputBorder,
                   cursor: !data.state ? "not-allowed" : "pointer",
                   opacity: !data.state ? 0.4 : 1,
                 }}
                 onFocus={e => { e.target.style.borderColor = C.purple; }}
-                onBlur={e => { e.target.style.borderColor = errors.city ? C.error : C.grayBorder; }}
+                onBlur={e => { e.target.style.borderColor = errors.city ? C.error : C.inputBorder; }}
               >
                 <option value="">
                   {!data.state ? "Selecione o estado primeiro" : "Selecione a cidade"}
@@ -463,27 +440,15 @@ function Step3({ data, onChange, errors }: {
 
       {(addressFound || manualMode) && (
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "14px", animation: "fadeUp 0.3s ease" }}>
-          <Input
-            label="Número"
-            value={data.street_number}
-            onChange={(e: ChangeEvent<HTMLInputElement>) => onChange("street_number", e.target.value)}
-            error={errors.street_number}
-            placeholder="123"
-            inputMode="numeric"
-          />
-          <Input
-            label="Complemento (opcional)"
-            value={data.street_line_2}
-            onChange={(e: ChangeEvent<HTMLInputElement>) => onChange("street_line_2", e.target.value)}
-            placeholder="Apto 4B"
-          />
+          <Input label="Número" value={data.street_number} onChange={(e: ChangeEvent<HTMLInputElement>) => onChange("street_number", e.target.value)} error={errors.street_number} placeholder="123" inputMode="numeric" />
+          <Input label="Complemento (opcional)" value={data.street_line_2} onChange={(e: ChangeEvent<HTMLInputElement>) => onChange("street_line_2", e.target.value)} placeholder="Apto 4B" />
         </div>
       )}
 
       <Field label="País">
         <div style={{
-          ...inputBase, background: "rgba(255,255,255,0.03)",
-          borderColor: "rgba(255,255,255,0.07)", color: C.textSub,
+          ...inputBase, background: C.bgSubtle,
+          borderColor: C.inputBorder, color: C.textSecondary,
           display: "flex", alignItems: "center", gap: "10px", cursor: "default",
         }}>
           <span style={{ fontSize: "18px" }}>🇧🇷</span>
@@ -494,16 +459,15 @@ function Step3({ data, onChange, errors }: {
   );
 }
 
-// ─── Step 4: Review ────────────────────────────────────────────────
 function ReviewRow({ label, value }: { label: string; value: string }) {
   if (!value) return null;
   return (
     <div style={{
       display: "flex", justifyContent: "space-between", alignItems: "baseline",
-      gap: "16px", padding: "11px 0", borderBottom: "1px solid rgba(255,255,255,0.05)",
+      gap: "16px", padding: "11px 0", borderBottom: `1px solid ${C.inputBorder}`,
     }}>
       <span style={{ fontFamily: font, fontWeight: 700, fontSize: "11px", letterSpacing: "0.08em", textTransform: "uppercase", color: C.textMuted, flexShrink: 0 }}>{label}</span>
-      <span style={{ fontFamily: font, fontWeight: 500, fontSize: "14px", color: C.white, textAlign: "right" }}>{value}</span>
+      <span style={{ fontFamily: font, fontWeight: 500, fontSize: "14px", color: C.textPrimary, textAlign: "right" }}>{value}</span>
     </div>
   );
 }
@@ -513,9 +477,7 @@ function Step4({ data }: { data: FormData }) {
 
   const fmtCPF = (v: string) => {
     const d = (v || "").replace(/\D/g, "").slice(0, 11);
-    return d.replace(/(\d{3})(\d)/, "$1.$2")
-            .replace(/(\d{3})(\d)/, "$1.$2")
-            .replace(/(\d{3})(\d{1,2})$/, "$1-$2");
+    return d.replace(/(\d{3})(\d)/, "$1.$2").replace(/(\d{3})(\d)/, "$1.$2").replace(/(\d{3})(\d{1,2})$/, "$1-$2");
   };
 
   const fmtCEP = (v: string) => {
@@ -539,7 +501,7 @@ function Step4({ data }: { data: FormData }) {
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: "4px", animation: "fadeUp 0.3s ease" }}>
       <StepHeader title="Revise seus dados" sub="Confirme tudo antes de enviar" />
-      <div style={{ background: C.grayLight, border: `1px solid ${C.grayBorder}`, borderRadius: "12px", padding: "4px 16px 12px" }}>
+      <div style={{ background: C.bgSubtle, border: `1px solid ${C.cardBorder}`, borderRadius: "12px", padding: "4px 16px 12px" }}>
         {[
           { section: "Pessoal", rows: [
             { label: "Nome", value: `${data.first_name} ${data.last_name}` },
@@ -568,14 +530,13 @@ function Step4({ data }: { data: FormData }) {
           </div>
         ))}
       </div>
-      <p style={{ fontFamily: font, fontWeight: 500, fontSize: "11px", color: "rgba(255,255,255,0.2)", lineHeight: "1.6", marginTop: "14px", textAlign: "center" }}>
+      <p style={{ fontFamily: font, fontWeight: 500, fontSize: "11px", color: C.textMuted, lineHeight: "1.6", marginTop: "14px", textAlign: "center" }}>
         Ao enviar, você autoriza a UnboundCash a verificar sua identidade conforme as regulamentações aplicáveis.
       </p>
     </div>
   );
 }
 
-// ─── Types ─────────────────────────────────────────────────────────
 interface FormData {
   first_name: string;
   last_name: string;
@@ -593,17 +554,12 @@ interface FormData {
   country: string;
 }
 
-// ─── Main ──────────────────────────────────────────────────────────
 export default function RegisterPage() {
   const router = useRouter();
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<Record<string, string | undefined>>({});
-
-  // Estado do feedback de sucesso ou erro
   const [feedback, setFeedback] = useState<{ type: "success" | "error"; message: string } | null>(null);
-
-  // Campos de senha (não enviados à API, apenas validados localmente)
   const [senha, setSenha] = useState("");
   const [confirmarSenha, setConfirmarSenha] = useState("");
 
@@ -627,7 +583,6 @@ export default function RegisterPage() {
       if (!formData.email.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)) e.email = "Insira um e-mail válido";
       if (!formData.phone_number.trim()) e.phone_number = "Campo obrigatório";
       if (!formData.date_of_birth) e.date_of_birth = "Campo obrigatório";
-      // Validação de senha
       if (!senha || senha.length < 6) e.senha = "Senha deve ter pelo menos 6 caracteres";
       if (senha !== confirmarSenha) e.confirmarSenha = "As senhas não coincidem";
     }
@@ -651,7 +606,6 @@ export default function RegisterPage() {
   const back = () => { setStep(s => s - 1); setErrors({}); };
 
   const submit = async () => {
-    // Validação final das senhas antes de chamar a API
     if (senha !== confirmarSenha) {
       setFeedback({ type: "error", message: "As senhas não coincidem." });
       return;
@@ -674,9 +628,7 @@ export default function RegisterPage() {
           email:         formData.email,
           phone_number:  formData.phone_number,
           date_of_birth: formData.date_of_birth,
-          // Documento no formato esperado pela UnblockPay
-          identity_documents: [{ type: "tax_id", value: formData.doc_value.replace(/\D/g, ""), country: "BRA" }],
-          // Endereço aninhado conforme exigido pela API
+          tin: formData.doc_value.replace(/\D/g, ""),
           address: {
             street_line_1: streetFull,
             street_line_2: formData.street_line_2 || undefined,
@@ -685,12 +637,12 @@ export default function RegisterPage() {
             postal_code:   formData.postal_code.replace(/\D/g, ""),
             country:       "BRA",
           },
+          country: "BRA",
         }),
       });
 
       const data = await res.json();
 
-      // 207 (Multi-Status) indica cliente criado mas wallet falhou — tratado como sucesso parcial
       if (!res.ok && res.status !== 207) {
         const detalhe = data.erro || data.error || "";
         throw new Error(
@@ -700,7 +652,6 @@ export default function RegisterPage() {
         );
       }
 
-      // Exibe feedback de sucesso e redireciona para /login após 2 segundos
       setFeedback({ type: "success", message: "Conta criada com sucesso! Redirecionando para o login..." });
       setTimeout(() => router.push("/login"), 2000);
     } catch (err) {
@@ -712,135 +663,95 @@ export default function RegisterPage() {
   };
 
   return (
-    <>
-      <style>{`
-        @keyframes fadeUp {
-          from { opacity: 0; transform: translateY(14px); }
-          to   { opacity: 1; transform: translateY(0); }
-        }
-        @keyframes spin { to { transform: rotate(360deg); } }
-        input::placeholder { color: rgba(255,255,255,0.18); }
-        input[type="date"]::-webkit-calendar-picker-indicator { filter: invert(0.5) sepia(1) saturate(3) hue-rotate(240deg); cursor: pointer; }
-        select option { background: #0a1a14; color: #fff; }
-      `}</style>
+    <div
+      className="min-h-screen flex flex-col items-center justify-center relative overflow-hidden"
+      style={{ background: "linear-gradient(160deg, #fdf8ff, #f0e8ff, #e8f4ff)", padding: "48px 20px" }}
+    >
+      {/* Top bar */}
+      <div className="fixed top-0 left-0 right-0 flex items-center justify-between px-6 py-4 z-10">
+        <Link href="/" className="font-[800] text-xl text-[#9523ef] no-underline" style={{ letterSpacing: "-0.03em" }}>
+          unbound
+        </Link>
+        <Link href="/" className="text-sm font-medium text-[#52525b] hover:text-[#0a0a0a] no-underline transition-colors">
+          ← Voltar ao site
+        </Link>
+      </div>
 
-      <div style={{
-        minHeight: "100vh",
-        background: "#000904",
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        justifyContent: "center",
-        padding: "48px 20px",
-        position: "relative",
-        overflow: "hidden",
-      }}>
-        {/* Purple glow */}
-        <div style={{
-          position: "fixed", top: "-200px", left: "50%", transform: "translateX(-50%)",
-          width: "700px", height: "500px",
-          background: "radial-gradient(ellipse, rgba(124,34,213,0.2) 0%, transparent 70%)",
-          pointerEvents: "none",
-          zIndex: 0,
-        }} />
+      {/* Card */}
+      <div
+        className="relative z-[1] w-full max-w-[500px] bg-white border border-[#e8e0f0] rounded-[20px] animate-[fadeUp_0.45s_ease_0.1s_both]"
+        style={{ padding: "36px", boxShadow: "0 20px 60px rgba(0,0,0,0.06), 0 0 40px rgba(149,35,239,0.08)" }}
+      >
+        <StepIndicator current={step} />
+        {step === 1 && (
+          <Step1
+            data={formData}
+            onChange={update}
+            errors={errors}
+            senha={senha}
+            confirmarSenha={confirmarSenha}
+            onSenhaChange={setSenha}
+            onConfirmarSenhaChange={setConfirmarSenha}
+          />
+        )}
+        {step === 2 && <Step2 data={formData} onChange={update} errors={errors} />}
+        {step === 3 && <Step3 data={formData} onChange={update} errors={errors} />}
+        {step === 4 && <Step4 data={formData} />}
 
-        {/* Card */}
-        <div style={{
-          position: "relative", zIndex: 1,
-          width: "100%", maxWidth: "500px",
-          background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.08)",
-          borderRadius: "20px", padding: "36px",
-          animation: "fadeUp 0.45s ease 0.1s both",
-        }}>
-          <>
-              <StepIndicator current={step} />
-              {step === 1 && (
-                <Step1
-                  data={formData}
-                  onChange={update}
-                  errors={errors}
-                  senha={senha}
-                  confirmarSenha={confirmarSenha}
-                  onSenhaChange={setSenha}
-                  onConfirmarSenhaChange={setConfirmarSenha}
-                />
-              )}
-              {step === 2 && <Step2 data={formData} onChange={update} errors={errors} />}
-              {step === 3 && <Step3 data={formData} onChange={update} errors={errors} />}
-              {step === 4 && <Step4 data={formData} />}
+        {feedback && (
+          <div style={{ marginTop: "20px" }}>
+            <Feedback type={feedback.type} message={feedback.message} onClose={() => setFeedback(null)} />
+          </div>
+        )}
 
-              {/* Banner de feedback (sucesso ou erro) exibido acima dos botões */}
-              {feedback && (
-                <div style={{ marginTop: "20px" }}>
-                  <Feedback
-                    type={feedback.type}
-                    message={feedback.message}
-                    onClose={() => setFeedback(null)}
-                  />
-                </div>
-              )}
-
-              <div style={{ display: "flex", gap: "10px", marginTop: "20px" }}>
-                {step > 1 && (
-                  <button
-                    onClick={back}
-                    style={{
-                      padding: "13px 20px", background: "transparent",
-                      border: `1px solid ${C.grayBorder}`, borderRadius: "10px",
-                      color: C.textSub, fontFamily: font, fontWeight: 700, fontSize: "13px",
-                      cursor: "pointer", transition: "all 0.2s",
-                    }}
-                    onMouseEnter={e => { (e.target as HTMLButtonElement).style.borderColor = "rgba(255,255,255,0.3)"; (e.target as HTMLButtonElement).style.color = C.white; }}
-                    onMouseLeave={e => { (e.target as HTMLButtonElement).style.borderColor = C.grayBorder; (e.target as HTMLButtonElement).style.color = C.textSub; }}
-                  >
-                    Voltar
-                  </button>
-                )}
-                {/* No step 4, usa LoadingButton com os labels pedidos; nos outros steps, botão padrão */}
-                {step === 4 ? (
-                  <div style={{ flex: 1 }}>
-                    <LoadingButton
-                      label="Criar conta"
-                      loadingLabel="Criando conta..."
-                      isLoading={loading}
-                      onClick={submit}
-                      fullWidth
-                    />
-                  </div>
-                ) : (
-                  <button
-                    onClick={next}
-                    style={{
-                      flex: 1, padding: "14px",
-                      background: C.purple,
-                      border: "none", borderRadius: "10px", color: C.white,
-                      fontFamily: font, fontWeight: 900, fontSize: "14px", letterSpacing: "0.02em",
-                      cursor: "pointer",
-                      display: "flex", alignItems: "center", justifyContent: "center", gap: "8px",
-                      transition: "background 0.2s",
-                    }}
-                    onMouseEnter={e => { (e.target as HTMLButtonElement).style.background = C.purpleLight; }}
-                    onMouseLeave={e => { (e.target as HTMLButtonElement).style.background = C.purple; }}
-                  >
-                    Continuar →
-                  </button>
-                )}
-              </div>
-
-              <p style={{ textAlign: "center", marginTop: "18px", fontFamily: font, fontWeight: 700, fontSize: "11px", color: "rgba(255,255,255,0.2)", letterSpacing: "0.06em" }}>
-                ETAPA {step} DE 4
-              </p>
-          </>
+        <div style={{ display: "flex", gap: "10px", marginTop: "20px" }}>
+          {step > 1 && (
+            <button
+              onClick={back}
+              style={{
+                padding: "13px 20px", background: "transparent",
+                border: `1px solid ${C.cardBorder}`, borderRadius: "10px",
+                color: C.textSecondary, fontFamily: font, fontWeight: 700, fontSize: "13px",
+                cursor: "pointer", transition: "all 0.2s",
+              }}
+            >
+              Voltar
+            </button>
+          )}
+          {step === 4 ? (
+            <div style={{ flex: 1 }}>
+              <LoadingButton label="Criar conta" loadingLabel="Criando conta..." isLoading={loading} onClick={submit} fullWidth />
+            </div>
+          ) : (
+            <button
+              onClick={next}
+              style={{
+                flex: 1, padding: "14px",
+                background: C.purple, border: "none", borderRadius: "10px", color: C.white,
+                fontFamily: font, fontWeight: 900, fontSize: "14px", letterSpacing: "0.02em",
+                cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: "8px",
+                transition: "background 0.2s",
+              }}
+              onMouseEnter={e => { (e.target as HTMLButtonElement).style.background = C.purpleLight; }}
+              onMouseLeave={e => { (e.target as HTMLButtonElement).style.background = C.purple; }}
+            >
+              Continuar →
+            </button>
+          )}
         </div>
 
-        <p style={{
-          marginTop: "24px", fontFamily: font, fontWeight: 700, fontSize: "10px",
-          color: "rgba(255,255,255,0.15)", letterSpacing: "0.12em", textTransform: "uppercase",
-          animation: "fadeUp 0.5s ease 0.2s both",
-        }}>
-          Protegido por UnboundCash
+        <p style={{ textAlign: "center", marginTop: "18px", fontFamily: font, fontWeight: 700, fontSize: "11px", color: C.textMuted, letterSpacing: "0.06em" }}>
+          ETAPA {step} DE 4
         </p>
       </div>
-    </>
+
+      <p style={{
+        marginTop: "24px", fontFamily: font, fontWeight: 700, fontSize: "10px",
+        color: C.textMuted, letterSpacing: "0.12em", textTransform: "uppercase",
+        animation: "fadeUp 0.5s ease 0.2s both",
+      }}>
+        Protegido por UnboundCash
+      </p>
+    </div>
   );
 }

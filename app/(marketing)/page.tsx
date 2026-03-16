@@ -1,342 +1,238 @@
+"use client";
+
+import dynamic from "next/dynamic";
 import Link from "next/link";
-import JsonLd from "@/components/JsonLd";
+import ScrollReveal from "@/components/ScrollReveal";
 import CurrencyConverter from "@/components/CurrencyConverter";
 import FaqAccordion from "@/components/FaqAccordion";
-import {
-  TrendingUp,
-  Zap,
-  ShieldCheck,
-  Eye,
-  UserPlus,
-  ArrowRightLeft,
-  BarChart3,
-  ArrowRight,
-  Clock,
-  Globe,
-} from "lucide-react";
 
-/* ──────────────────── Partner logos marquee ──────────────────── */
-
-function PartnerLogos() {
-  const partners = [
-    "PIX",
-    "SWIFT",
-    "Visa",
-    "Mastercard",
-    "USDC",
-    "Solana",
-    "Circle",
-    "Apple Pay",
-  ];
-
-  const logos = partners.map((name) => (
-    <span
-      key={name}
-      className="inline-flex items-center gap-2 px-6 text-white/20 font-black text-sm tracking-widest uppercase whitespace-nowrap select-none"
-    >
-      <span className="w-1.5 h-1.5 rounded-full bg-[#7c22d5]/40" />
-      {name}
-    </span>
-  ));
-
-  return (
-    <div className="w-full overflow-hidden py-8 border-y border-white/[0.04]">
-      <div className="marquee-track flex">
-        <div className="marquee-content flex shrink-0">{logos}</div>
-        <div className="marquee-content flex shrink-0" aria-hidden="true">
-          {logos}
-        </div>
-      </div>
-    </div>
-  );
-}
-
-/* ──────────────────── Section chip label ──────────────────── */
-
-function SectionChip({ children }: { children: React.ReactNode }) {
-  return (
-    <div className="inline-flex items-center gap-2 bg-[rgba(124,34,213,0.12)] border border-[rgba(124,34,213,0.3)] rounded-full px-3.5 py-1.5">
-      <span className="font-bold text-[10px] sm:text-[11px] text-[#7c22d5] tracking-[0.14em] uppercase">
-        {children}
-      </span>
-    </div>
-  );
-}
-
-/* ──────────────────── Advantage card ──────────────────── */
-
-function AdvantageCard({
-  icon,
-  title,
-  description,
-}: {
-  icon: React.ReactNode;
-  title: string;
-  description: string;
-}) {
-  return (
-    <div className="group p-6 rounded-2xl bg-white/[0.03] border border-white/[0.06] hover:border-[rgba(124,34,213,0.25)] transition-all duration-300 flex flex-col gap-4 h-full hover:bg-white/[0.05]">
-      <div className="w-12 h-12 rounded-xl bg-[rgba(124,34,213,0.12)] border border-[rgba(124,34,213,0.25)] flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
-        {icon}
-      </div>
-      <h3 className="font-black text-lg text-white">{title}</h3>
-      <p className="text-white/45 text-sm leading-relaxed font-medium">
-        {description}
-      </p>
-    </div>
-  );
-}
-
-/* ──────────────────── Step card ──────────────────── */
-
-function StepCard({
-  number,
-  icon,
-  title,
-  description,
-}: {
-  number: string;
-  icon: React.ReactNode;
-  title: string;
-  description: string;
-}) {
-  return (
-    <div className="p-6 rounded-2xl bg-white/[0.03] border border-white/[0.06] flex flex-col gap-4 h-full relative overflow-hidden group hover:border-[rgba(124,34,213,0.2)] transition-all duration-300">
-      {/* Large background number */}
-      <span className="absolute -right-2 -top-4 text-[100px] font-black text-white/[0.02] leading-none pointer-events-none select-none group-hover:text-white/[0.04] transition-colors duration-500">
-        {number}
-      </span>
-
-      <span className="font-mono text-xs font-bold text-[#7c22d5] tracking-widest relative z-10">
-        {number}
-      </span>
-      <div className="w-11 h-11 rounded-xl bg-[rgba(124,34,213,0.12)] border border-[rgba(124,34,213,0.3)] flex items-center justify-center relative z-10">
-        {icon}
-      </div>
-      <div className="flex flex-col gap-2 relative z-10">
-        <h3 className="font-bold text-lg text-white">{title}</h3>
-        <p className="text-white/45 text-sm leading-relaxed">{description}</p>
-      </div>
-    </div>
-  );
-}
-
-/* ══════════════════════════════════════════════════════════════════════
-   HOME PAGE
-   ══════════════════════════════════════════════════════════════════════ */
+const IridescenceCanvas = dynamic(() => import("@/components/IridescenceCanvas"), { ssr: false });
+const RotatingWord = dynamic(() => import("@/components/RotatingWord"), { ssr: false });
 
 export default function Home() {
   return (
-    <main className="bg-[#000904] min-h-[calc(100vh-64px)] relative overflow-x-hidden">
-      <JsonLd />
+    <main className="bg-white min-h-screen relative overflow-x-hidden">
+      {/* ========== HERO ========== */}
+      <section className="relative min-h-screen flex items-center overflow-hidden bg-[#1a0a2e]" style={{ padding: "120px 0 80px" }}>
+        <IridescenceCanvas />
 
-      {/* Decorative purple glow — top */}
-      <div className="absolute top-[-250px] inset-x-0 h-[650px] bg-[radial-gradient(ellipse,rgba(124,34,213,0.18)_0%,transparent_70%)] pointer-events-none z-0" />
-
-      {/* ═══════════════════ HERO ═══════════════════ */}
-      <section className="flex flex-col items-center text-center pt-20 sm:pt-28 pb-12 px-6 relative animate-[fadeUp_0.5s_ease]">
-        <div className="max-w-3xl mx-auto flex flex-col gap-5 items-center">
-          <SectionChip>Plataforma de câmbio internacional</SectionChip>
-
-          <h1 className="font-black text-[clamp(32px,6vw,58px)] text-white leading-[1.08] tracking-tight">
-            Envie dinheiro para o{" "}
-            <span className="text-[#7c22d5]">Brasil</span> com as{" "}
-            <span className="relative inline-block">
-              melhores taxas
-              <span className="absolute bottom-1 left-0 w-full h-[3px] bg-[#7c22d5]/40 rounded-full" />
-            </span>
-          </h1>
-
-          <p className="font-medium text-base sm:text-lg text-white/55 leading-relaxed max-w-xl">
-            Transferências internacionais com câmbio justo, entrega em minutos
-            via PIX e total transparência. Sem surpresas, sem letras miúdas.
-          </p>
+        {/* Orbs */}
+        <div className="absolute inset-0 z-0 overflow-hidden">
+          <div className="absolute rounded-full blur-[100px] opacity-50 w-[500px] h-[500px] -top-[10%] -left-[5%]" style={{ background: "radial-gradient(circle, rgba(149,35,239,0.25), transparent 70%)", animation: "orbFloat 12s ease-in-out infinite" }} />
+          <div className="absolute rounded-full blur-[100px] opacity-50 w-[600px] h-[600px] top-[20%] -right-[10%]" style={{ background: "radial-gradient(circle, rgba(178,0,199,0.2), transparent 70%)", animation: "orbFloat 12s ease-in-out infinite", animationDelay: "-4s" }} />
+          <div className="absolute rounded-full blur-[100px] opacity-50 w-[400px] h-[400px] bottom-0 left-[30%]" style={{ background: "radial-gradient(circle, rgba(149,35,239,0.15), transparent 70%)", animation: "orbFloat 12s ease-in-out infinite", animationDelay: "-8s" }} />
         </div>
 
-        {/* Currency converter widget */}
-        <div className="w-full mt-10 animate-[fadeUp_0.6s_ease_0.15s_both]">
-          <CurrencyConverter />
-        </div>
+        {/* Grid overlay */}
+        <div className="absolute inset-0 z-[1]" style={{ backgroundImage: "linear-gradient(rgba(149,35,239,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(149,35,239,0.03) 1px, transparent 1px)", backgroundSize: "60px 60px" }} />
 
-        {/* Trust badges */}
-        <div className="flex items-center justify-center gap-x-4 gap-y-2 flex-wrap mt-8 animate-[fadeUp_0.5s_ease_0.25s_both]">
-          {[
-            { icon: <TrendingUp size={13} />, text: "Câmbio em tempo real" },
-            { icon: <Clock size={13} />, text: "Entrega em minutos" },
-            { icon: <Eye size={13} />, text: "Sem taxas ocultas" },
-            { icon: <Globe size={13} />, text: "Conta gratuita" },
-          ].map((badge) => (
-            <span
-              key={badge.text}
-              className="flex items-center gap-1.5 text-xs text-white/35 font-medium"
-            >
-              <span className="text-[#7c22d5]/70">{badge.icon}</span>
-              {badge.text}
-            </span>
-          ))}
-        </div>
-      </section>
+        <div className="relative z-[2] max-w-[1200px] mx-auto px-6 grid grid-cols-1 lg:grid-cols-[1.1fr_1fr] gap-12 items-center">
+          {/* Left: Text */}
+          <div className="lg:text-left text-center lp-fade-in-up" style={{ animationDelay: "0.2s" }}>
+            {/* Badge */}
+            <div className="inline-flex items-center gap-2.5 px-4 py-2 bg-white/10 border border-white/20 rounded-full text-[13px] font-medium text-white/85 mb-6 backdrop-blur-[10px]">
+              <div className="flex">
+                <span className="w-2.5 h-2.5 rounded-full bg-[#9523ef] border-[1.5px] border-white inline-block" />
+                <span className="w-2.5 h-2.5 rounded-full bg-[#b200c7] border-[1.5px] border-white inline-block -ml-1" />
+                <span className="w-2.5 h-2.5 rounded-full bg-[#7a1bc9] border-[1.5px] border-white inline-block -ml-1" />
+              </div>
+              400+ clientes satisfeitos
+            </div>
 
-      {/* ═══════════════════ PARTNERS MARQUEE ═══════════════════ */}
-      <section className="animate-[fadeUp_0.5s_ease_0.3s_both]">
-        <PartnerLogos />
-      </section>
+            <h1 className="text-[clamp(48px,6vw,76px)] font-[800] leading-[1.08] text-white mb-6" style={{ letterSpacing: "-0.03em" }}>
+              Mais liberdade,<br />menos taxas.<br />Câmbio <RotatingWord />
+            </h1>
 
-      {/* ═══════════════════ VANTAGENS ═══════════════════ */}
-      <section
-        id="vantagens"
-        aria-labelledby="vantagens-titulo"
-        className="py-20 sm:py-28 px-6"
-      >
-        <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-4 flex flex-col items-center gap-3">
-            <SectionChip>Por que escolher a Unbound</SectionChip>
-            <h2
-              id="vantagens-titulo"
-              className="font-black text-[clamp(26px,4vw,40px)] text-white leading-tight"
-            >
-              Vantagens
-            </h2>
+            <p className="text-[19px] leading-[1.7] text-white/70 max-w-[520px] mb-9 lg:mx-0 mx-auto">
+              Envie e receba dólares com as menores taxas do mercado. Sem IOF, sem burocracia, sem surpresas.
+            </p>
+
+            <div className="flex gap-4 flex-wrap lg:justify-start justify-center">
+              <Link
+                href="/register"
+                className="relative overflow-hidden inline-flex items-center py-3.5 px-8 text-base font-semibold bg-[#9523ef] text-white rounded-full no-underline hover:bg-[#7a1bc9] hover:-translate-y-0.5 transition-all shadow-[0_0_40px_rgba(149,35,239,0.35)] hover:shadow-[0_0_60px_rgba(149,35,239,0.5)]"
+              >
+                <span className="relative z-10">Use a Unbound</span>
+                <span className="absolute top-0 left-[-100%] w-full h-full pointer-events-none" style={{ background: "linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent)", animation: "shimmerSlide 2.5s ease-in-out infinite" }} />
+              </Link>
+              <Link
+                href="#como-funciona"
+                className="inline-flex items-center py-3.5 px-8 text-base font-semibold text-white rounded-full no-underline border-[1.5px] border-white/25 bg-white/[0.08] backdrop-blur-[10px] hover:border-white/50 hover:bg-white/15 hover:-translate-y-0.5 transition-all"
+              >
+                Como funciona
+              </Link>
+            </div>
           </div>
-          <p className="text-center text-white/40 mb-12 max-w-xl mx-auto text-sm sm:text-base font-medium">
-            Tudo o que você precisa para enviar e receber dinheiro
-            internacionalmente, sem complicação.
-          </p>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-            <AdvantageCard
-              icon={<TrendingUp size={22} className="text-[#7c22d5]" />}
-              title="Melhores taxas"
-              description="Câmbio comercial em tempo real. Até 80% mais barato que bancos tradicionais e sem spreads ocultos."
-            />
-            <AdvantageCard
-              icon={<Zap size={22} className="text-[#7c22d5]" />}
-              title="Transferência rápida"
-              description="Envios processados em minutos via PIX. Sem esperar dias úteis ou horários bancários."
-            />
-            <AdvantageCard
-              icon={<ShieldCheck size={22} className="text-[#7c22d5]" />}
-              title="100% Seguro"
-              description="Criptografia de ponta a ponta, verificação KYC completa e infraestrutura regulamentada."
-            />
-            <AdvantageCard
-              icon={<Eye size={22} className="text-[#7c22d5]" />}
-              title="Sem taxas ocultas"
-              description="Você vê exatamente quanto paga e quanto o destinatário recebe. Transparência total."
-            />
+          {/* Right: Calculator */}
+          <div className="lp-slide-in-right" style={{ animationDelay: "0.5s" }}>
+            <CurrencyConverter />
           </div>
         </div>
       </section>
 
-      {/* ═══════════════════ COMO FUNCIONA ═══════════════════ */}
-      <section
-        id="como-funciona"
-        aria-labelledby="como-funciona-titulo"
-        className="py-20 sm:py-28 px-6 relative"
-      >
-        {/* Subtle purple glow */}
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[400px] bg-[radial-gradient(ellipse,rgba(124,34,213,0.08)_0%,transparent_70%)] pointer-events-none" />
+      {/* ========== VANTAGENS ========== */}
+      <section className="py-[100px]" id="vantagens">
+        <div className="max-w-[1200px] mx-auto px-6">
+          <ScrollReveal>
+            <div className="text-center mb-16">
+              <span className="inline-block text-[13px] font-semibold tracking-[0.06em] uppercase text-[#9523ef] mb-3">Por que a Unbound?</span>
+              <h2 className="text-[clamp(32px,4vw,48px)] font-[800] leading-[1.15] mb-4" style={{ letterSpacing: "-0.025em" }}>Vantagens que fazem diferença</h2>
+              <p className="text-lg text-[#52525b] max-w-[560px] mx-auto">Câmbio inteligente, transparente e sem pegadinhas.</p>
+            </div>
+          </ScrollReveal>
 
-        <div className="max-w-6xl mx-auto relative">
-          <div className="text-center mb-4 flex flex-col items-center gap-3">
-            <SectionChip>Simples e rápido</SectionChip>
-            <h2
-              id="como-funciona-titulo"
-              className="font-black text-[clamp(26px,4vw,40px)] text-white leading-tight"
-            >
-              Como funciona
-            </h2>
-          </div>
-          <p className="text-center text-white/40 mb-12 max-w-xl mx-auto text-sm sm:text-base font-medium">
-            Comece a enviar dinheiro internacionalmente em poucos minutos, sem
-            burocracia.
-          </p>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-            <StepCard
-              number="01"
-              icon={<UserPlus size={20} className="text-[#7c22d5]" />}
-              title="Crie sua conta"
-              description="Cadastro 100% online. Preencha seus dados básicos e comece a usar em menos de 5 minutos, sem burocracia."
-            />
-            <StepCard
-              number="02"
-              icon={<ArrowRightLeft size={20} className="text-[#7c22d5]" />}
-              title="Envie ou receba"
-              description="Converta moedas com câmbio justo e envie para qualquer banco no Brasil. Taxa única e transparente."
-            />
-            <StepCard
-              number="03"
-              icon={<BarChart3 size={20} className="text-[#7c22d5]" />}
-              title="Acompanhe tudo"
-              description="Histórico completo de transações e status atualizado em tempo real no seu dashboard."
-            />
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {[
+              { icon: <><circle cx="12" cy="12" r="10" /><path d="M8 12h4l2 4" /><path d="M12 6v6" /></>, title: "Spread de 0.4%", desc: "Taxas até 10x menores que bancos tradicionais. Sem IOF, sem custos escondidos." },
+              { icon: <path d="M13 2 3 14h9l-1 8 10-12h-9l1-8z" />, title: "Em minutos", desc: "Processamento rápido, sem esperar dias úteis. Sua transferência cai em minutos." },
+              { icon: <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />, title: "Seguro e regulado", desc: "Operações via parceiros regulados, com criptografia de ponta e compliance rigoroso." },
+              { icon: <><circle cx="12" cy="12" r="10" /><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" /></>, title: "Disponível 24/7", desc: "Sem horário comercial. Faça sua operação quando quiser, de qualquer lugar." },
+            ].map((card, i) => (
+              <ScrollReveal key={i} delay={i * 80}>
+                <div className="bg-white border border-[#e8e0f0] rounded-3xl p-8 transition-all duration-300 hover:border-[rgba(149,35,239,0.3)] hover:-translate-y-1 hover:shadow-[0_16px_48px_rgba(149,35,239,0.1)]">
+                  <div className="w-12 h-12 flex items-center justify-center bg-[rgba(149,35,239,0.1)] rounded-xl mb-5 text-[#9523ef]">
+                    <svg width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">{card.icon}</svg>
+                  </div>
+                  <h4 className="text-lg font-bold mb-2" style={{ letterSpacing: "-0.01em" }}>{card.title}</h4>
+                  <p className="text-sm text-[#52525b] leading-relaxed">{card.desc}</p>
+                </div>
+              </ScrollReveal>
+            ))}
           </div>
         </div>
       </section>
 
-      {/* ═══════════════════ FAQ ═══════════════════ */}
-      <section id="faq" aria-labelledby="faq-titulo" className="py-20 sm:py-28 px-6">
-        <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-4 flex flex-col items-center gap-3">
-            <SectionChip>Dúvidas frequentes</SectionChip>
-            <h2
-              id="faq-titulo"
-              className="font-black text-[clamp(26px,4vw,40px)] text-white leading-tight"
-            >
-              FAQ
-            </h2>
-          </div>
-          <p className="text-center text-white/40 mb-10 max-w-xl mx-auto text-sm sm:text-base font-medium">
-            Respostas para as perguntas mais comuns sobre a plataforma.
-          </p>
+      {/* ========== COMO FUNCIONA ========== */}
+      <section className="py-[100px] bg-[#f5f0fc]" id="como-funciona">
+        <div className="max-w-[1200px] mx-auto px-6">
+          <ScrollReveal>
+            <div className="text-center mb-16">
+              <span className="inline-block text-[13px] font-semibold tracking-[0.06em] uppercase text-[#9523ef] mb-3">Simples e direto</span>
+              <h2 className="text-[clamp(32px,4vw,48px)] font-[800] leading-[1.15] mb-4" style={{ letterSpacing: "-0.025em" }}>Como funciona</h2>
+              <p className="text-lg text-[#52525b] max-w-[560px] mx-auto">Três passos para enviar ou receber dólares.</p>
+            </div>
+          </ScrollReveal>
 
+          <div className="flex flex-col md:flex-row items-center justify-center gap-6">
+            {[
+              { num: "1", title: "Crie sua conta", desc: "Cadastro rápido, sem papelada. Valide sua identidade em minutos." },
+              { num: "2", title: "Defina o valor", desc: "Escolha quanto quer enviar ou receber. Veja a cotação ao vivo." },
+              { num: "3", title: "Receba em minutos", desc: "Confirme e pronto. O dinheiro chega rápido na conta de destino." },
+            ].map((step, i) => (
+              <ScrollReveal key={i} delay={i * 60} className="flex items-center gap-6">
+                <div className="flex-1 max-w-[300px] bg-white border border-[#e8e0f0] rounded-3xl p-10 text-center transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_16px_48px_rgba(149,35,239,0.1)] hover:border-[rgba(149,35,239,0.3)]">
+                  <div className="w-12 h-12 flex items-center justify-center bg-[#9523ef] text-white font-[800] text-xl rounded-full mx-auto mb-5">
+                    {step.num}
+                  </div>
+                  <h4 className="text-lg font-bold mb-2">{step.title}</h4>
+                  <p className="text-sm text-[#52525b] leading-relaxed">{step.desc}</p>
+                </div>
+                {i < 2 && (
+                  <span className="hidden md:block text-[28px] text-[#9523ef] font-bold">→</span>
+                )}
+              </ScrollReveal>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ========== COMPARAÇÃO ========== */}
+      <section className="py-[100px]" id="comparacao">
+        <div className="max-w-[1200px] mx-auto px-6">
+          <ScrollReveal>
+            <div className="text-center mb-16">
+              <span className="inline-block text-[13px] font-semibold tracking-[0.06em] uppercase text-[#9523ef] mb-3">Comparação de custos</span>
+              <h2 className="text-[clamp(32px,4vw,48px)] font-[800] leading-[1.15] mb-4" style={{ letterSpacing: "-0.025em" }}>Economia que faz a diferença</h2>
+              <p className="text-lg text-[#52525b] max-w-[560px] mx-auto">Veja como a Unbound se compara aos bancos tradicionais.</p>
+            </div>
+          </ScrollReveal>
+          <ScrollReveal>
+            <div className="max-w-[800px] mx-auto border border-[#e8e0f0] rounded-3xl overflow-hidden bg-white shadow-[0_8px_30px_rgba(0,0,0,0.08)]">
+              <table className="w-full border-collapse">
+                <thead>
+                  <tr>
+                    <th className="p-4 px-6 text-left text-sm font-bold bg-[#f3eef9] border-b border-[#e8e0f0]">Recurso</th>
+                    <th className="p-4 px-6 text-center text-sm font-bold bg-[rgba(149,35,239,0.04)] text-[#9523ef] border-b border-[#e8e0f0]">Unbound</th>
+                    <th className="p-4 px-6 text-center text-sm font-bold bg-[#f3eef9] border-b border-[#e8e0f0]">Bancos</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {[
+                    ["Taxa de câmbio", "✓ Spread de 0.4%", "✕ Spread de 3-4%"],
+                    ["IOF", "✓ 0%", "✕ 6.38% padrão"],
+                    ["Tempo", "✓ Minutos", "✕ 1-3 dias úteis"],
+                    ["Horário", "✓ 24/7", "✕ Horário comercial"],
+                    ["Rastreamento", "✓ Tempo real", "✕ Limitado"],
+                  ].map(([feature, unbound, banks], i) => (
+                    <tr key={i} className="hover:bg-[rgba(149,35,239,0.02)]">
+                      <td className="p-4 px-6 text-sm border-b border-[#e8e0f0]">{feature}</td>
+                      <td className="p-4 px-6 text-center text-sm font-semibold bg-[rgba(149,35,239,0.04)] text-[#9523ef] border-b border-[#e8e0f0]">
+                        <span className={unbound.startsWith("✓") ? "text-[#22c55e] font-bold mr-1" : ""}>{unbound.charAt(0)}</span>{unbound.slice(2)}
+                      </td>
+                      <td className="p-4 px-6 text-center text-sm border-b border-[#e8e0f0]">
+                        <span className={banks.startsWith("✕") ? "text-[#ef4444] font-bold mr-1" : ""}>{banks.charAt(0)}</span>{banks.slice(2)}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </ScrollReveal>
+        </div>
+      </section>
+
+      {/* ========== FAQ ========== */}
+      <section className="py-[100px] bg-[#f5f0fc]" id="faq">
+        <div className="max-w-[1200px] mx-auto px-6">
+          <ScrollReveal>
+            <div className="text-center mb-16">
+              <span className="inline-block text-[13px] font-semibold tracking-[0.06em] uppercase text-[#9523ef] mb-3">Dúvidas frequentes</span>
+              <h2 className="text-[clamp(32px,4vw,48px)] font-[800] leading-[1.15] mb-4" style={{ letterSpacing: "-0.025em" }}>FAQ</h2>
+              <p className="text-lg text-[#52525b] max-w-[560px] mx-auto">Tire suas dúvidas sobre a Unbound.</p>
+            </div>
+          </ScrollReveal>
           <FaqAccordion />
         </div>
       </section>
 
-      {/* ═══════════════════ CTA SECTION ═══════════════════ */}
-      <section className="py-20 sm:py-28 px-6 relative overflow-hidden">
-        {/* Purple gradient background */}
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(124,34,213,0.15)_0%,transparent_60%)] pointer-events-none" />
-        <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[rgba(124,34,213,0.3)] to-transparent" />
-
-        <div className="max-w-2xl mx-auto text-center relative flex flex-col items-center gap-6">
-          <SectionChip>Comece agora</SectionChip>
-
-          <h2 className="font-black text-[clamp(26px,4.5vw,42px)] text-white leading-[1.1] tracking-tight">
-            Pronto para enviar dinheiro{" "}
-            <span className="text-[#7c22d5]">sem fronteiras</span>?
-          </h2>
-
-          <p className="text-white/45 text-sm sm:text-base font-medium max-w-lg leading-relaxed">
-            Crie sua conta gratuita em menos de 5 minutos e comece a enviar com
-            as melhores taxas do mercado.
-          </p>
-
-          <div className="flex gap-4 flex-col sm:flex-row items-center">
-            <Link
-              href="/register"
-              className="py-4 px-8 bg-[#7c22d5] hover:bg-[#6a1cb8] rounded-xl text-white font-black text-[15px] tracking-wide no-underline transition-all duration-200 flex items-center gap-2 group"
-            >
-              Abrir conta grátis
-              <ArrowRight
-                size={16}
-                className="transition-transform duration-200 group-hover:translate-x-1"
-              />
-            </Link>
-            <Link
-              href="/login"
-              className="py-4 px-8 bg-transparent border border-white/15 hover:border-white/30 rounded-xl text-white/70 hover:text-white font-bold text-[15px] no-underline transition-all duration-200"
-            >
-              Já tenho conta
-            </Link>
-          </div>
-
-          <p className="text-white/20 text-xs font-bold tracking-wider uppercase mt-4">
-            Cadastro gratuito &middot; Sem compromisso &middot; Cancele quando
-            quiser
-          </p>
+      {/* ========== CTA ========== */}
+      <section className="py-[100px] bg-white">
+        <div className="max-w-[1200px] mx-auto px-6">
+          <ScrollReveal>
+            <div className="max-w-[640px] mx-auto text-center p-14 border border-[#e8e0f0] rounded-3xl bg-white shadow-[0_0_80px_rgba(149,35,239,0.08)] relative overflow-hidden">
+              <h2 className="text-[clamp(24px,3vw,36px)] font-[800] mb-3" style={{ letterSpacing: "-0.02em" }}>
+                Pronto para economizar no câmbio?
+              </h2>
+              <p className="text-base text-[#52525b] mb-8">
+                Cadastre-se agora e faça parte da nova geração de câmbio inteligente.
+              </p>
+              <form className="flex flex-col gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <input
+                    type="text"
+                    placeholder="Seu nome"
+                    className="w-full py-3.5 px-4.5 border border-[#e8e0f0] rounded-xl bg-white text-[#0a0a0a] text-[15px] outline-none focus:border-[#9523ef] focus:shadow-[0_0_0_3px_rgba(149,35,239,0.1)] transition-all"
+                  />
+                  <input
+                    type="tel"
+                    placeholder="Seu telefone"
+                    className="w-full py-3.5 px-4.5 border border-[#e8e0f0] rounded-xl bg-white text-[#0a0a0a] text-[15px] outline-none focus:border-[#9523ef] focus:shadow-[0_0_0_3px_rgba(149,35,239,0.1)] transition-all"
+                  />
+                </div>
+                <button
+                  type="submit"
+                  className="relative overflow-hidden w-full py-3.5 px-8 text-base font-semibold bg-[#9523ef] text-white rounded-full hover:bg-[#7a1bc9] hover:-translate-y-0.5 transition-all shadow-[0_0_40px_rgba(149,35,239,0.35)]"
+                >
+                  <span className="relative z-10">Entrar na lista de espera</span>
+                  <span className="absolute top-0 left-[-100%] w-full h-full pointer-events-none" style={{ background: "linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent)", animation: "shimmerSlide 2.5s ease-in-out infinite" }} />
+                </button>
+                <p className="text-xs text-[#a1a1aa] mt-1">
+                  Ao se cadastrar, você concorda com nossos <a href="#" className="text-[#9523ef] underline">Termos</a> e <a href="#" className="text-[#9523ef] underline">Política de Privacidade</a>.
+                </p>
+              </form>
+            </div>
+          </ScrollReveal>
         </div>
       </section>
     </main>

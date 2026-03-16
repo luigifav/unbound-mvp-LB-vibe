@@ -11,14 +11,6 @@ import {
   CreditCard,
   Trash2,
   X,
-  LayoutDashboard,
-  ArrowUpRight,
-  ArrowDownLeft,
-  Users,
-  Clock,
-  UserCircle,
-  LogOut,
-  Menu,
 } from 'lucide-react';
 
 // ─── Tipos ────────────────────────────────────────────────────────────────────
@@ -41,62 +33,6 @@ interface ExternalAccount {
   bic?: string;
   country?: string;
   createdAt: string;
-}
-
-// ─── Sidebar ──────────────────────────────────────────────────────────────────
-
-const navLinks = [
-  { label: 'Dashboard', icon: LayoutDashboard, href: '/dashboard', active: false },
-  { label: 'Enviar', icon: ArrowUpRight, href: '/send', active: false },
-  { label: 'Receber', icon: ArrowDownLeft, href: '/receive', active: false },
-  { label: 'Destinatários', icon: Users, href: '/external-accounts', active: true },
-  { label: 'Histórico', icon: Clock, href: '/history', active: false },
-  { label: 'Perfil', icon: UserCircle, href: '/profile', active: false },
-];
-
-function Sidebar({ onClose }: { onClose?: () => void }) {
-  return (
-    <aside className="w-64 h-full flex flex-col bg-gray-900 border-r border-gray-800 shrink-0">
-      <div className="flex items-center justify-between px-6 pt-8 pb-6">
-        <span className="text-xl font-bold text-purple-500">UnboundCash</span>
-        {onClose && (
-          <button onClick={onClose} className="text-gray-400 hover:text-white md:hidden">
-            <X className="w-5 h-5" />
-          </button>
-        )}
-      </div>
-      <nav className="flex flex-col gap-1 px-3">
-        {navLinks.map((link) => {
-          const Icon = link.icon;
-          return (
-            <Link
-              key={link.label}
-              href={link.href}
-              onClick={onClose}
-              className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors ${
-                link.active
-                  ? 'bg-purple-600/20 text-purple-400'
-                  : 'text-gray-400 hover:bg-gray-800 hover:text-white'
-              }`}
-            >
-              <Icon className="w-5 h-5" />
-              {link.label}
-            </Link>
-          );
-        })}
-      </nav>
-      <div className="mt-auto px-3 pb-6">
-        <Link
-          href="/login"
-          onClick={onClose}
-          className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-red-400 hover:bg-red-500/10 transition-colors"
-        >
-          <LogOut className="w-5 h-5" />
-          Sair
-        </Link>
-      </div>
-    </aside>
-  );
 }
 
 // ─── Rótulos por rail ─────────────────────────────────────────────────────────
@@ -190,6 +126,8 @@ function NewAccountModal({ onClose, onCreated }: NewAccountModalProps) {
     }
   };
 
+  const inputClass = "w-full bg-gray-800 border border-gray-700 rounded-xl px-4 py-2.5 text-white text-sm placeholder-gray-500 focus:outline-none focus:border-purple-500 transition-colors";
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70">
       <div className="bg-gray-900 border border-gray-700 rounded-2xl w-full max-w-md shadow-2xl">
@@ -239,7 +177,7 @@ function NewAccountModal({ onClose, onCreated }: NewAccountModalProps) {
               value={beneficiaryName}
               onChange={(e) => setBeneficiaryName(e.target.value)}
               placeholder="Nome completo"
-              className="w-full bg-gray-800 border border-gray-700 rounded-xl px-4 py-2.5 text-white text-sm placeholder-gray-500 focus:outline-none focus:border-purple-500 transition-colors"
+              className={inputClass}
               required
             />
           </div>
@@ -248,28 +186,12 @@ function NewAccountModal({ onClose, onCreated }: NewAccountModalProps) {
           {rail === 'PIX' && (
             <>
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-1">
-                  Chave PIX
-                </label>
-                <input
-                  type="text"
-                  value={pixKey}
-                  onChange={(e) => setPixKey(e.target.value)}
-                  placeholder="CPF, e-mail, telefone ou chave aleatória"
-                  className="w-full bg-gray-800 border border-gray-700 rounded-xl px-4 py-2.5 text-white text-sm placeholder-gray-500 focus:outline-none focus:border-purple-500 transition-colors"
-                />
+                <label className="block text-sm font-medium text-gray-300 mb-1">Chave PIX</label>
+                <input type="text" value={pixKey} onChange={(e) => setPixKey(e.target.value)} placeholder="CPF, e-mail, telefone ou chave aleatória" className={inputClass} />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-1">
-                  CPF / CNPJ
-                </label>
-                <input
-                  type="text"
-                  value={document}
-                  onChange={(e) => setDocument(e.target.value)}
-                  placeholder="000.000.000-00"
-                  className="w-full bg-gray-800 border border-gray-700 rounded-xl px-4 py-2.5 text-white text-sm placeholder-gray-500 focus:outline-none focus:border-purple-500 transition-colors"
-                />
+                <label className="block text-sm font-medium text-gray-300 mb-1">CPF / CNPJ</label>
+                <input type="text" value={document} onChange={(e) => setDocument(e.target.value)} placeholder="000.000.000-00" className={inputClass} />
               </div>
             </>
           )}
@@ -277,29 +199,12 @@ function NewAccountModal({ onClose, onCreated }: NewAccountModalProps) {
           {rail === 'SPEI' && (
             <>
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-1">
-                  CLABE (18 dígitos)
-                </label>
-                <input
-                  type="text"
-                  value={clabe}
-                  onChange={(e) => setClabe(e.target.value)}
-                  placeholder="000000000000000000"
-                  maxLength={18}
-                  className="w-full bg-gray-800 border border-gray-700 rounded-xl px-4 py-2.5 text-white text-sm placeholder-gray-500 focus:outline-none focus:border-purple-500 transition-colors"
-                />
+                <label className="block text-sm font-medium text-gray-300 mb-1">CLABE (18 dígitos)</label>
+                <input type="text" value={clabe} onChange={(e) => setClabe(e.target.value)} placeholder="000000000000000000" maxLength={18} className={inputClass} />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-1">
-                  Código do banco (opcional)
-                </label>
-                <input
-                  type="text"
-                  value={bankCode}
-                  onChange={(e) => setBankCode(e.target.value)}
-                  placeholder="Ex: 002"
-                  className="w-full bg-gray-800 border border-gray-700 rounded-xl px-4 py-2.5 text-white text-sm placeholder-gray-500 focus:outline-none focus:border-purple-500 transition-colors"
-                />
+                <label className="block text-sm font-medium text-gray-300 mb-1">Código do banco (opcional)</label>
+                <input type="text" value={bankCode} onChange={(e) => setBankCode(e.target.value)} placeholder="Ex: 002" className={inputClass} />
               </div>
             </>
           )}
@@ -307,40 +212,16 @@ function NewAccountModal({ onClose, onCreated }: NewAccountModalProps) {
           {rail === 'WIRE' && (
             <>
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-1">
-                  Routing Number (9 dígitos)
-                </label>
-                <input
-                  type="text"
-                  value={routingNumber}
-                  onChange={(e) => setRoutingNumber(e.target.value)}
-                  placeholder="021000021"
-                  className="w-full bg-gray-800 border border-gray-700 rounded-xl px-4 py-2.5 text-white text-sm placeholder-gray-500 focus:outline-none focus:border-purple-500 transition-colors"
-                />
+                <label className="block text-sm font-medium text-gray-300 mb-1">Routing Number (9 dígitos)</label>
+                <input type="text" value={routingNumber} onChange={(e) => setRoutingNumber(e.target.value)} placeholder="021000021" className={inputClass} />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-1">
-                  Número da conta
-                </label>
-                <input
-                  type="text"
-                  value={accountNumber}
-                  onChange={(e) => setAccountNumber(e.target.value)}
-                  placeholder="123456789"
-                  className="w-full bg-gray-800 border border-gray-700 rounded-xl px-4 py-2.5 text-white text-sm placeholder-gray-500 focus:outline-none focus:border-purple-500 transition-colors"
-                />
+                <label className="block text-sm font-medium text-gray-300 mb-1">Número da conta</label>
+                <input type="text" value={accountNumber} onChange={(e) => setAccountNumber(e.target.value)} placeholder="123456789" className={inputClass} />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-1">
-                  Nome do banco (opcional)
-                </label>
-                <input
-                  type="text"
-                  value={bankName}
-                  onChange={(e) => setBankName(e.target.value)}
-                  placeholder="Chase Bank"
-                  className="w-full bg-gray-800 border border-gray-700 rounded-xl px-4 py-2.5 text-white text-sm placeholder-gray-500 focus:outline-none focus:border-purple-500 transition-colors"
-                />
+                <label className="block text-sm font-medium text-gray-300 mb-1">Nome do banco (opcional)</label>
+                <input type="text" value={bankName} onChange={(e) => setBankName(e.target.value)} placeholder="Chase Bank" className={inputClass} />
               </div>
             </>
           )}
@@ -348,41 +229,16 @@ function NewAccountModal({ onClose, onCreated }: NewAccountModalProps) {
           {rail === 'SEPA' && (
             <>
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-1">
-                  IBAN
-                </label>
-                <input
-                  type="text"
-                  value={iban}
-                  onChange={(e) => setIban(e.target.value.toUpperCase())}
-                  placeholder="DE89370400440532013000"
-                  className="w-full bg-gray-800 border border-gray-700 rounded-xl px-4 py-2.5 text-white text-sm placeholder-gray-500 focus:outline-none focus:border-purple-500 transition-colors font-mono"
-                />
+                <label className="block text-sm font-medium text-gray-300 mb-1">IBAN</label>
+                <input type="text" value={iban} onChange={(e) => setIban(e.target.value.toUpperCase())} placeholder="DE89370400440532013000" className={`${inputClass} font-mono`} />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-1">
-                  BIC / SWIFT
-                </label>
-                <input
-                  type="text"
-                  value={bic}
-                  onChange={(e) => setBic(e.target.value.toUpperCase())}
-                  placeholder="DEUTDEFF"
-                  className="w-full bg-gray-800 border border-gray-700 rounded-xl px-4 py-2.5 text-white text-sm placeholder-gray-500 focus:outline-none focus:border-purple-500 transition-colors font-mono"
-                />
+                <label className="block text-sm font-medium text-gray-300 mb-1">BIC / SWIFT</label>
+                <input type="text" value={bic} onChange={(e) => setBic(e.target.value.toUpperCase())} placeholder="DEUTDEFF" className={`${inputClass} font-mono`} />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-1">
-                  País (opcional)
-                </label>
-                <input
-                  type="text"
-                  value={country}
-                  onChange={(e) => setCountry(e.target.value.toUpperCase())}
-                  placeholder="DE"
-                  maxLength={2}
-                  className="w-full bg-gray-800 border border-gray-700 rounded-xl px-4 py-2.5 text-white text-sm placeholder-gray-500 focus:outline-none focus:border-purple-500 transition-colors"
-                />
+                <label className="block text-sm font-medium text-gray-300 mb-1">País (opcional)</label>
+                <input type="text" value={country} onChange={(e) => setCountry(e.target.value.toUpperCase())} placeholder="DE" maxLength={2} className={inputClass} />
               </div>
             </>
           )}
@@ -443,7 +299,6 @@ function AccountCard({
 
   return (
     <div className="bg-gray-900 border border-gray-800 rounded-2xl p-5 hover:border-gray-700 transition-colors group">
-      {/* Header */}
       <div className="flex items-start justify-between mb-4">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-xl bg-gray-800 flex items-center justify-center">
@@ -459,14 +314,11 @@ function AccountCard({
         </span>
       </div>
 
-      {/* Dados específicos */}
       <div className="space-y-1.5">
         {account.pixKey && (
           <div className="flex items-center justify-between">
             <span className="text-xs text-gray-500">Chave PIX</span>
-            <span className="text-xs text-gray-300 font-mono truncate max-w-[160px]">
-              {account.pixKey}
-            </span>
+            <span className="text-xs text-gray-300 font-mono truncate max-w-[160px]">{account.pixKey}</span>
           </div>
         )}
         {account.clabe && (
@@ -484,41 +336,27 @@ function AccountCard({
         {account.iban && (
           <div className="flex items-center justify-between">
             <span className="text-xs text-gray-500">IBAN</span>
-            <span className="text-xs text-gray-300 font-mono truncate max-w-[160px]">
-              {account.iban}
-            </span>
+            <span className="text-xs text-gray-300 font-mono truncate max-w-[160px]">{account.iban}</span>
           </div>
         )}
       </div>
 
-      {/* Rodapé com data e exclusão */}
       <div className="flex items-center justify-between mt-4 pt-4 border-t border-gray-800">
         <span className="text-xs text-gray-600">
           {new Date(account.createdAt).toLocaleDateString('pt-BR')}
         </span>
-
         {confirmando ? (
           <div className="flex items-center gap-2">
             <span className="text-xs text-gray-400">Confirmar?</span>
-            <button
-              onClick={handleDelete}
-              disabled={excluindo}
-              className="text-xs text-red-400 hover:text-red-300 font-medium transition-colors disabled:opacity-50"
-            >
+            <button onClick={handleDelete} disabled={excluindo} className="text-xs text-red-400 hover:text-red-300 font-medium transition-colors disabled:opacity-50">
               {excluindo ? 'Excluindo...' : 'Sim'}
             </button>
-            <button
-              onClick={() => setConfirmando(false)}
-              className="text-xs text-gray-400 hover:text-white transition-colors"
-            >
+            <button onClick={() => setConfirmando(false)} className="text-xs text-gray-400 hover:text-white transition-colors">
               Não
             </button>
           </div>
         ) : (
-          <button
-            onClick={() => setConfirmando(true)}
-            className="text-gray-600 hover:text-red-400 transition-colors opacity-0 group-hover:opacity-100"
-          >
+          <button onClick={() => setConfirmando(true)} className="text-gray-600 hover:text-red-400 transition-colors opacity-0 group-hover:opacity-100">
             <Trash2 className="w-4 h-4" />
           </button>
         )}
@@ -530,12 +368,10 @@ function AccountCard({
 // ─── Página principal ─────────────────────────────────────────────────────────
 
 export default function ExternalAccountsPage() {
-  const [sidebarOpen, setSidebarOpen] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
   const [accounts, setAccounts] = useState<ExternalAccount[]>([]);
   const [carregando, setCarregando] = useState(true);
 
-  // Busca as contas ao montar
   useEffect(() => {
     async function buscar() {
       try {
@@ -562,122 +398,87 @@ export default function ExternalAccountsPage() {
   };
 
   return (
-    <div className="flex h-screen overflow-hidden bg-gray-950">
-      {/* Desktop sidebar */}
-      <div className="hidden md:block">
-        <Sidebar />
-      </div>
-
-      {/* Mobile sidebar drawer */}
-      {sidebarOpen && (
-        <>
-          <div
-            className="fixed inset-0 z-40 bg-black/50 md:hidden"
-            onClick={() => setSidebarOpen(false)}
-          />
-          <div className="fixed inset-y-0 left-0 z-50 md:hidden">
-            <Sidebar onClose={() => setSidebarOpen(false)} />
+    <>
+      {/* Header */}
+      <header className="flex items-center justify-between px-8 py-6 border-b border-gray-800">
+        <div className="flex items-center gap-3">
+          <Link href="/dashboard" className="text-gray-400 hover:text-white transition-colors">
+            <ArrowLeft className="w-5 h-5" />
+          </Link>
+          <div>
+            <h1 className="text-xl font-semibold text-white">Contas externas</h1>
+            <p className="text-sm text-gray-400">
+              Gerencie destinatários para PIX, SPEI, Wire e SEPA
+            </p>
           </div>
-        </>
-      )}
+        </div>
 
-      {/* Conteúdo principal */}
-      <div className="flex-1 overflow-y-auto">
-        {/* Header */}
-        <header className="flex items-center justify-between px-8 py-6 border-b border-gray-800">
-          <div className="flex items-center gap-4">
-            <button
-              onClick={() => setSidebarOpen(true)}
-              className="text-gray-400 hover:text-white md:hidden"
-            >
-              <Menu className="w-6 h-6" />
-            </button>
-            <div className="flex items-center gap-3">
-              <Link href="/dashboard" className="text-gray-400 hover:text-white transition-colors">
-                <ArrowLeft className="w-5 h-5" />
-              </Link>
-              <div>
-                <h1 className="text-xl font-semibold text-white">Contas externas</h1>
-                <p className="text-sm text-gray-400">
-                  Gerencie destinatários para PIX, SPEI, Wire e SEPA
-                </p>
-              </div>
-            </div>
-          </div>
+        <button
+          onClick={() => setModalOpen(true)}
+          className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium bg-purple-600 hover:bg-purple-700 text-white transition-colors"
+        >
+          <Plus className="w-4 h-4" />
+          Nova conta
+        </button>
+      </header>
 
-          <button
-            onClick={() => setModalOpen(true)}
-            className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium bg-purple-600 hover:bg-purple-700 text-white transition-colors"
-          >
-            <Plus className="w-4 h-4" />
-            Nova conta
-          </button>
-        </header>
-
-        {/* Conteúdo */}
-        <main className="px-8 py-6">
-          {carregando ? (
-            // Skeletons de carregamento
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-              {[1, 2, 3].map((i) => (
-                <div
-                  key={i}
-                  className="bg-gray-900 border border-gray-800 rounded-2xl p-5 animate-pulse"
-                >
-                  <div className="flex items-center gap-3 mb-4">
-                    <div className="w-10 h-10 rounded-xl bg-gray-800" />
-                    <div className="space-y-2">
-                      <div className="h-3 bg-gray-800 rounded w-24" />
-                      <div className="h-2 bg-gray-800 rounded w-16" />
-                    </div>
-                  </div>
+      {/* Conteúdo */}
+      <main className="px-8 py-6">
+        {carregando ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {[1, 2, 3].map((i) => (
+              <div key={i} className="bg-gray-900 border border-gray-800 rounded-2xl p-5 animate-pulse">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-10 h-10 rounded-xl bg-gray-800" />
                   <div className="space-y-2">
-                    <div className="h-3 bg-gray-800 rounded" />
-                    <div className="h-3 bg-gray-800 rounded w-3/4" />
+                    <div className="h-3 bg-gray-800 rounded w-24" />
+                    <div className="h-2 bg-gray-800 rounded w-16" />
                   </div>
                 </div>
+                <div className="space-y-2">
+                  <div className="h-3 bg-gray-800 rounded" />
+                  <div className="h-3 bg-gray-800 rounded w-3/4" />
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : accounts.length === 0 ? (
+          <div className="flex flex-col items-center justify-center py-20 text-center">
+            <div className="w-16 h-16 rounded-2xl bg-gray-900 border border-gray-800 flex items-center justify-center mb-4">
+              <CreditCard className="w-8 h-8 text-gray-600" />
+            </div>
+            <h2 className="text-lg font-semibold text-white mb-2">
+              Nenhuma conta cadastrada
+            </h2>
+            <p className="text-sm text-gray-400 max-w-xs mb-6">
+              Cadastre contas externas para enviar dinheiro por PIX, SPEI, Wire ou SEPA.
+            </p>
+            <button
+              onClick={() => setModalOpen(true)}
+              className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-medium bg-purple-600 hover:bg-purple-700 text-white transition-colors"
+            >
+              <Plus className="w-4 h-4" />
+              Cadastrar primeira conta
+            </button>
+          </div>
+        ) : (
+          <div>
+            <p className="text-sm text-gray-500 mb-4">
+              {accounts.length} conta{accounts.length !== 1 ? 's' : ''} cadastrada
+              {accounts.length !== 1 ? 's' : ''}
+            </p>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              {accounts.map((account) => (
+                <AccountCard
+                  key={account.id}
+                  account={account}
+                  onDelete={handleDeleted}
+                />
               ))}
             </div>
-          ) : accounts.length === 0 ? (
-            // Estado vazio
-            <div className="flex flex-col items-center justify-center py-20 text-center">
-              <div className="w-16 h-16 rounded-2xl bg-gray-900 border border-gray-800 flex items-center justify-center mb-4">
-                <CreditCard className="w-8 h-8 text-gray-600" />
-              </div>
-              <h2 className="text-lg font-semibold text-white mb-2">
-                Nenhuma conta cadastrada
-              </h2>
-              <p className="text-sm text-gray-400 max-w-xs mb-6">
-                Cadastre contas externas para enviar dinheiro por PIX, SPEI, Wire ou SEPA.
-              </p>
-              <button
-                onClick={() => setModalOpen(true)}
-                className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-medium bg-purple-600 hover:bg-purple-700 text-white transition-colors"
-              >
-                <Plus className="w-4 h-4" />
-                Cadastrar primeira conta
-              </button>
-            </div>
-          ) : (
-            // Grid de contas
-            <div>
-              <p className="text-sm text-gray-500 mb-4">
-                {accounts.length} conta{accounts.length !== 1 ? 's' : ''} cadastrada
-                {accounts.length !== 1 ? 's' : ''}
-              </p>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                {accounts.map((account) => (
-                  <AccountCard
-                    key={account.id}
-                    account={account}
-                    onDelete={handleDeleted}
-                  />
-                ))}
-              </div>
-            </div>
-          )}
-        </main>
-      </div>
+          </div>
+        )}
+      </main>
 
       {/* Modal de nova conta */}
       {modalOpen && (
@@ -686,6 +487,6 @@ export default function ExternalAccountsPage() {
           onCreated={handleCreated}
         />
       )}
-    </div>
+    </>
   );
 }

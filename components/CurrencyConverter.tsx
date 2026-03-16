@@ -1,168 +1,104 @@
 "use client";
 
-import { useState } from "react";
-import Link from "next/link";
-import { ArrowRight, TrendingUp } from "lucide-react";
+import { useState, useCallback } from "react";
 
-const RATES: Record<string, Record<string, number>> = {
-  USD: { BRL: 5.78, EUR: 0.92, GBP: 0.79 },
-  EUR: { BRL: 6.28, USD: 1.09, GBP: 0.86 },
-  GBP: { BRL: 7.31, USD: 1.27, EUR: 1.16 },
-};
+const BR_FLAG = (
+  <svg viewBox="0 0 24 24" width="22" height="22" className="rounded-full shrink-0">
+    <rect width="24" height="24" rx="12" fill="#009c3b" />
+    <polygon points="12,3 22,12 12,21 2,12" fill="#ffdf00" />
+    <circle cx="12" cy="12" r="5" fill="#002776" />
+    <path d="M7 12.5 Q12 10 17 12.5" stroke="#fff" strokeWidth="0.8" fill="none" />
+  </svg>
+);
 
-const CURRENCIES = [
-  { code: "USD", flag: "🇺🇸", label: "Dólar" },
-  { code: "EUR", flag: "🇪🇺", label: "Euro" },
-  { code: "GBP", flag: "🇬🇧", label: "Libra" },
-  { code: "BRL", flag: "🇧🇷", label: "Real" },
-];
+const US_FLAG = (
+  <svg viewBox="0 0 24 24" width="22" height="22" className="rounded-full shrink-0">
+    <rect width="24" height="24" rx="12" fill="#b22234" />
+    <rect y="3.7" width="24" height="1.85" fill="#fff" />
+    <rect y="7.4" width="24" height="1.85" fill="#b22234" />
+    <rect y="11.1" width="24" height="1.85" fill="#fff" />
+    <rect y="14.8" width="24" height="1.85" fill="#b22234" />
+    <rect y="18.5" width="24" height="1.85" fill="#fff" />
+    <rect width="10" height="12" fill="#3c3b6e" />
+  </svg>
+);
 
-const FEE_PERCENT = 1.5;
-
-function formatCurrency(value: number, code: string) {
-  if (code === "BRL") {
-    return new Intl.NumberFormat("pt-BR", {
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2,
-    }).format(value);
-  }
-  return new Intl.NumberFormat("en-US", {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  }).format(value);
-}
+const RATE = 5.23;
 
 export default function CurrencyConverter() {
-  const [sendAmount, setSendAmount] = useState("1000");
-  const [fromCurrency, setFromCurrency] = useState("USD");
-  const [toCurrency, setToCurrency] = useState("BRL");
+  const [brlValue, setBrlValue] = useState("10.000");
 
-  const numericAmount = parseFloat(sendAmount.replace(/,/g, "").replace(/\./g, "")) || 0;
-  const rate = RATES[fromCurrency]?.[toCurrency] ?? 1;
-  const fee = numericAmount * (FEE_PERCENT / 100);
-  const receiveAmount = numericAmount * rate;
-
-  const handleAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const raw = e.target.value.replace(/[^0-9]/g, "");
-    setSendAmount(raw);
+  const formatBRL = (raw: string) => {
+    const cleaned = raw.replace(/\./g, "").replace(",", ".");
+    return parseFloat(cleaned);
   };
 
-  const displaySendAmount = numericAmount
-    ? formatCurrency(numericAmount, fromCurrency)
-    : "";
-
-  const sendOptions = CURRENCIES.filter((c) => c.code !== toCurrency);
-  const receiveOptions = CURRENCIES.filter((c) => c.code !== fromCurrency);
+  const getUsdValue = useCallback(() => {
+    const val = formatBRL(brlValue);
+    if (isNaN(val) || val <= 0) return "";
+    return (val / RATE).toLocaleString("pt-BR", {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    });
+  }, [brlValue]);
 
   return (
-    <div className="w-full max-w-[540px] mx-auto">
-      <div className="bg-white/[0.04] border border-white/[0.08] rounded-2xl p-5 sm:p-7 backdrop-blur-sm relative overflow-hidden">
-        {/* Subtle glow accent */}
-        <div className="absolute -top-20 -right-20 w-40 h-40 bg-[radial-gradient(circle,rgba(124,34,213,0.15)_0%,transparent_70%)] pointer-events-none" />
+    <div className="bg-white rounded-3xl border border-[#e8e0f0] p-12 shadow-[0_20px_60px_rgba(0,0,0,0.1),0_0_80px_rgba(149,35,239,0.08)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_20px_60px_rgba(0,0,0,0.1),0_0_100px_rgba(149,35,239,0.15)]">
+      {/* BRL input */}
+      <div className="flex justify-between items-center mb-2.5">
+        <span className="text-base font-medium text-[#52525b]">Você envia</span>
+        <span className="inline-flex items-center gap-2 px-3.5 py-1.5 bg-[#f3eef9] rounded-full text-sm font-semibold text-[#a1a1aa]">
+          {BR_FLAG} BRL
+        </span>
+      </div>
+      <div className="flex items-baseline mb-6">
+        <span className="text-[clamp(36px,5vw,52px)] font-[800] text-[#0a0a0a] mr-1.5" style={{ letterSpacing: "-0.02em" }}>
+          R$
+        </span>
+        <input
+          type="text"
+          value={brlValue}
+          onChange={(e) => setBrlValue(e.target.value)}
+          className="text-[clamp(36px,5vw,52px)] font-[800] text-[#0a0a0a] bg-transparent border-none outline-none w-full"
+          style={{ letterSpacing: "-0.02em", fontFamily: "inherit" }}
+        />
+      </div>
 
-        {/* Currency panels */}
-        <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 items-stretch relative">
-          {/* Send panel */}
-          <div className="flex-1 bg-white/[0.03] border border-white/[0.06] rounded-xl p-4 transition-colors hover:border-white/[0.1]">
-            <span className="block text-[11px] font-bold tracking-[0.12em] uppercase text-white/40 mb-3">
-              Você envia
-            </span>
-            <div className="flex items-center gap-2 mb-3">
-              <span className="text-lg leading-none">
-                {CURRENCIES.find((c) => c.code === fromCurrency)?.flag}
-              </span>
-              <select
-                value={fromCurrency}
-                onChange={(e) => setFromCurrency(e.target.value)}
-                className="bg-transparent text-white font-bold text-sm outline-none cursor-pointer appearance-none pr-4"
-                style={{
-                  backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' fill='none'%3E%3Cpath d='M1 1l4 4 4-4' stroke='rgba(255,255,255,0.4)' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E")`,
-                  backgroundRepeat: "no-repeat",
-                  backgroundPosition: "right center",
-                }}
-              >
-                {sendOptions.map((c) => (
-                  <option key={c.code} value={c.code} className="bg-[#0a1a14] text-white">
-                    {c.code}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <input
-              type="text"
-              inputMode="numeric"
-              value={displaySendAmount}
-              onChange={handleAmountChange}
-              placeholder="0.00"
-              className="bg-transparent text-white text-2xl sm:text-[28px] font-black outline-none w-full placeholder:text-white/15 tracking-tight"
-            />
-          </div>
+      {/* Toggle */}
+      <div className="flex justify-center py-2.5">
+        <button className="w-[52px] h-[52px] rounded-full border border-[#e8e0f0] bg-white flex items-center justify-center cursor-pointer text-[#52525b] hover:border-[#9523ef] hover:text-[#9523ef] hover:scale-110 transition-all duration-200">
+          <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+            <path d="M10 3v14M6 7l4-4 4 4M6 13l4 4 4-4" />
+          </svg>
+        </button>
+      </div>
 
-          {/* Arrow separator */}
-          <div className="flex items-center justify-center sm:self-center shrink-0">
-            <div className="w-10 h-10 rounded-full bg-[#7c22d5]/20 border border-[#7c22d5]/40 flex items-center justify-center rotate-90 sm:rotate-0">
-              <ArrowRight size={16} className="text-[#7c22d5]" />
-            </div>
-          </div>
+      {/* USD output */}
+      <div className="flex justify-between items-center mb-2.5">
+        <span className="text-base font-medium text-[#52525b]">Você recebe</span>
+        <span className="inline-flex items-center gap-2 px-3.5 py-1.5 bg-[#f3eef9] rounded-full text-sm font-semibold text-[#a1a1aa]">
+          {US_FLAG} USD
+        </span>
+      </div>
+      <div className="flex items-baseline mb-6">
+        <span className="text-[clamp(36px,5vw,52px)] font-[800] text-[#22c55e] mr-1.5" style={{ letterSpacing: "-0.02em" }}>
+          $
+        </span>
+        <input
+          type="text"
+          value={getUsdValue()}
+          readOnly
+          className="text-[clamp(36px,5vw,52px)] font-[800] text-[#22c55e] bg-transparent border-none outline-none w-full"
+          style={{ letterSpacing: "-0.02em", fontFamily: "inherit" }}
+        />
+      </div>
 
-          {/* Receive panel */}
-          <div className="flex-1 bg-[rgba(124,34,213,0.06)] border border-[rgba(124,34,213,0.15)] rounded-xl p-4">
-            <span className="block text-[11px] font-bold tracking-[0.12em] uppercase text-white/40 mb-3">
-              Destinatário recebe
-            </span>
-            <div className="flex items-center gap-2 mb-3">
-              <span className="text-lg leading-none">
-                {CURRENCIES.find((c) => c.code === toCurrency)?.flag}
-              </span>
-              <select
-                value={toCurrency}
-                onChange={(e) => setToCurrency(e.target.value)}
-                className="bg-transparent text-white font-bold text-sm outline-none cursor-pointer appearance-none pr-4"
-                style={{
-                  backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' fill='none'%3E%3Cpath d='M1 1l4 4 4-4' stroke='rgba(255,255,255,0.4)' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E")`,
-                  backgroundRepeat: "no-repeat",
-                  backgroundPosition: "right center",
-                }}
-              >
-                {receiveOptions.map((c) => (
-                  <option key={c.code} value={c.code} className="bg-[#0a1a14] text-white">
-                    {c.code}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <span className="block text-2xl sm:text-[28px] font-black text-white tracking-tight">
-              {receiveAmount > 0
-                ? formatCurrency(receiveAmount, toCurrency)
-                : "0,00"}
-            </span>
-          </div>
-        </div>
-
-        {/* Rate & fee info */}
-        <div className="flex flex-wrap items-center justify-between gap-2 mt-4 px-1">
-          <div className="flex items-center gap-1.5 text-white/45 text-xs font-medium">
-            <TrendingUp size={13} className="text-[#7c22d5]" />
-            <span>
-              1 {fromCurrency} = {rate.toFixed(2)} {toCurrency}
-            </span>
-          </div>
-          <span className="text-white/30 text-xs font-medium">
-            Taxa: {formatCurrency(fee, fromCurrency)} ({FEE_PERCENT}%)
-          </span>
-        </div>
-
-        {/* CTA */}
-        <Link
-          href="/register"
-          className="mt-5 w-full py-4 bg-[#7c22d5] hover:bg-[#6a1cb8] rounded-xl text-white font-black text-[15px] tracking-wide transition-all duration-200 flex items-center justify-center gap-2 no-underline group"
-        >
-          Enviar agora
-          <ArrowRight
-            size={16}
-            className="transition-transform duration-200 group-hover:translate-x-1"
-          />
-        </Link>
+      {/* Rate box */}
+      <div className="bg-[#f3eef9] rounded-2xl p-5 mt-6 border border-[rgba(149,35,239,0.06)]">
+        <p className="text-base text-[#52525b]">
+          Cotação: <strong className="text-[#0a0a0a]">R$ 5,23</strong> por US$1
+        </p>
+        <p className="text-xs text-[#a1a1aa] mt-1">Atualizada há 0s</p>
       </div>
     </div>
   );

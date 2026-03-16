@@ -11,7 +11,7 @@ export default function IridescenceCanvas() {
     const container = containerRef.current;
     if (!canvas || !container) return;
 
-    const gl = canvas.getContext("webgl") || canvas.getContext("experimental-webgl");
+    const gl = (canvas.getContext("webgl") || canvas.getContext("experimental-webgl")) as WebGLRenderingContext | null;
     if (!gl) return;
 
     const uColorVal = [0.5, 0.1, 0.8];

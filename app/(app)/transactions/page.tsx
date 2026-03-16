@@ -68,7 +68,7 @@ export default function TransactionsPage() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-gray-950 px-6 py-10 md:px-12">
+    <div className="flex-1 bg-gray-950 px-6 py-10 md:px-12">
       {/* Cabeçalho */}
       <div className="max-w-2xl mx-auto">
         <div className="flex items-center gap-3 mb-8">

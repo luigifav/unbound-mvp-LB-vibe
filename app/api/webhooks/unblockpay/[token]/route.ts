@@ -5,13 +5,13 @@
 
 import { createHmac, timingSafeEqual } from 'crypto'
 import { NextRequest, NextResponse } from 'next/server'
-import { createPayout, getTransaction, getWallets } from '@/lib/unblockpay'
+import { createPayout, getQuote, getTransaction, getWallets } from '@/lib/unblockpay'
 import {
   getCompositeTransactionByPayinId,
   getCompositeTransactionByPayoutId,
   updateCompositeTransaction,
 } from '@/lib/composite-transactions'
-import type { Quote, Transaction } from '@/types'
+import type { Transaction } from '@/types'
 
 // ---------------------------------------------------------------------------
 // Tipagem do corpo do webhook enviado pela UnblockPay
@@ -70,15 +70,20 @@ export async function POST(
     }
 
     // 3. Verifica a assinatura HMAC-SHA256
-    // TODO: confirmar nome exato do header com o suporte da UnblockPay
     const assinatura = request.headers.get('x-unblockpay-signature') ?? ''
+
+    if (!assinatura) {
+      console.warn('[Webhook] Header x-unblockpay-signature ausente.')
+      return NextResponse.json({ mensagem: 'Assinatura ausente.' }, { status: 401 })
+    }
 
     const hmacEsperado = createHmac('sha256', secret)
       .update(rawBody, 'utf8')
       .digest('hex')
 
-    const bufferRecebido = Buffer.from(assinatura, 'hex')
-    const bufferEsperado = Buffer.from(hmacEsperado, 'hex')
+    // Compara como strings em tempo constante para evitar timing attacks
+    const bufferRecebido = Buffer.from(assinatura, 'utf8')
+    const bufferEsperado = Buffer.from(hmacEsperado, 'utf8')
 
     const assinaturaValida =
       bufferRecebido.length === bufferEsperado.length &&
@@ -134,39 +139,23 @@ export async function POST(
       await updateCompositeTransaction(compositeTx.id, { status: 'converting' })
 
       // e. Busca cotação off_ramp (USDC → moeda de destino)
-      const apiKey = process.env.UNBLOCKPAY_API_KEY
-      const baseUrl = process.env.UNBLOCKPAY_BASE_URL
-
-      if (!apiKey || !baseUrl) {
-        console.error('[Webhook UnblockPay] Variáveis de ambiente da API não configuradas.')
-        return NextResponse.json({ received: true }, { status: 200 })
-      }
-
-      const quoteResponse = await fetch(`${baseUrl}/v1/quote`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${apiKey}`,
-        },
-        body: JSON.stringify({
-          type: 'off_ramp',
-          from: 'USDC',
-          to: compositeTx.receiverCurrency,
-          amount: data.receiver.amount,
-        }),
+      const quoteResult = await getQuote({
+        type: 'off_ramp',
+        from: 'USDC',
+        to: compositeTx.receiverCurrency,
+        amount: data.receiver.amount ?? 0,
       })
 
-      if (!quoteResponse.ok) {
-        const quoteError = await quoteResponse.text()
+      if (!quoteResult.success || !quoteResult.data) {
         await updateCompositeTransaction(compositeTx.id, {
           status: 'failed',
-          errorMessage: `Falha ao obter cotação off_ramp: ${quoteError}`,
+          errorMessage: `Falha ao obter cotação off_ramp: ${quoteResult.error}`,
         })
-        console.error(`[Webhook UnblockPay] Cotação off_ramp falhou para tx composta ${compositeTx.id}:`, quoteError)
+        console.error(`[Webhook UnblockPay] Cotação off_ramp falhou para tx composta ${compositeTx.id}:`, quoteResult.error)
         return NextResponse.json({ received: true }, { status: 200 })
       }
 
-      const quote = (await quoteResponse.json()) as Quote
+      const quote = quoteResult.data
 
       // f. Busca a wallet do usuário para usar como sender no payout
       const walletsResult = await getWallets(compositeTx.userId)

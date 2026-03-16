@@ -7,6 +7,7 @@ import type {
   CreatePayoutData,
   CreateWalletData,
   Customer,
+  Quote,
   Transaction,
   Wallet,
   WalletBalance,
@@ -150,6 +151,28 @@ async function callApi<T>(
 
     return { data: null, error: message, success: false }
   }
+}
+
+// ---------------------------------------------------------------------------
+// Quotes
+// ---------------------------------------------------------------------------
+
+/**
+ * Solicita uma cotação de câmbio na UnblockPay.
+ *
+ * @param data Dados da cotação: type (on_ramp | off_ramp), from, to, amount
+ * @returns O objeto Quote com id, taxa e expiração
+ */
+export async function getQuote(data: {
+  type: 'on_ramp' | 'off_ramp'
+  from: string
+  to: string
+  amount: number
+}): Promise<ApiResponse<Quote>> {
+  return callApi<Quote>('/v1/quote', {
+    method: 'POST',
+    body: JSON.stringify(data),
+  })
 }
 
 // ---------------------------------------------------------------------------

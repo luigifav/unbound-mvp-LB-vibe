@@ -53,7 +53,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="pt-BR">
-      <body className="min-h-screen overflow-x-hidden bg-[#050A08] text-white font-sans">
+      <body className="min-h-screen overflow-x-hidden bg-white text-[#0a0a0a] font-sans">
         <Providers>
           {children}
         </Providers>

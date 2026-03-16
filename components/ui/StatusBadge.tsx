@@ -1,21 +1,18 @@
-// Badge de status das transações
+// Badge de status das transações — tema claro
 
-// Tipos de status possíveis para uma transação
 type Status = 'pending' | 'completed' | 'failed' | 'processing';
 
 interface StatusBadgeProps {
   status: Status;
 }
 
-// Mapeamento de cada status para texto em português e classes Tailwind
 const config: Record<Status, { label: string; classes: string }> = {
-  pending:    { label: 'Pendente',     classes: 'bg-yellow-100 text-yellow-700 border-yellow-300' },
-  completed:  { label: 'Concluído',    classes: 'bg-green-100  text-green-700  border-green-300'  },
-  failed:     { label: 'Falhou',       classes: 'bg-red-100    text-red-700    border-red-300'    },
-  processing: { label: 'Processando',  classes: 'bg-blue-100   text-blue-700   border-blue-300'   },
+  pending:    { label: 'Pendente',     classes: 'bg-yellow-50 text-yellow-700 border-yellow-200' },
+  completed:  { label: 'Concluído',    classes: 'bg-green-50  text-green-700  border-green-200'  },
+  failed:     { label: 'Falhou',       classes: 'bg-red-50    text-red-700    border-red-200'    },
+  processing: { label: 'Processando',  classes: 'bg-blue-50   text-blue-700   border-blue-200'   },
 };
 
-// Componente StatusBadge: pill colorido que indica o estado da transação
 export default function StatusBadge({ status }: StatusBadgeProps) {
   const { label, classes } = config[status];
 

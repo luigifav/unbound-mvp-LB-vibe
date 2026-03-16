@@ -39,7 +39,7 @@ export default async function TransactionPage({
   const valor = tx.sender?.amount ?? tx.receiver?.amount ?? 0;
 
   return (
-    <div className="min-h-screen bg-[#000904] flex flex-col items-center justify-center px-5 py-12 relative overflow-hidden">
+    <div className="flex-1 bg-[#000904] flex flex-col items-center justify-center px-5 py-12 relative overflow-hidden">
 
       {/* Brilho roxo decorativo */}
       <div className="fixed top-[-200px] left-1/2 -translate-x-1/2 w-[700px] h-[500px] bg-[radial-gradient(ellipse,rgba(124,34,213,0.2)_0%,transparent_70%)] pointer-events-none z-0" />

@@ -98,7 +98,7 @@ export default function SendDetailPage() {
   // ── Estado: carregando ────────────────────────────────────────────────────
   if (carregando) {
     return (
-      <div className="min-h-screen bg-[#000904] flex items-center justify-center">
+      <div className="flex-1 bg-[#000904] flex items-center justify-center">
         <div className="w-8 h-8 border-2 border-[#7C22D5] border-t-transparent rounded-full animate-spin" />
       </div>
     );
@@ -107,7 +107,7 @@ export default function SendDetailPage() {
   // ── Estado: erro ou transação não encontrada ──────────────────────────────
   if (erroCarregamento || !transacao) {
     return (
-      <div className="min-h-screen bg-[#000904] flex flex-col items-center justify-center px-5 gap-4">
+      <div className="flex-1 bg-[#000904] flex flex-col items-center justify-center px-5 gap-4">
         <p className="text-white/50 text-sm font-medium text-center">
           {erroCarregamento ?? 'Transação não encontrada.'}
         </p>
@@ -129,7 +129,7 @@ export default function SendDetailPage() {
   });
 
   return (
-    <div className="min-h-screen bg-[#000904] flex flex-col items-center justify-center px-5 py-12 relative overflow-hidden">
+    <div className="flex-1 bg-[#000904] flex flex-col items-center justify-center px-5 py-12 relative overflow-hidden">
 
       {/* Brilho roxo decorativo ao fundo */}
       <div className="fixed top-[-200px] left-1/2 -translate-x-1/2 w-[700px] h-[500px] bg-[radial-gradient(ellipse,rgba(124,34,213,0.2)_0%,transparent_70%)] pointer-events-none z-0" />

@@ -1,31 +1,23 @@
 "use client";
 
-// Botão com estado de loading — mesma aparência do botão "Enviar Cadastro" do formulário
 import { useState } from "react";
 
-// ─── Design tokens — mesma paleta do formulário de cadastro ───────
 const C = {
-  purple:      "#7c22d5",
-  purpleLight: "#9b4de0",
+  purple:      "#9523ef",
+  purpleHover: "#7a1bc9",
   white:       "#ffffff",
 };
 
-const font = "'Red Hat Display', sans-serif";
+const font = "'Red Hat Display', -apple-system, BlinkMacSystemFont, sans-serif";
 
 interface LoadingButtonProps {
-  /** Texto exibido quando o botão está disponível */
   label: string;
-  /** Texto exibido durante o carregamento */
   loadingLabel: string;
-  /** Controla o estado de carregamento externamente */
   isLoading: boolean;
-  /** Função chamada ao clicar (quando não está carregando) */
   onClick: () => void;
-  /** Largura total do contêiner pai quando true */
   fullWidth?: boolean;
 }
 
-// Componente LoadingButton: botão roxo com spinner de loading
 export default function LoadingButton({
   label,
   loadingLabel,
@@ -35,11 +27,10 @@ export default function LoadingButton({
 }: LoadingButtonProps) {
   const [hovered, setHovered] = useState(false);
 
-  // Cor de fundo: desbotada quando carregando, hover mais claro quando disponível
   const bgColor = isLoading
-    ? "rgba(124,34,213,0.5)"
+    ? "rgba(149,35,239,0.5)"
     : hovered
-    ? C.purpleLight
+    ? C.purpleHover
     : C.purple;
 
   return (
@@ -49,6 +40,7 @@ export default function LoadingButton({
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
       style={{
+        position:       "relative",
         width:          fullWidth ? "100%" : "auto",
         padding:        "14px 28px",
         background:     bgColor,
@@ -65,11 +57,26 @@ export default function LoadingButton({
         justifyContent: "center",
         gap:            "8px",
         transition:     "background 0.2s",
+        overflow:       "hidden",
       }}
     >
+      {/* Shimmer effect */}
+      {!isLoading && (
+        <span
+          style={{
+            position:    "absolute",
+            top:         0,
+            left:        "-100%",
+            width:       "60%",
+            height:      "100%",
+            background:  "linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent)",
+            animation:   "shimmerSlide 3s ease-in-out infinite",
+            pointerEvents: "none",
+          }}
+        />
+      )}
       {isLoading ? (
         <>
-          {/* Spinner animado — mesma implementação do formulário */}
           <div style={{
             width:        "14px",
             height:       "14px",

@@ -3,18 +3,28 @@
 // As CSS variables em globals.css devem espelhar estes valores.
 
 export const colors = {
-  purple: "#7c22d5",
-  purpleLight: "#9b4de0",
-  purpleDim: "rgba(124,34,213,0.15)",
-  purpleBorder: "rgba(124,34,213,0.35)",
+  purple: "#9523ef",
+  purpleLight: "#7a1bc9",
+  purpleDim: "rgba(149,35,239,0.12)",
+  purpleBorder: "rgba(149,35,239,0.25)",
   white: "#ffffff",
-  black: "#000904",
-  grayLight: "rgba(255,255,255,0.06)",
-  grayBorder: "rgba(255,255,255,0.1)",
-  textMuted: "rgba(255,255,255,0.45)",
-  textSub: "rgba(255,255,255,0.65)",
+  black: "#0a0a0a",
+  bgSubtle: "#f5f0fc",
+  inputBg: "#f9f7fd",
+  inputBorder: "#e0d8ee",
+  cardBg: "#ffffff",
+  cardBorder: "#e8e0f0",
+  grayLight: "#f5f0fc",
+  grayBorder: "#e8e0f0",
+  textPrimary: "#0a0a0a",
+  textSecondary: "#52525b",
+  textMuted: "#a1a1aa",
+  textSub: "#52525b",
   error: "#f06060",
-  success: "#4caf82",
+  success: "#22c55e",
+  heroBg: "#1a0a2e",
+  footerBg: "#000000",
 } as const;
 
-export const font = "'Red Hat Display', sans-serif";
+export const font = "'Red Hat Display', -apple-system, BlinkMacSystemFont, sans-serif";
+export const fontMono = "'Geist Mono', monospace";

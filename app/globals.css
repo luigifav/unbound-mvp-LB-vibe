@@ -1,19 +1,37 @@
-/* Red Hat Display — carregada via Google Fonts em runtime */
-@import url('https://fonts.googleapis.com/css2?family=Red+Hat+Display:wght@400;500;700;900&display=swap');
+/* Red Hat Display + Geist Mono — carregada via Google Fonts em runtime */
+@import url('https://fonts.googleapis.com/css2?family=Red+Hat+Display:wght@300;400;500;600;700;800;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Geist+Mono:wght@400;500;600;700&display=swap');
 
 @import "tailwindcss";
 
-/* ─── Design tokens globais — mesma paleta do formulário de cadastro ─── */
+/* ─── Design tokens globais — tema claro ─── */
 :root {
   --background: #ffffff;
-  --foreground: #1a1a2e;
-  --font-red-hat: "Red Hat Display", sans-serif;
+  --foreground: #0a0a0a;
+  --bg-subtle: #f5f0fc;
+  --input-bg: #f9f7fd;
+  --input-border: #e0d8ee;
+  --card-border: #e8e0f0;
+  --text-primary: #0a0a0a;
+  --text-secondary: #52525b;
+  --text-muted: #a1a1aa;
+  --accent: #9523ef;
+  --accent-hover: #7a1bc9;
+  --accent-dim: rgba(149, 35, 239, 0.12);
+  --accent-border: rgba(149, 35, 239, 0.25);
+  --success: #22c55e;
+  --error: #f06060;
+  --hero-bg: #1a0a2e;
+  --footer-bg: #000000;
+  --font-red-hat: "Red Hat Display", -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-mono: "Geist Mono", monospace;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --font-sans: var(--font-red-hat);
+  --font-mono: var(--font-mono);
 }
 
 /* ─── Reset e base ──────────────────────────────────────────────── */
@@ -36,7 +54,7 @@
 @keyframes fadeUp {
   from {
     opacity: 0;
-    transform: translateY(14px);
+    transform: translateY(16px);
   }
   to {
     opacity: 1;
@@ -50,18 +68,79 @@
   }
 }
 
+@keyframes rotateWordIn {
+  0% {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+  20% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+  80% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(-100%);
+    opacity: 0;
+  }
+}
+
+@keyframes shimmerSlide {
+  0% {
+    left: -100%;
+  }
+  100% {
+    left: 100%;
+  }
+}
+
+@keyframes orbFloat {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-30px);
+  }
+}
+
+@keyframes tickerScroll {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+/* ─── Scroll reveal ──────────────────────────────────────────────── */
+.animate-on-scroll {
+  opacity: 0;
+  transform: translateY(16px);
+  transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+}
+
+.animate-on-scroll.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
 /* ─── Scrollbar estilizada ──────────────────────────────────────── */
 ::-webkit-scrollbar {
   width: 4px;
 }
+::-webkit-scrollbar-track {
+  background: #f5f0fc;
+}
 ::-webkit-scrollbar-thumb {
-  background: rgba(124, 34, 213, 0.4);
+  background: rgba(149, 35, 239, 0.4);
   border-radius: 2px;
 }
 
 /* ─── Placeholder suave ─────────────────────────────────────────── */
 input::placeholder {
-  color: rgba(0, 0, 0, 0.25);
+  color: #a1a1aa;
 }
 
 /* ─── Calendário do input date ──────────────────────────────────── */
@@ -119,13 +198,13 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 .spotlight-card {
   position: relative;
   border-radius: 1.5rem;
-  border: 1px solid rgba(0, 0, 0, 0.08);
+  border: 1px solid #e8e0f0;
   background-color: #ffffff;
   padding: 1.5rem;
   overflow: hidden;
   --mouse-x: 50%;
   --mouse-y: 50%;
-  --spotlight-color: rgba(124, 34, 213, 0.1);
+  --spotlight-color: rgba(149, 35, 239, 0.1);
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
 }
 
@@ -145,9 +224,15 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 }
 
 .spotlight-card:hover {
-  border-color: rgba(124, 34, 213, 0.2);
+  border-color: rgba(149, 35, 239, 0.2);
   background-color: #ffffff;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+}
+
+/* ─── Autofilled inputs ──────────────────────────────────────────── */
+.autofilled {
+  background-color: rgba(34, 197, 94, 0.06) !important;
+  border-color: rgba(34, 197, 94, 0.3) !important;
 }
 
 /* ─── Acessibilidade: respeitar preferencia de movimento reduzido ── */

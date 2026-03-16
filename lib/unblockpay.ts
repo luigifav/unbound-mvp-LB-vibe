@@ -50,8 +50,10 @@ interface VerificationDetails {
  * Lança um erro descritivo se alguma variável não estiver configurada.
  */
 function getConfig() {
-  const apiKey = process.env.UNBLOCKPAY_API_KEY
-  const baseUrl = process.env.UNBLOCKPAY_BASE_URL
+  // .trim() remove espaços e quebras de linha invisíveis que podem ser
+  // colados acidentalmente nas variáveis de ambiente do Vercel
+  const apiKey = (process.env.UNBLOCKPAY_API_KEY ?? '').trim()
+  const baseUrl = (process.env.UNBLOCKPAY_BASE_URL ?? '').trim().replace(/\/+$/, '')
 
   if (!apiKey) {
     console.error('[UnblockPay] UNBLOCKPAY_API_KEY não está definida nas variáveis de ambiente.')
@@ -68,7 +70,7 @@ function getConfig() {
     )
   }
 
-  console.log(`[UnblockPay] Config OK — baseUrl=${baseUrl}, apiKey=${apiKey.slice(0, 8)}...`)
+  console.log(`[UnblockPay] Config OK — baseUrl=${baseUrl}, apiKey=${apiKey.slice(0, 8)}... (${apiKey.length} chars)`)
 
   return { apiKey, baseUrl }
 }
@@ -79,7 +81,7 @@ function getConfig() {
 function buildHeaders(apiKey: string): HeadersInit {
   return {
     'Content-Type': 'application/json',
-    Authorization: `Bearer ${apiKey}`,
+    Authorization: apiKey,
   }
 }
 
@@ -467,7 +469,7 @@ export async function uploadCustomerDocument(
       `${baseUrl}/v1/customers/${customerId}/documents`,
       {
         method: 'POST',
-        headers: { Authorization: `Bearer ${apiKey}` }, // sem Content-Type — o fetch define o boundary automaticamente
+        headers: { Authorization: apiKey }, // sem Content-Type — o fetch define o boundary automaticamente
         body: form,
       },
     )

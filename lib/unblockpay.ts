@@ -110,6 +110,18 @@ async function callApi<T>(
     }
 
     if (!response.ok) {
+      // Tratamento específico para erro de autenticação na API da UnblockPay
+      if (response.status === 401) {
+        return {
+          data: null,
+          error:
+            'Falha de autenticação com a API da UnblockPay (401). ' +
+            'Verifique se a variável UNBLOCKPAY_API_KEY está configurada corretamente ' +
+            'e se a chave ainda é válida.',
+          success: false,
+        }
+      }
+
       // Extrai a mensagem de erro do corpo quando disponível
       const message =
         typeof body === 'object' &&

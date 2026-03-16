@@ -224,12 +224,16 @@ export async function POST(request: NextRequest) {
     const customerResult = await createCustomer(customerPayload as unknown as CreateCustomerData)
 
     if (!customerResult.success || !customerResult.data) {
+      // Se o erro veio de falha de autenticação (API key inválida), retorna 503
+      const isAuthError = customerResult.error?.includes('401')
       return NextResponse.json(
         {
-          mensagem: 'Não foi possível criar o cliente na UnblockPay.',
+          mensagem: isAuthError
+            ? 'Serviço temporariamente indisponível. A integração com a UnblockPay precisa ser reconfigurada.'
+            : 'Não foi possível criar o cliente na UnblockPay.',
           erro: customerResult.error,
         },
-        { status: 502 },
+        { status: isAuthError ? 503 : 502 },
       )
     }
 

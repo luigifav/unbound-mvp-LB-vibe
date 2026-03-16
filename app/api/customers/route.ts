@@ -220,16 +220,27 @@ export async function POST(request: NextRequest) {
     // Remove os campos extras (wallet config + senha) antes de enviar para a API de clientes
     const { wallet_name: _wn, wallet_blockchain: _wb, password: _pw, ...customerPayload } = body
 
+    console.log('[POST /api/customers] Enviando para UnblockPay:', JSON.stringify({
+      ...customerPayload,
+      tin: customerPayload.tin ? '***REDACTED***' : undefined,
+      tax_id: customerPayload.tax_id ? '***REDACTED***' : undefined,
+    }))
+
     // Chama a API da UnblockPay para criar o cliente
     const customerResult = await createCustomer(customerPayload as unknown as CreateCustomerData)
 
     if (!customerResult.success || !customerResult.data) {
+      console.error('[POST /api/customers] Falha ao criar cliente:', customerResult.error)
+      // Se o erro veio de falha de autenticação (API key inválida), retorna 503
+      const isAuthError = customerResult.error?.includes('401')
       return NextResponse.json(
         {
-          mensagem: 'Não foi possível criar o cliente na UnblockPay.',
+          mensagem: isAuthError
+            ? 'Serviço temporariamente indisponível. A integração com a UnblockPay precisa ser reconfigurada.'
+            : 'Não foi possível criar o cliente na UnblockPay.',
           erro: customerResult.error,
         },
-        { status: 502 },
+        { status: isAuthError ? 503 : 502 },
       )
     }
 

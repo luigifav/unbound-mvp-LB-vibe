@@ -644,6 +644,10 @@ export default function RegisterPage() {
       const data = await res.json();
 
       if (!res.ok && res.status !== 207) {
+        // Mensagem amigável para o usuário quando a integração está com problema
+        if (res.status === 503) {
+          throw new Error("Serviço temporariamente indisponível. Tente novamente mais tarde.");
+        }
         const detalhe = data.erro || data.error || "";
         throw new Error(
           detalhe

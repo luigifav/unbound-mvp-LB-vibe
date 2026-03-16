@@ -5,10 +5,10 @@
 
 import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from '@/lib/auth'
-import { getWallets, createPayin } from '@/lib/unblockpay'
+import { getWallets, createPayin, getQuote } from '@/lib/unblockpay'
 import { saveCompositeTransaction } from '@/lib/composite-transactions'
 import { saveExternalAccount, type ExternalAccount, type PaymentRail } from '@/lib/external-accounts'
-import type { CompositeTransaction, Quote } from '@/types'
+import type { CompositeTransaction } from '@/types'
 
 // ---------------------------------------------------------------------------
 // POST /api/transactions/send
@@ -133,48 +133,24 @@ export async function POST(request: NextRequest) {
     const wallet = walletsResult.data[0]
 
     // 4. Busca cotação on_ramp (BRL → USDC) na UnblockPay
-    const apiKey = process.env.UNBLOCKPAY_API_KEY
-    const baseUrl = process.env.UNBLOCKPAY_BASE_URL
-
-    if (!apiKey) {
-      throw new Error(
-        'Variável de ambiente UNBLOCKPAY_API_KEY não configurada. ' +
-          'Adicione-a no painel do Vercel ou no arquivo .env.local.',
-      )
-    }
-    if (!baseUrl) {
-      throw new Error(
-        'Variável de ambiente UNBLOCKPAY_BASE_URL não configurada. ' +
-          'Exemplo: https://api.sandbox.unblockpay.com',
-      )
-    }
-
-    const quoteResponse = await fetch(`${baseUrl}/v1/quote`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${apiKey}`,
-      },
-      body: JSON.stringify({
-        type: 'on_ramp',
-        from: body.senderCurrency,
-        to: 'USDC',
-        amount: body.amount,
-      }),
+    const quoteResult = await getQuote({
+      type: 'on_ramp',
+      from: body.senderCurrency as string,
+      to: 'USDC',
+      amount: body.amount as number,
     })
 
-    if (!quoteResponse.ok) {
-      const quoteError = await quoteResponse.text()
+    if (!quoteResult.success || !quoteResult.data) {
       return NextResponse.json(
         {
           mensagem: 'Não foi possível obter a cotação de câmbio na UnblockPay.',
-          erro: quoteError,
+          erro: quoteResult.error,
         },
         { status: 502 },
       )
     }
 
-    const quote = (await quoteResponse.json()) as Quote
+    const quote = quoteResult.data
 
     // 5. Cria o pay-in — a USDC fica na wallet do usuário como intermediário
     const payinResult = await createPayin({

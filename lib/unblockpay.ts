@@ -7,6 +7,7 @@ import type {
   CreatePayoutData,
   CreateWalletData,
   Customer,
+  Quote,
   Transaction,
   Wallet,
   WalletBalance,
@@ -53,17 +54,21 @@ function getConfig() {
   const baseUrl = process.env.UNBLOCKPAY_BASE_URL
 
   if (!apiKey) {
+    console.error('[UnblockPay] UNBLOCKPAY_API_KEY não está definida nas variáveis de ambiente.')
     throw new Error(
       'Variável de ambiente UNBLOCKPAY_API_KEY não configurada. ' +
         'Adicione-a no painel do Vercel ou no arquivo .env.local.',
     )
   }
   if (!baseUrl) {
+    console.error('[UnblockPay] UNBLOCKPAY_BASE_URL não está definida nas variáveis de ambiente.')
     throw new Error(
       'Variável de ambiente UNBLOCKPAY_BASE_URL não configurada. ' +
         'Exemplo: https://api.sandbox.unblockpay.com',
     )
   }
+
+  console.log(`[UnblockPay] Config OK — baseUrl=${baseUrl}, apiKey=${apiKey.slice(0, 8)}...`)
 
   return { apiKey, baseUrl }
 }
@@ -110,6 +115,23 @@ async function callApi<T>(
     }
 
     if (!response.ok) {
+      console.error(
+        `[UnblockPay] ${init?.method ?? 'GET'} ${path} → ${response.status} ${response.statusText}`,
+        typeof body === 'object' ? JSON.stringify(body) : body,
+      )
+
+      // Tratamento específico para erro de autenticação na API da UnblockPay
+      if (response.status === 401) {
+        return {
+          data: null,
+          error:
+            'Falha de autenticação com a API da UnblockPay (401). ' +
+            'Verifique se a variável UNBLOCKPAY_API_KEY está configurada corretamente ' +
+            'e se a chave ainda é válida.',
+          success: false,
+        }
+      }
+
       // Extrai a mensagem de erro do corpo quando disponível
       const message =
         typeof body === 'object' &&
@@ -138,6 +160,28 @@ async function callApi<T>(
 
     return { data: null, error: message, success: false }
   }
+}
+
+// ---------------------------------------------------------------------------
+// Quotes
+// ---------------------------------------------------------------------------
+
+/**
+ * Solicita uma cotação de câmbio na UnblockPay.
+ *
+ * @param data Dados da cotação: type (on_ramp | off_ramp), from, to, amount
+ * @returns O objeto Quote com id, taxa e expiração
+ */
+export async function getQuote(data: {
+  type: 'on_ramp' | 'off_ramp'
+  from: string
+  to: string
+  amount: number
+}): Promise<ApiResponse<Quote>> {
+  return callApi<Quote>('/v1/quote', {
+    method: 'POST',
+    body: JSON.stringify(data),
+  })
 }
 
 // ---------------------------------------------------------------------------

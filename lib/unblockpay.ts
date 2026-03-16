@@ -97,7 +97,14 @@ async function callApi<T>(
   const { apiKey, baseUrl } = getConfig()
 
   try {
-    const response = await fetch(`${baseUrl}${path}`, {
+    const url = `${baseUrl}${path}`
+    console.log(
+      `[UnblockPay] ${init?.method ?? 'GET'} ${url}`,
+      `| API key: "${apiKey.slice(0, 12)}..." (${apiKey.length} chars)`,
+      `| Authorization header: "Bearer ${apiKey.slice(0, 8)}..."`,
+    )
+
+    const response = await fetch(url, {
       ...init,
       headers: {
         ...buildHeaders(apiKey),

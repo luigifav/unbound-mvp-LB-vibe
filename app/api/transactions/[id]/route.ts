@@ -1,23 +1,19 @@
 // Rota GET /api/transactions/[id]
 // Busca o status e os dados completos de uma transação na UnblockPay pelo seu ID.
+// Verifica que a transação pertence ao usuário autenticado via composite_transactions.
 
 import { NextRequest, NextResponse } from 'next/server'
 import { getTransaction } from '@/lib/unblockpay'
 import { getServerSession } from '@/lib/auth'
+import {
+  getCompositeTransaction,
+  getCompositeTransactionByPayinId,
+  getCompositeTransactionByPayoutId,
+} from '@/lib/composite-transactions'
 
 // ---------------------------------------------------------------------------
 // GET /api/transactions/[id]
 // ---------------------------------------------------------------------------
-// Parâmetro de rota:
-//   id — UUID da transação na UnblockPay (ex: /api/transactions/abc123)
-//
-// Possíveis respostas:
-//   200 — transação encontrada, retorna { transacao: Transaction }
-//   404 — transação não encontrada na UnblockPay
-//   500 — erro ao comunicar com a API externa ou erro interno do servidor
-//
-// Exemplo de teste com curl (substitua pela URL do seu projeto na Vercel):
-// curl https://unbound-mvp.vercel.app/api/transactions/uuid-da-transacao
 
 export async function GET(
   _request: NextRequest,
@@ -31,15 +27,8 @@ export async function GET(
     )
   }
 
-  // TODO: verificar se a transação pertence ao usuário autenticado.
-  // A UnblockPay v1 não retorna customer_id direto em GET /v1/transactions/{id}.
-  // Alternativa: buscar via GET /v1/customers/{session.user.id}/transactions
-  // e checar se o id está na lista antes de retornar detalhes.
-
-  // Extrai o id da transação dos parâmetros de rota
   const { id } = await params
 
-  // Valida se o id foi fornecido
   if (!id) {
     return NextResponse.json(
       { mensagem: 'O parâmetro id da transação é obrigatório.' },
@@ -48,10 +37,22 @@ export async function GET(
   }
 
   try {
-    // Busca a transação na UnblockPay pelo ID fornecido
+    // Verifica se a transação pertence ao usuário autenticado
+    // Busca na tabela composite_transactions pelo id, payin_id ou payout_id
+    const composite =
+      await getCompositeTransaction(id) ??
+      await getCompositeTransactionByPayinId(id) ??
+      await getCompositeTransactionByPayoutId(id)
+
+    if (composite && composite.userId !== session.user.id) {
+      return NextResponse.json(
+        { mensagem: 'Acesso negado. Esta transação não pertence ao usuário autenticado.' },
+        { status: 403 },
+      )
+    }
+
     const resultado = await getTransaction(id)
 
-    // Verifica se a transação não foi encontrada (API externa retornou 404)
     if (!resultado.success && resultado.error?.includes('404')) {
       return NextResponse.json(
         { mensagem: 'Transação não encontrada. Verifique se o ID está correto.' },
@@ -59,7 +60,6 @@ export async function GET(
       )
     }
 
-    // Verifica se houve outro tipo de erro na chamada à API externa
     if (!resultado.success || !resultado.data) {
       return NextResponse.json(
         {
@@ -70,13 +70,11 @@ export async function GET(
       )
     }
 
-    // Retorna os dados completos da transação com status 200
     return NextResponse.json(
       { transacao: resultado.data },
       { status: 200 },
     )
   } catch (err) {
-    // Captura erros inesperados (ex: variáveis de ambiente não configuradas)
     const mensagem =
       err instanceof Error ? err.message : 'Erro interno ao processar a requisição.'
 

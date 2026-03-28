@@ -26,7 +26,7 @@ export const useFXRate = () => {
 
   useEffect(() => {
     try {
-      const cached = localStorage.getItem(CACHE_KEY);
+      const cached = sessionStorage.getItem(CACHE_KEY);
       if (cached) {
         const parsedCache = JSON.parse(cached);
         setRateData((prev) => ({
@@ -75,7 +75,7 @@ export const useFXRate = () => {
         source: 'awesome' as const,
       };
       setRateData((prev) => ({ ...prev, ...updatedData }));
-      localStorage.setItem(CACHE_KEY, JSON.stringify(updatedData));
+      sessionStorage.setItem(CACHE_KEY, JSON.stringify(updatedData));
     }
 
     setIsLoading(false);

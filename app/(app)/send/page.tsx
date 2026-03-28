@@ -48,7 +48,7 @@ interface ConfigPais {
   rail: string;
   campoLabel: string;
   campoPlaceholder: string;
-  taxaAprox: number; // taxa aproximada BRL → moeda destino (indicativa, apenas para preview)
+  taxaAprox: number; // APENAS UX: estimativa visual, NÃO usada no cálculo real (backend busca cotação da UnblockPay)
 }
 
 const PAISES: ConfigPais[] = [
@@ -266,7 +266,7 @@ export default function SendPage() {
   // ─── Configuração do país selecionado ─────────────────────────────────
   const paisConfig = PAISES.find(p => p.valor === paisSelecionado) ?? PAISES[0];
   const valorNumerico = parseFloat(valor) || 0;
-  // Taxa aproximada para preview (sem chamada à API de cotação)
+  // APENAS UX: estimativa visual para o usuário. O valor real é calculado pelo backend via UnblockPay.
   const valorConvertido = valorNumerico * paisConfig.taxaAprox;
 
   // ─── Carrega contas externas salvas ao montar ─────────────────────────

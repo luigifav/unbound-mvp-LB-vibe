@@ -5,6 +5,11 @@ import { redirect, notFound } from "next/navigation";
 import Link from "next/link";
 import { getServerSession } from "@/lib/auth";
 import { getTransaction } from "@/lib/unblockpay";
+import {
+  getCompositeTransaction,
+  getCompositeTransactionByPayinId,
+  getCompositeTransactionByPayoutId,
+} from "@/lib/composite-transactions";
 import StatusBadge from "@/components/ui/StatusBadge";
 
 /** Mapeia o status da UnblockPay para os tipos aceitos pelo StatusBadge */
@@ -22,9 +27,19 @@ export default async function TransactionPage({
 }) {
   // Protege a rota — redireciona para login se não autenticado
   const session = await getServerSession();
-  if (!session) redirect("/login");
+  if (!session?.user?.id) redirect("/login");
 
   const { id } = await params;
+
+  // Verifica se a transação pertence ao usuário autenticado
+  const composite =
+    await getCompositeTransaction(id) ??
+    await getCompositeTransactionByPayinId(id) ??
+    await getCompositeTransactionByPayoutId(id);
+
+  if (composite && composite.userId !== session.user.id) {
+    redirect("/dashboard");
+  }
 
   // Busca os dados reais da transação na UnblockPay
   const resultado = await getTransaction(id);

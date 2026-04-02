@@ -4,6 +4,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createCustomer, createWallet } from '@/lib/unblockpay'
 import { saveUser } from '@/lib/users'
+import { sendKycEmail } from '@/lib/email'
 import { checkRateLimit } from '@/lib/rate-limit'
 import type { CreateCustomerData, CreateWalletData } from '@/types'
 
@@ -296,9 +297,22 @@ export async function POST(request: NextRequest) {
       }
     }
 
+    // Dispara o email com o link de KYC de forma não-bloqueante
+    const verificationLink = customer.verification?.verification_link
+    if (verificationLink && customer.email) {
+      const firstName = typeof body.first_name === 'string' ? body.first_name : ''
+      sendKycEmail({
+        to: customer.email,
+        name: firstName || customer.email,
+        verificationLink,
+      }).catch((err) => {
+        console.error('[POST /api/customers] Falha ao enviar email de KYC:', err)
+      })
+    }
+
     // Retorna os dados completos do cliente e da wallet criados
     return NextResponse.json(
-      { customer, wallet, verificationLink: customer.verification?.verification_link ?? null },
+      { customer, wallet, verificationLink: verificationLink ?? null },
       { status: 201 },
     )
   } catch (err) {

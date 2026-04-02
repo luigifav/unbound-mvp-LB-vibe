@@ -247,6 +247,25 @@ export async function POST(request: NextRequest) {
 
     const customer = customerResult.data
 
+    // Dispara o email com o link de KYC imediatamente após o cliente ser criado na UnblockPay.
+    // Feito aqui (antes de createWallet/saveUser) para garantir que o email seja enviado
+    // mesmo nos casos de falha parcial (207 de wallet, 500 de saveUser, etc.).
+    const kycVerificationLink = customer.verification?.verification_link
+    if (kycVerificationLink && customer.email) {
+      const kycFirstName = typeof body.first_name === 'string' ? body.first_name : ''
+      sendKycEmail({
+        to: customer.email,
+        name: kycFirstName || customer.email,
+        verificationLink: kycVerificationLink,
+      })
+        .then(() => {
+          console.log(`[POST /api/customers] Email KYC enviado com sucesso para ${customer.email}`)
+        })
+        .catch((err) => {
+          console.error('[POST /api/customers] Falha ao enviar email de KYC:', err)
+        })
+    }
+
     // Com o cliente criado, cria automaticamente uma wallet para ele
     const walletData: CreateWalletData = {
       name: walletName,
@@ -297,22 +316,9 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // Dispara o email com o link de KYC de forma não-bloqueante
-    const verificationLink = customer.verification?.verification_link
-    if (verificationLink && customer.email) {
-      const firstName = typeof body.first_name === 'string' ? body.first_name : ''
-      sendKycEmail({
-        to: customer.email,
-        name: firstName || customer.email,
-        verificationLink,
-      }).catch((err) => {
-        console.error('[POST /api/customers] Falha ao enviar email de KYC:', err)
-      })
-    }
-
     // Retorna os dados completos do cliente e da wallet criados
     return NextResponse.json(
-      { customer, wallet, verificationLink: verificationLink ?? null },
+      { customer, wallet, verificationLink: kycVerificationLink ?? null },
       { status: 201 },
     )
   } catch (err) {

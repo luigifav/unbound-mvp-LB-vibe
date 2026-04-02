@@ -698,7 +698,7 @@ export default function RegisterPage() {
             </div>
           </div>
 
-          <h1 style={{ fontFamily: font, fontWeight: 900, fontSize: "22px", color: C.text, margin: "0 0 12px", letterSpacing: "-0.02em" }}>
+          <h1 style={{ fontFamily: font, fontWeight: 900, fontSize: "22px", color: C.textPrimary, margin: "0 0 12px", letterSpacing: "-0.02em" }}>
             Conta criada com sucesso!
           </h1>
           <p style={{ fontFamily: font, fontWeight: 500, fontSize: "14px", color: C.textSecondary, margin: "0 0 8px", lineHeight: "1.6" }}>

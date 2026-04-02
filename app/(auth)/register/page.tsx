@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef, type ReactNode, type CSSProperties, type InputHTMLAttributes, type ChangeEvent } from "react";
+import { Mail } from "lucide-react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import LoadingButton from "@/components/ui/LoadingButton";
@@ -698,14 +699,34 @@ export default function RegisterPage() {
             </div>
           </div>
 
-          <h1 style={{ fontFamily: font, fontWeight: 900, fontSize: "22px", color: C.textPrimary, margin: "0 0 12px", letterSpacing: "-0.02em" }}>
+          <h1 style={{ fontFamily: font, fontWeight: 900, fontSize: "22px", color: C.textPrimary, margin: "0 0 8px", letterSpacing: "-0.02em" }}>
             Conta criada com sucesso!
           </h1>
-          <p style={{ fontFamily: font, fontWeight: 500, fontSize: "14px", color: C.textSecondary, margin: "0 0 8px", lineHeight: "1.6" }}>
-            Seu cadastro foi concluído. Em breve você poderá acessar sua conta e realizar transações.
+
+          <p style={{ fontFamily: font, fontWeight: 500, fontSize: "14px", color: C.textSecondary, margin: "0 0 20px", lineHeight: "1.6" }}>
+            Enviamos um e-mail de verificação para:
           </p>
-          <p style={{ fontFamily: font, fontWeight: 500, fontSize: "13px", color: C.textMuted, margin: "0 0 32px", lineHeight: "1.6" }}>
-            Você receberá um e-mail de confirmação.
+
+          {/* Pill com email do usuário */}
+          <div style={{
+            display: "inline-flex", alignItems: "center", gap: "8px",
+            background: "rgba(149,35,239,0.06)", border: "1px solid rgba(149,35,239,0.18)",
+            borderRadius: "100px", padding: "10px 18px", margin: "0 0 20px",
+          }}>
+            <Mail size={15} color={C.purple} strokeWidth={2.2} />
+            <span style={{ fontFamily: font, fontWeight: 700, fontSize: "14px", color: C.purple, letterSpacing: "-0.01em" }}>
+              {formData.email}
+            </span>
+          </div>
+
+          <p style={{ fontFamily: font, fontWeight: 500, fontSize: "13px", color: C.textSecondary, margin: "0 0 8px", lineHeight: "1.6" }}>
+            Clique no link no e-mail para completar sua{" "}
+            <span style={{ fontWeight: 700, color: C.textPrimary }}>verificação de identidade (KYC)</span>{" "}
+            antes de usar sua conta.
+          </p>
+
+          <p style={{ fontFamily: font, fontWeight: 500, fontSize: "12px", color: C.textMuted, margin: "0 0 32px", lineHeight: "1.6" }}>
+            Não encontrou? Verifique sua caixa de spam.
           </p>
 
           <Link

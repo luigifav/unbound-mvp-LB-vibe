@@ -560,6 +560,7 @@ export default function RegisterPage() {
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<Record<string, string | undefined>>({});
   const [feedback, setFeedback] = useState<{ type: "success" | "error"; message: string } | null>(null);
+  const [accountCreated, setAccountCreated] = useState(false);
   const [senha, setSenha] = useState("");
   const [confirmarSenha, setConfirmarSenha] = useState("");
 
@@ -656,8 +657,7 @@ export default function RegisterPage() {
         );
       }
 
-      setFeedback({ type: "success", message: "Conta criada com sucesso! Redirecionando para o login..." });
-      setTimeout(() => router.push("/login"), 2000);
+      setAccountCreated(true);
     } catch (err) {
       const message = err instanceof Error ? err.message : "Erro desconhecido";
       setFeedback({ type: "error", message });
@@ -665,6 +665,72 @@ export default function RegisterPage() {
       setLoading(false);
     }
   };
+
+  if (accountCreated) {
+    return (
+      <div
+        className="min-h-screen flex flex-col items-center justify-center relative overflow-hidden"
+        style={{ background: "linear-gradient(160deg, #fdf8ff, #f0e8ff, #e8f4ff)", padding: "48px 20px" }}
+      >
+        {/* Top bar */}
+        <div className="fixed top-0 left-0 right-0 flex items-center justify-between px-6 py-4 z-10">
+          <Link href="/" className="font-[800] text-xl text-[#9523ef] no-underline" style={{ letterSpacing: "-0.03em" }}>
+            unbound
+          </Link>
+        </div>
+
+        {/* Success Card */}
+        <div
+          className="relative z-[1] w-full max-w-[500px] bg-white border border-[#e8e0f0] rounded-[20px] animate-[fadeUp_0.45s_ease_0.1s_both]"
+          style={{ padding: "48px 36px", boxShadow: "0 20px 60px rgba(0,0,0,0.06), 0 0 40px rgba(149,35,239,0.08)", textAlign: "center" }}
+        >
+          {/* Check icon */}
+          <div style={{ display: "flex", justifyContent: "center", marginBottom: "24px" }}>
+            <div style={{
+              width: "72px", height: "72px", borderRadius: "50%",
+              background: "rgba(149,35,239,0.08)", border: "2px solid rgba(149,35,239,0.20)",
+              display: "flex", alignItems: "center", justifyContent: "center",
+            }}>
+              <svg width="36" height="36" viewBox="0 0 36 36" fill="none">
+                <circle cx="18" cy="18" r="16" stroke={C.purple} strokeWidth="1.5" />
+                <path d="M10 18l6 6L26 12" stroke={C.purple} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            </div>
+          </div>
+
+          <h1 style={{ fontFamily: font, fontWeight: 900, fontSize: "22px", color: C.text, margin: "0 0 12px", letterSpacing: "-0.02em" }}>
+            Conta criada com sucesso!
+          </h1>
+          <p style={{ fontFamily: font, fontWeight: 500, fontSize: "14px", color: C.textSecondary, margin: "0 0 8px", lineHeight: "1.6" }}>
+            Seu cadastro foi concluído. Em breve você poderá acessar sua conta e realizar transações.
+          </p>
+          <p style={{ fontFamily: font, fontWeight: 500, fontSize: "13px", color: C.textMuted, margin: "0 0 32px", lineHeight: "1.6" }}>
+            Você receberá um e-mail de confirmação.
+          </p>
+
+          <Link
+            href="/"
+            style={{
+              display: "inline-block", padding: "13px 32px",
+              background: C.purple, borderRadius: "10px", color: C.white,
+              fontFamily: font, fontWeight: 900, fontSize: "14px", letterSpacing: "0.02em",
+              textDecoration: "none", transition: "background 0.2s",
+            }}
+          >
+            Voltar ao site
+          </Link>
+        </div>
+
+        <p style={{
+          marginTop: "24px", fontFamily: font, fontWeight: 700, fontSize: "10px",
+          color: C.textMuted, letterSpacing: "0.12em", textTransform: "uppercase",
+          animation: "fadeUp 0.5s ease 0.2s both",
+        }}>
+          Protegido por UnboundCash
+        </p>
+      </div>
+    );
+  }
 
   return (
     <div

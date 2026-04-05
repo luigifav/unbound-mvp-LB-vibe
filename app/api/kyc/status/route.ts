@@ -4,6 +4,8 @@
 import { NextResponse } from 'next/server'
 import { getServerSession } from '@/lib/auth'
 import { getVerificationDetails } from '@/lib/unblockpay'
+import { findUserByCustomerId, markKycApprovedEmailSent } from '@/lib/users'
+import { sendKycApprovedEmail } from '@/lib/email'
 
 export async function GET() {
   try {
@@ -26,6 +28,17 @@ export async function GET() {
         },
         { status: 502 },
       )
+    }
+
+    // Dispara e-mail de conta aprovada na primeira vez que o status "approved" é detectado
+    if (resultado.data.customer_status === 'approved') {
+      const user = await findUserByCustomerId(session.user.id)
+      if (user && !user.kycApprovedEmailSent) {
+        await markKycApprovedEmailSent(session.user.id)
+        sendKycApprovedEmail({ to: user.email, name: user.name }).catch((err) =>
+          console.error('[KYC Status] Falha ao enviar e-mail de KYC aprovado:', err),
+        )
+      }
     }
 
     return NextResponse.json(resultado.data)

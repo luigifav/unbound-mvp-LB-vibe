@@ -25,6 +25,7 @@ export interface StoredUser {
   hashedPassword: string
   customerId: string  // ID do cliente na UnblockPay — usado como session.user.id
   name: string
+  kycApprovedEmailSent: boolean
 }
 
 /**
@@ -33,6 +34,47 @@ export interface StoredUser {
  *
  * @param user Dados do novo usuário (senha em texto plano — hasheada aqui)
  */
+/**
+ * Busca um usuário pelo customer_id (ID na UnblockPay) na tabela `users` do Supabase.
+ * Retorna null se não encontrado.
+ */
+export async function findUserByCustomerId(customerId: string): Promise<StoredUser | null> {
+  const supabase = getSupabase()
+
+  const { data, error } = await supabase
+    .from('users')
+    .select('email, hashed_password, customer_id, name, kyc_approved_email_sent')
+    .eq('customer_id', customerId)
+    .single()
+
+  if (error || !data) return null
+
+  return {
+    email: data.email,
+    hashedPassword: data.hashed_password,
+    customerId: data.customer_id,
+    name: data.name,
+    kycApprovedEmailSent: data.kyc_approved_email_sent ?? false,
+  }
+}
+
+/**
+ * Marca que o e-mail de KYC aprovado já foi enviado para o usuário,
+ * evitando reenvios em chamadas subsequentes ao endpoint de status.
+ */
+export async function markKycApprovedEmailSent(customerId: string): Promise<void> {
+  const supabase = getSupabase()
+
+  const { error } = await supabase
+    .from('users')
+    .update({ kyc_approved_email_sent: true })
+    .eq('customer_id', customerId)
+
+  if (error) {
+    throw new Error(`Erro ao marcar kyc_approved_email_sent: ${error.message}`)
+  }
+}
+
 export async function saveUser(user: {
   email: string
   password: string
@@ -65,7 +107,7 @@ export async function findUserByEmail(email: string): Promise<StoredUser | null>
 
   const { data, error } = await supabase
     .from('users')
-    .select('email, hashed_password, customer_id, name')
+    .select('email, hashed_password, customer_id, name, kyc_approved_email_sent')
     .eq('email', email.toLowerCase())
     .single()
 
@@ -76,5 +118,6 @@ export async function findUserByEmail(email: string): Promise<StoredUser | null>
     hashedPassword: data.hashed_password,
     customerId: data.customer_id,
     name: data.name,
+    kycApprovedEmailSent: data.kyc_approved_email_sent ?? false,
   }
 }

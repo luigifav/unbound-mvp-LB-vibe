@@ -2,7 +2,7 @@
 // Cria um novo cliente na UnblockPay e, automaticamente, uma wallet para ele.
 
 import { NextRequest, NextResponse } from 'next/server'
-import { createCustomer, createWallet } from '@/lib/unblockpay'
+import { createCustomer, createWallet, getCustomer } from '@/lib/unblockpay'
 import { saveUser } from '@/lib/users'
 import { sendKycEmail } from '@/lib/email'
 import { checkRateLimit } from '@/lib/rate-limit'
@@ -250,20 +250,54 @@ export async function POST(request: NextRequest) {
     // Dispara o email com o link de KYC imediatamente após o cliente ser criado na UnblockPay.
     // Feito aqui (antes de createWallet/saveUser) para garantir que o email seja enviado
     // mesmo nos casos de falha parcial (207 de wallet, 500 de saveUser, etc.).
-    const kycVerificationLink = customer.verification?.verification_link
+
+    // BUGFIX [2]: a UnblockPay pode não retornar verification_link no POST /v1/customers.
+    // Loga aviso e tenta buscar via GET /v1/customers/{id} como fallback.
+    let kycVerificationLink = customer.verification?.verification_link
+
+    if (!kycVerificationLink) {
+      console.warn(
+        '[POST /api/customers] verification_link ausente no response da UnblockPay. Customer ID:',
+        customer.id,
+        '| Response completo:',
+        JSON.stringify(customer),
+      )
+      try {
+        const fetchedCustomer = await getCustomer(customer.id)
+        if (fetchedCustomer.success && fetchedCustomer.data?.verification?.verification_link) {
+          kycVerificationLink = fetchedCustomer.data.verification.verification_link
+          console.log(
+            '[POST /api/customers] verification_link obtido via GET /v1/customers:',
+            customer.id,
+          )
+        } else {
+          console.warn(
+            '[POST /api/customers] verification_link também ausente no GET /v1/customers. Customer ID para recuperação manual:',
+            customer.id,
+          )
+        }
+      } catch (fetchErr) {
+        console.error(
+          '[POST /api/customers] Erro ao buscar customer via GET /v1/customers:',
+          fetchErr,
+        )
+      }
+    }
+
     if (kycVerificationLink && customer.email) {
       const kycFirstName = typeof body.first_name === 'string' ? body.first_name : ''
-      sendKycEmail({
-        to: customer.email,
-        name: kycFirstName || customer.email,
-        verificationLink: kycVerificationLink,
-      })
-        .then(() => {
-          console.log(`[POST /api/customers] Email KYC enviado com sucesso para ${customer.email}`)
+      // BUGFIX [1]: await em vez de fire-and-forget (.then/.catch) para garantir que o email
+      // seja aguardado antes de a função serverless encerrar. Erros não quebram o cadastro.
+      try {
+        await sendKycEmail({
+          to: customer.email,
+          name: kycFirstName || customer.email,
+          verificationLink: kycVerificationLink,
         })
-        .catch((err) => {
-          console.error('[POST /api/customers] Falha ao enviar email de KYC:', err)
-        })
+        console.log(`[POST /api/customers] Email KYC enviado com sucesso para ${customer.email}`)
+      } catch (emailErr) {
+        console.error('[POST /api/customers] Falha ao enviar email KYC:', emailErr)
+      }
     }
 
     // Com o cliente criado, cria automaticamente uma wallet para ele

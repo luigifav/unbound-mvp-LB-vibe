@@ -28,6 +28,16 @@ export async function sendKycEmail(params: {
   const resend = getResend()
   const from = process.env.RESEND_FROM_EMAIL ?? 'Unbound <onboarding@resend.dev>'
 
+  // BUGFIX [3]: onboarding@resend.dev só entrega para o owner da conta Resend em produção.
+  // Configure RESEND_FROM_EMAIL com um domínio verificado em resend.com/domains.
+  if (process.env.NODE_ENV === 'production' && from.includes('onboarding@resend.dev')) {
+    console.warn(
+      '[email] ATENÇÃO: usando onboarding@resend.dev em produção. ' +
+      'Emails só chegam ao owner da conta Resend. ' +
+      'Configure RESEND_FROM_EMAIL com um domínio verificado em resend.com/domains.',
+    )
+  }
+
   await resend.emails.send({
     from,
     to: params.to,
@@ -52,6 +62,17 @@ export async function sendKycApprovedEmail(params: {
 }): Promise<void> {
   const resend = getResend()
   const from = process.env.RESEND_FROM_EMAIL ?? 'Unbound <onboarding@resend.dev>'
+
+  // BUGFIX [3]: onboarding@resend.dev só entrega para o owner da conta Resend em produção.
+  // Configure RESEND_FROM_EMAIL com um domínio verificado em resend.com/domains.
+  if (process.env.NODE_ENV === 'production' && from.includes('onboarding@resend.dev')) {
+    console.warn(
+      '[email] ATENÇÃO: usando onboarding@resend.dev em produção. ' +
+      'Emails só chegam ao owner da conta Resend. ' +
+      'Configure RESEND_FROM_EMAIL com um domínio verificado em resend.com/domains.',
+    )
+  }
+
   const whatsappLink = process.env.WHATSAPP_LINK ?? DEFAULT_WHATSAPP_LINK
 
   await resend.emails.send({

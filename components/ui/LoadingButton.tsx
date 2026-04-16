@@ -66,11 +66,11 @@ export default function LoadingButton({
           style={{
             position:    "absolute",
             top:         0,
-            left:        "-100%",
+            left:        0,
             width:       "60%",
             height:      "100%",
             background:  "linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent)",
-            animation:   "shimmerSlide 3s ease-in-out infinite",
+            animation:   "shimmerSlide 3s linear infinite",
             pointerEvents: "none",
           }}
         />

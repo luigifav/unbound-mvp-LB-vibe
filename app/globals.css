@@ -70,20 +70,18 @@
 
 @keyframes rotateWordIn {
   0% {
-    transform: translateY(100%);
-    opacity: 0;
+    clip-path: inset(0 100% 0 0);
+    animation-timing-function: steps(6, end);
   }
   20% {
-    transform: translateY(0);
-    opacity: 1;
+    clip-path: inset(0 0% 0 0);
   }
   80% {
-    transform: translateY(0);
-    opacity: 1;
+    clip-path: inset(0 0% 0 0);
+    animation-timing-function: steps(6, end);
   }
   100% {
-    transform: translateY(-100%);
-    opacity: 0;
+    clip-path: inset(0 100% 0 0);
   }
 }
 

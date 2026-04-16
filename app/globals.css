@@ -71,17 +71,25 @@
 @keyframes rotateWordIn {
   0% {
     clip-path: inset(0 100% 0 0);
-    animation-timing-function: steps(6, end);
+    transform: translateX(-8px);
+    opacity: 0;
+    animation-timing-function: cubic-bezier(0.25, 0.46, 0.45, 0.94);
   }
-  20% {
+  30% {
     clip-path: inset(0 0% 0 0);
+    transform: translateX(0);
+    opacity: 1;
   }
-  80% {
+  70% {
     clip-path: inset(0 0% 0 0);
-    animation-timing-function: steps(6, end);
+    transform: translateX(0);
+    opacity: 1;
+    animation-timing-function: cubic-bezier(0.55, 0.055, 0.675, 0.19);
   }
   100% {
-    clip-path: inset(0 100% 0 0);
+    clip-path: inset(0 0% 0 100%);
+    transform: translateX(8px);
+    opacity: 0;
   }
 }
 

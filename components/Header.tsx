@@ -61,10 +61,10 @@ export default function Header() {
         >
           <span className="relative z-10">Use a Unbound</span>
           <span
-            className="absolute top-0 left-[-100%] w-full h-full pointer-events-none"
+            className="absolute top-0 left-0 w-full h-full pointer-events-none"
             style={{
               background: "linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent)",
-              animation: "shimmerSlide 2.5s ease-in-out infinite",
+              animation: "shimmerSlide 2.5s linear infinite",
             }}
           />
         </Link>

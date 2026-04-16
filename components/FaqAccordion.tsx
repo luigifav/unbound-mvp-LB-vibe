@@ -49,7 +49,7 @@ export default function FaqAccordion() {
             </summary>
             <p
               className="px-6 pb-5 text-[15px] leading-[1.7] text-[#52525b]"
-              style={{ animation: "fadeUp 0.3s ease" }}
+              style={{ animation: "fadeUp 0.3s ease forwards" }}
             >
               {item.a}
             </p>

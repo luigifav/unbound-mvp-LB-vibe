@@ -53,7 +53,7 @@ export default function Home() {
                 className="relative overflow-hidden inline-flex items-center py-3.5 px-8 text-base font-semibold bg-[#9523ef] text-white rounded-full no-underline hover:bg-[#7a1bc9] hover:-translate-y-0.5 transition-all shadow-[0_0_40px_rgba(149,35,239,0.35)] hover:shadow-[0_0_60px_rgba(149,35,239,0.5)]"
               >
                 <span className="relative z-10">Use a Unbound</span>
-                <span className="absolute top-0 left-[-100%] w-full h-full pointer-events-none" style={{ background: "linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent)", animation: "shimmerSlide 2.5s ease-in-out infinite" }} />
+                <span className="absolute top-0 left-0 w-full h-full pointer-events-none" style={{ background: "linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent)", animation: "shimmerSlide 2.5s linear infinite" }} />
               </Link>
               <Link
                 href="#como-funciona"
@@ -225,7 +225,7 @@ export default function Home() {
                   className="relative overflow-hidden w-full py-3.5 px-8 text-base font-semibold bg-[#9523ef] text-white rounded-full hover:bg-[#7a1bc9] hover:-translate-y-0.5 transition-all shadow-[0_0_40px_rgba(149,35,239,0.35)]"
                 >
                   <span className="relative z-10">Entrar na lista de espera</span>
-                  <span className="absolute top-0 left-[-100%] w-full h-full pointer-events-none" style={{ background: "linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent)", animation: "shimmerSlide 2.5s ease-in-out infinite" }} />
+                  <span className="absolute top-0 left-0 w-full h-full pointer-events-none" style={{ background: "linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent)", animation: "shimmerSlide 2.5s linear infinite" }} />
                 </button>
                 <p className="text-xs text-[#a1a1aa] mt-1">
                   Ao se cadastrar, você concorda com nossos <a href="#" className="text-[#9523ef] underline">Termos</a> e <a href="#" className="text-[#9523ef] underline">Política de Privacidade</a>.

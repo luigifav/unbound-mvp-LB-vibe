@@ -24,7 +24,7 @@ export default function RotatingWord() {
         key={animKey}
         className="inline-block"
         style={{
-          animation: "rotateWordIn 0.5s cubic-bezier(0.35, 0, 0, 1) forwards",
+          animation: "rotateWordIn 2.2s cubic-bezier(0.35, 0, 0, 1) forwards",
         }}
       >
         {WORDS[index]}

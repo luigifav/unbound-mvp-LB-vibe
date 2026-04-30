@@ -134,14 +134,37 @@ async function callApi<T>(
         }
       }
 
-      // Extrai a mensagem de erro do corpo quando disponível
-      const message =
-        typeof body === 'object' &&
-        body !== null &&
-        'message' in body &&
-        typeof (body as Record<string, unknown>).message === 'string'
-          ? (body as Record<string, string>).message
-          : `Erro ${response.status}: ${response.statusText}`
+      // Extrai a mensagem de erro do corpo quando disponível.
+      // A UnblockPay pode retornar `message`, `error`, ou um array `errors`/`details`
+      // com objetos `{ message, path }`. Tentamos surfacing o máximo de contexto possível.
+      let message = `Erro ${response.status}: ${response.statusText}`
+      if (typeof body === 'object' && body !== null) {
+        const obj = body as Record<string, unknown>
+        const parts: string[] = []
+        if (typeof obj.message === 'string') parts.push(obj.message)
+        else if (typeof obj.error === 'string') parts.push(obj.error)
+
+        const detailList = Array.isArray(obj.errors)
+          ? obj.errors
+          : Array.isArray(obj.details)
+            ? obj.details
+            : null
+        if (detailList) {
+          for (const d of detailList) {
+            if (typeof d === 'string') parts.push(d)
+            else if (d && typeof d === 'object') {
+              const dd = d as Record<string, unknown>
+              const path = typeof dd.path === 'string' ? dd.path : Array.isArray(dd.path) ? dd.path.join('.') : ''
+              const msg = typeof dd.message === 'string' ? dd.message : ''
+              if (path && msg) parts.push(`${path}: ${msg}`)
+              else if (msg) parts.push(msg)
+            }
+          }
+        }
+        if (parts.length > 0) message = parts.join(' | ')
+      } else if (typeof body === 'string' && body.trim()) {
+        message = body
+      }
 
       return { data: null, error: message, success: false }
     }

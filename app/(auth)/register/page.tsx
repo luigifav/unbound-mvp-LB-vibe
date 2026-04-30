@@ -29,6 +29,19 @@ function formatCEP(value: string) {
   return digits.replace(/(\d{5})(\d)/, "$1-$2");
 }
 
+// Normaliza um telefone para o formato E.164 exigido pela UnblockPay
+// (ex.: "+55 (11) 91234-5678" -> "+5511912345678").
+// Se o usuário não incluir "+" ou DDI, assume Brasil (+55).
+function normalizePhoneE164(value: string) {
+  const trimmed = value.trim();
+  const hasPlus = trimmed.startsWith("+");
+  const digits = trimmed.replace(/\D/g, "");
+  if (!digits) return "";
+  if (hasPlus) return `+${digits}`;
+  if (digits.length === 10 || digits.length === 11) return `+55${digits}`;
+  return `+${digits}`;
+}
+
 function Field({ label, error, hint, children }: {
   label: string;
   error?: string;
@@ -583,7 +596,15 @@ export default function RegisterPage() {
       if (!formData.first_name.trim()) e.first_name = "Campo obrigatório";
       if (!formData.last_name.trim()) e.last_name = "Campo obrigatório";
       if (!formData.email.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)) e.email = "Insira um e-mail válido";
-      if (!formData.phone_number.trim()) e.phone_number = "Campo obrigatório";
+      if (!formData.phone_number.trim()) {
+        e.phone_number = "Campo obrigatório";
+      } else {
+        const phoneDigits = normalizePhoneE164(formData.phone_number).replace(/\D/g, "");
+        // E.164 aceita 8 a 15 dígitos no total (DDI + número)
+        if (phoneDigits.length < 10 || phoneDigits.length > 15) {
+          e.phone_number = "Telefone inválido";
+        }
+      }
       if (!formData.date_of_birth) e.date_of_birth = "Campo obrigatório";
       if (!senha || senha.length < 6) e.senha = "Senha deve ter pelo menos 6 caracteres";
       if (senha !== confirmarSenha) e.confirmarSenha = "As senhas não coincidem";
@@ -625,10 +646,10 @@ export default function RegisterPage() {
         body: JSON.stringify({
           type: "individual",
           password:      senha,
-          first_name:    formData.first_name,
-          last_name:     formData.last_name,
-          email:         formData.email,
-          phone_number:  formData.phone_number,
+          first_name:    formData.first_name.trim(),
+          last_name:     formData.last_name.trim(),
+          email:         formData.email.trim(),
+          phone_number:  normalizePhoneE164(formData.phone_number),
           date_of_birth: formData.date_of_birth,
           tin: formData.doc_value.replace(/\D/g, ""),
           address: {
